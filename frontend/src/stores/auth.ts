@@ -8,7 +8,13 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('hp_token'))
 
   const isAuthenticated = computed(() => !!token.value && !!user.value)
-  const isAdmin = computed(() => user.value && ['admin', 'super_admin'].includes(user.value.role))
+  const isAdmin = computed(() => !!user.value && ['admin', 'super_admin'].includes(user.value.role))
+  // Any staff role (moderator, support, …) may enter /admin; which pages they
+  // see comes from the permission list the API returns with the user.
+  const isStaff = computed(() => !!user.value && (!!(user.value as any).is_staff || isAdmin.value))
+  const permissions = computed<string[]>(() => (user.value as any)?.permissions ?? [])
+  const can = (permission: string) => user.value?.role === 'super_admin' || permissions.value.includes(permission)
+  const homeRoute = computed(() => (isStaff.value ? '/admin' : '/dashboard'))
   const isSeller = computed(() => user.value && ['seller', 'dealer', 'agency'].includes(user.value.role))
 
   async function login(email: string, password: string) {
@@ -48,5 +54,5 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('hp_user')
   }
 
-  return { user, token, isAuthenticated, isAdmin, isSeller, login, register, logout, fetchMe, setSession, clearSession }
+  return { user, token, isAuthenticated, isAdmin, isStaff, permissions, can, homeRoute, isSeller, login, register, logout, fetchMe, setSession, clearSession }
 })

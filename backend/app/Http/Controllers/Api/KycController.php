@@ -60,14 +60,14 @@ class KycController extends Controller
 
     /**
      * KYC documents are identity papers, so they are stored on the private
-     * disk and streamed only to their owner or an admin.
+     * disk and streamed only to their owner or a KYC reviewer.
      */
     public function document(Request $request, string $id, string $field)
     {
         abort_unless(in_array($field, ['document_front', 'document_back', 'selfie'], true), 404);
 
         $kyc = KycVerification::findOrFail($id);
-        abort_unless($kyc->user_id === $request->user()->id || $request->user()->isAdmin(), 403);
+        abort_unless($kyc->user_id === $request->user()->id || $request->user()->can('approve_kyc'), 403);
 
         $path = $kyc->{$field};
         abort_unless($path && Storage::disk('local')->exists($path), 404);

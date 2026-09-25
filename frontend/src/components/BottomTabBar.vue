@@ -21,7 +21,7 @@ const tabs = computed(() => [
   { to: '/search', label: 'Search', match: (p: string) => p.startsWith('/search'), icon: '<circle cx="11" cy="11" r="7" stroke-linecap="round"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>' },
   { to: '/properties', label: 'Properties', match: (p: string) => p.startsWith('/properties'), icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1"/>' },
   auth.isAuthenticated
-    ? { to: auth.isAdmin ? '/admin' : '/dashboard', label: 'Account', match: (p: string) => p.startsWith('/dashboard') || p.startsWith('/admin'), icon: '<circle cx="12" cy="8" r="4" stroke-linecap="round"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/>' }
+    ? { to: auth.homeRoute, label: 'Account', match: (p: string) => p.startsWith('/dashboard') || p.startsWith('/admin'), icon: '<circle cx="12" cy="8" r="4" stroke-linecap="round"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/>' }
     : { to: '/login', label: 'Sign In', match: (p: string) => p === '/login' || p === '/register', icon: '<circle cx="12" cy="8" r="4" stroke-linecap="round"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/>' },
 ])
 

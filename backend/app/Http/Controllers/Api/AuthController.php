@@ -34,7 +34,20 @@ class AuthController extends Controller
         $user = Auth::user();
         if (!$user->is_active) { Auth::logout(); return response()->json(['message' => 'Account suspended.'], 403); }
         $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
-        return response()->json(['user' => $user->load('profile'), 'token' => $user->createToken('auth')->plainTextToken, 'force_password_change' => $user->force_password_change]);
+        return response()->json([
+            'user' => $this->withAccess($user->load('profile')),
+            'token' => $user->createToken('auth')->plainTextToken,
+            'force_password_change' => $user->force_password_change,
+        ]);
+    }
+
+    /** The SPA builds its admin menu from these, so it never has to hardcode role names. */
+    private function withAccess(User $user): array
+    {
+        return $user->toArray() + [
+            'is_staff' => $user->isStaff(),
+            'permissions' => $user->permissionNames(),
+        ];
     }
 
     public function logout(Request $request): JsonResponse
@@ -45,7 +58,7 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json($request->user()->load('profile', 'kyc', 'activeSubscription.plan'));
+        return response()->json($this->withAccess($request->user()->load('profile', 'kyc', 'activeSubscription.plan')));
     }
 
     public function forgotPassword(Request $request): JsonResponse

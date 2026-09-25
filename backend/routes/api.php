@@ -349,7 +349,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Admin routes
-    Route::middleware(['auth:sanctum', 'is_admin'])->prefix('admin')->group(function () {
+    Route::middleware(['auth:sanctum', 'admin.permission'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'overview']);
 
         // Listing management
@@ -387,6 +387,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/users/{id}/toggle-active', [UserManagementController::class, 'toggleActive']);
         Route::put('/users/{id}/role', [UserManagementController::class, 'updateRole']);
         Route::post('/users/{id}/approve-kyc', [UserManagementController::class, 'approveKyc']);
+        Route::post('/users/{id}/reject-kyc', [UserManagementController::class, 'rejectKyc']);
+        Route::get('/kyc', [UserManagementController::class, 'kycQueue']);
         Route::delete('/users/{id}', [UserManagementController::class, 'destroy']);
         Route::get('/users/{id}/tokens', function (string $id) {
             $user = \App\Models\User::findOrFail($id);

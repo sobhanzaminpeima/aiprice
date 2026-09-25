@@ -8,33 +8,10 @@
         <span class='text-xs px-2 py-0.5 rounded-full font-semibold' style='background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)'>Admin Panel</span>
       </div>
       <nav class='flex-1 p-3 overflow-y-auto'>
-        <p class='nav-section'>MAIN</p>
-        <SideLink to='/admin/overview'>Overview</SideLink>
-        <SideLink to='/admin/live-analytics'>Live Analytics</SideLink>
-        <SideLink to='/admin/ai-insights'>AI Insights</SideLink>
-        <p class='nav-section'>MARKETPLACE</p>
-        <SideLink to='/admin/listings'>All Listings</SideLink>
-        <SideLink to='/admin/vehicles'>Vehicle &amp; Property</SideLink>
-        <SideLink to='/admin/users'>Users</SideLink>
-        <SideLink to='/admin/inquiries'>Buyer Inquiries</SideLink>
-        <SideLink to='/admin/agencies'>Agencies &amp; Dealers</SideLink>
-        <p class='nav-section'>FINANCE</p>
-        <SideLink to='/admin/financial'>Financial</SideLink>
-        <SideLink to='/admin/market-analytics'>Market Analytics</SideLink>
-        <SideLink to='/admin/subscriptions'>Subscriptions</SideLink>
-        <SideLink to='/admin/advertisements'>Advertisements</SideLink>
-        <p class='nav-section'>SAFETY & CONTENT</p>
-        <SideLink to='/admin/fraud'>Fraud Detection</SideLink>
-        <SideLink to='/admin/reports'>Reports</SideLink>
-        <SideLink to='/admin/content'>Content</SideLink>
-        <SideLink to='/admin/notifications'>Notifications</SideLink>
-        <SideLink to='/admin/competitors'>Competitors</SideLink>
-        <SideLink to='/admin/settings'>Settings</SideLink>
-        <p class='nav-section'>AI / LLM</p>
-        <SideLink to='/admin/llm-management'>LLM Management</SideLink>
-        <SideLink to='/admin/ai-intelligence'>AI Intelligence</SideLink>
-        <p class='nav-section'>Social</p>
-        <SideLink to='/admin/social'>Instagram Auto-Post</SideLink>
+        <template v-for='section in visibleNav' :key='section.title'>
+          <p class='nav-section'>{{ section.title }}</p>
+          <SideLink v-for='item in section.items' :key='item.path' :to="'/admin/' + item.path">{{ item.label }}</SideLink>
+        </template>
       </nav>
       <div class='p-4' style='border-top:1px solid var(--border-subtle)'>
         <div class='flex items-center gap-3 mb-3'>
@@ -43,7 +20,7 @@
           </div>
           <div class='flex-1 min-w-0'>
             <p class='text-xs font-semibold truncate' style='color:var(--text-primary)'>{{ auth.user?.name || 'Admin' }}</p>
-            <p class='text-xs' style='color:var(--accent-teal)'>Super Admin</p>
+            <p class='text-xs' style='color:var(--accent-teal)'>{{ roleLabels[auth.user?.role ?? ''] ?? auth.user?.role }}</p>
           </div>
         </div>
         <div class='flex items-center gap-2'>
@@ -61,6 +38,7 @@ import { useAuthStore } from '@/stores/auth'
 import { h, defineComponent, computed } from 'vue'
 import BrandLogo from '@/components/BrandLogo.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import { adminNav, roleLabels } from '@/router/adminNav'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -82,6 +60,12 @@ const SideLink = defineComponent({
     }, slots.default)
   }
 })
+
+const visibleNav = computed(() =>
+  adminNav
+    .map((section) => ({ ...section, items: section.items.filter((i) => auth.can(i.permission)) }))
+    .filter((section) => section.items.length > 0)
+)
 
 async function logout() { await auth.logout(); router.push('/') }
 </script>

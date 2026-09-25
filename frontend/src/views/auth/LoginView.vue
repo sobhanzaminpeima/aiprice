@@ -49,8 +49,7 @@ async function handleLogin() {
   try {
     await auth.login(form.value.email, form.value.password)
     const redirect = route.query.redirect as string
-    if (auth.isAdmin) router.push(redirect || "/admin")
-    else router.push(redirect || "/dashboard")
+    router.push(redirect || auth.homeRoute)
   } catch (e: any) {
     error.value = apiErrorMessage(e, "Invalid credentials.")
   } finally { loading.value = false }

@@ -74,6 +74,32 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'super_admin']);
     }
 
+    /**
+     * Anyone who may enter the admin panel at all. Which sections they see is
+     * decided per-permission by EnsureAdminPermission.
+     */
+    public function isStaff(): bool
+    {
+        return $this->isSuperAdmin() || $this->hasPermissionTo('view_dashboard');
+    }
+
+    /**
+     * Roles that can grant or strip admin powers. Only super_admin may create
+     * or modify another admin, so one compromised admin can't take over.
+     */
+    public const PRIVILEGED_ROLES = ['admin', 'super_admin'];
+
+    public const STAFF_ROLES = ['moderator', 'support', 'finance_manager', 'ai_analyst', 'admin', 'super_admin'];
+
+    public function permissionNames(): array
+    {
+        if ($this->isSuperAdmin()) {
+            return \Spatie\Permission\Models\Permission::pluck('name')->all();
+        }
+
+        return $this->getAllPermissions()->pluck('name')->values()->all();
+    }
+
     public function isSeller(): bool
     {
         return in_array($this->role, ['seller', 'dealer', 'agency']);

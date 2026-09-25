@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router"
 import { useAuthStore } from "@/stores/auth"
+import { adminNav, adminPermissionFor } from "@/router/adminNav"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,9 +43,10 @@ const router = createRouter({
     {
       path: "/admin",
       component: () => import("@/layouts/AdminLayout.vue"),
-      meta: { requiresAuth: true, requiresAdmin: true },
+      meta: { requiresAuth: true, requiresStaff: true },
       children: [
         { path: "", redirect: "/admin/overview" },
+        { path: "kyc",              name: "admin-kyc",           component: () => import("@/views/admin/AdminKycView.vue") },
         { path: "overview",         name: "admin-overview",      component: () => import("@/views/admin/AdminOverviewView.vue") },
         { path: "live-analytics",   name: "admin-live",          component: () => import("@/views/admin/AdminLiveAnalyticsView.vue") },
         { path: "ai-insights",      name: "admin-ai-insights",   component: () => import("@/views/admin/AdminAiInsightsView.vue") },
@@ -78,8 +80,17 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
   if (to.meta.requiresAuth && !auth.isAuthenticated) return next({ name: "login", query: { redirect: to.fullPath } })
-  if (to.meta.requiresAdmin && !auth.isAdmin) return next({ name: "dashboard-overview" })
-  if (to.meta.guest && auth.isAuthenticated) return next({ name: auth.isAdmin ? "admin-overview" : "dashboard-overview" })
+  if (to.meta.requiresStaff && !auth.isStaff) return next({ name: "dashboard-overview" })
+
+  const leaf = to.matched[to.matched.length - 1]?.path ?? ""
+  const permission = leaf.startsWith("/admin/") ? adminPermissionFor[leaf.slice("/admin/".length)] : undefined
+  if (permission && !auth.can(permission)) {
+    // Send staff to the first admin page they may open instead of a dead end.
+    const fallback = adminNav.flatMap((s) => s.items).find((i) => auth.can(i.permission))
+    return next(fallback && `/admin/${fallback.path}` !== to.path ? `/admin/${fallback.path}` : { name: "dashboard-overview" })
+  }
+
+  if (to.meta.guest && auth.isAuthenticated) return next(auth.homeRoute)
   next()
 })
 

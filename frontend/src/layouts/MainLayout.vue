@@ -115,7 +115,7 @@
           <div style="display:flex;align-items:center;gap:10px">
             <ThemeToggle :size="36" />
             <template v-if="auth.isAuthenticated">
-              <RouterLink :to="auth.isAdmin ? '/admin' : '/dashboard'" class="hidden md:flex" style="align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none;transition:all .2s;background:var(--surface-overlay);border:1px solid var(--border-subtle)">
+              <RouterLink :to="auth.homeRoute" class="hidden md:flex" style="align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none;transition:all .2s;background:var(--surface-overlay);border:1px solid var(--border-subtle)">
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Dashboard
               </RouterLink>
@@ -155,7 +155,7 @@
         <RouterLink to="/pricing" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-primary)">Pricing</RouterLink>
         <div style="height:1px;background:var(--border-subtle);margin:8px 0"></div>
         <template v-if="auth.isAuthenticated">
-          <RouterLink :to="auth.isAdmin ? '/admin' : '/dashboard'" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--accent-teal)">Dashboard</RouterLink>
+          <RouterLink :to="auth.homeRoute" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--accent-teal)">Dashboard</RouterLink>
           <button @click="handleLogout" style="text-align:left;padding:12px;border-radius:10px;font-size:14px;font-weight:600;color:#ef4444;background:none;border:none;cursor:pointer">Logout</button>
         </template>
         <template v-else>

@@ -32,7 +32,7 @@
       <!-- Auth buttons -->
       <div class="p-5 space-y-3" style="border-top:1px solid var(--border-subtle)">
         <template v-if="auth.isAuthenticated">
-          <RouterLink :to="auth.isAdmin ? '/admin' : '/dashboard'" @click="open = false" class="block w-full text-center py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Dashboard</RouterLink>
+          <RouterLink :to="auth.homeRoute" @click="open = false" class="block w-full text-center py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Dashboard</RouterLink>
           <button @click="logout" class="block w-full text-center py-3 rounded-xl text-sm font-medium" style="color:var(--text-muted);border:1px solid var(--border-subtle)">Sign Out</button>
         </template>
         <template v-else>
