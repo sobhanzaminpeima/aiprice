@@ -55,12 +55,43 @@ class AuthController extends Controller
         return response()->json(['message' => 'Reset link sent if email exists.']);
     }
 
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'force_password_change' => false,
+                ])->save();
+
+                // Whoever triggered the reset may be locking out a thief —
+                // kill every existing session.
+                $user->tokens()->delete();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages(['email' => __($status)]);
+        }
+
+        return response()->json(['message' => 'Password has been reset. You can now sign in.']);
+    }
+
     public function changePassword(Request $request): JsonResponse
     {
         $request->validate(['current_password' => 'required', 'password' => 'required|min:8|confirmed']);
         $user = $request->user();
         if (!Hash::check($request->current_password, $user->password)) return response()->json(['message' => 'Current password incorrect.'], 422);
         $user->update(['password' => Hash::make($request->password), 'force_password_change' => false]);
+        // Sign out every other device; keep the session that made the change.
+        $user->tokens()->where('id', '!=', $user->currentAccessToken()->id)->delete();
         return response()->json(['message' => 'Password changed.']);
     }
 }

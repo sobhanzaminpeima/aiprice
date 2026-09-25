@@ -1,25 +1,52 @@
 <template>
-  <div class="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-black text-white mb-2">Reset Password</h1>
-        <p class="text-slate-400">Enter your email to receive a reset link</p>
+  <div class="min-h-screen flex items-center justify-center px-4" style="background:var(--bg-base)">
+    <div class="relative w-full max-w-md">
+      <div class="text-center mb-10">
+        <RouterLink to="/" class="inline-flex items-center gap-2.5"><BrandLogo :size="40" /></RouterLink>
+        <p class="mt-3 text-sm" style="color:var(--text-muted)">Enter your email to receive a reset link</p>
       </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-        <div v-if="sent" class="text-center text-emerald-400 py-4">Check your email for a reset link.</div>
+      <div class="rounded-2xl p-8" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <div v-if="sent" class="text-center py-4 text-sm" style="color:var(--accent-teal)">
+          If an account exists for <strong>{{ email }}</strong>, a reset link is on its way. The link expires in 60 minutes.
+        </div>
         <form v-else @submit.prevent="handleSubmit" class="space-y-5">
-          <input v-model="email" type="email" required placeholder="Email address" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 text-sm outline-none focus:border-sky-500 transition" />
-          <button type="submit" :disabled="loading" class="w-full py-3 bg-gradient-to-r from-sky-500 to-violet-600 text-white font-bold rounded-xl hover:opacity-90 transition">
+          <div v-if="error" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+          <div>
+            <label class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">EMAIL ADDRESS</label>
+            <input v-model="email" type="email" required placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
+          </div>
+          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
             {{ loading ? 'Sending...' : 'Send Reset Link' }}
           </button>
         </form>
-        <p class="mt-4 text-center text-sm"><RouterLink to="/login" class="text-sky-400">Back to login</RouterLink></p>
+        <p class="mt-6 text-center text-sm"><RouterLink to="/login" style="color:var(--accent-teal)">Back to login</RouterLink></p>
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref } from 'vue'; import { RouterLink } from 'vue-router'; import client from '@/api/client'
-const email = ref(''); const loading = ref(false); const sent = ref(false)
-async function handleSubmit() { loading.value = true; try { await client.post('/auth/forgot-password', { email: email.value }); sent.value = true } finally { loading.value = false } }
+import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
+import client from '@/api/client'
+import BrandLogo from '@/components/BrandLogo.vue'
+import { apiErrorMessage } from '@/api/errors'
+
+const email = ref('')
+const loading = ref(false)
+const sent = ref(false)
+const error = ref('')
+
+async function handleSubmit() {
+  loading.value = true
+  error.value = ''
+  try {
+    await client.post('/auth/forgot-password', { email: email.value })
+    sent.value = true
+  } catch (e) {
+    error.value = apiErrorMessage(e, 'Could not send the reset link. Please try again.')
+  } finally {
+    loading.value = false
+  }
+}
 </script>

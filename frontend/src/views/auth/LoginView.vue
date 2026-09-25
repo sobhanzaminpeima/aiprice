@@ -41,6 +41,7 @@ import { ref } from "vue"
 import { RouterLink, useRouter, useRoute } from "vue-router"
 import { useAuthStore } from "@/stores/auth"
 import BrandLogo from "@/components/BrandLogo.vue"
+import { apiErrorMessage } from "@/api/errors"
 const auth = useAuthStore(); const router = useRouter(); const route = useRoute()
 const form = ref({ email: "", password: "" }); const loading = ref(false); const error = ref("")
 async function handleLogin() {
@@ -51,7 +52,7 @@ async function handleLogin() {
     if (auth.isAdmin) router.push(redirect || "/admin")
     else router.push(redirect || "/dashboard")
   } catch (e: any) {
-    error.value = e.response?.data?.message || "Invalid credentials."
+    error.value = apiErrorMessage(e, "Invalid credentials.")
   } finally { loading.value = false }
 }
 </script>

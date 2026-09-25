@@ -49,6 +49,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { apiErrorMessage } from '@/api/errors'
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -59,7 +60,7 @@ const loading = ref(false); const error = ref('')
 async function handleRegister() {
   loading.value = true; error.value = ''
   try { await auth.register(form.value); router.push('/dashboard') }
-  catch (e: any) { error.value = e.response?.data?.message || Object.values(e.response?.data?.errors || {})[0] || 'Registration failed' }
+  catch (e: any) { error.value = apiErrorMessage(e, 'Registration failed') }
   finally { loading.value = false }
 }
 </script>
