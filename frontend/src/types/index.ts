@@ -56,12 +56,16 @@ export interface Listing {
   ai_price_score: number | null
   ai_trust_score: number | null
   ai_investment_score: number | null
+  ai_demand_score: number | null
+  ai_deal_score: number | null
   ai_price_status: 'fair' | 'slightly_overpriced' | 'overpriced' | null
   price_battery_percent: number | null
   market_min_price: number | null
   market_max_price: number | null
   market_avg_price: number | null
   ai_confidence_score: number | null
+  ai_score_breakdown: { price?: string[]; trust?: string[]; demand?: string[]; investment?: string[] } | null
+  ai_analysis: string | null
   // Media
   images: string[] | null
   thumbnail: string | null

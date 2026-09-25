@@ -54,22 +54,24 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        // Password matches DEVELOPMENT.md's documented admin login exactly —
+        // keep these in sync if either changes.
         $admin = User::firstOrCreate(
-            ['email' => 'admin@hubprice.ai'],
+            ['email' => 'admin@aiprice.app'],
             [
-                'name' => 'HubPrice Admin',
+                'name' => 'AIPrice Admin',
                 'username' => 'admin',
-                'password' => Hash::make('HubPrice@2026!'),
+                'password' => Hash::make('Admin@123456'),
                 'role' => 'super_admin',
                 'is_active' => true,
                 'is_verified' => true,
                 'kyc_verified' => true,
-                'force_password_change' => true,
+                'force_password_change' => false,
                 'email_verified_at' => now(),
             ]
         );
         $admin->syncRoles(['super_admin']);
-        UserProfile::firstOrCreate(['user_id' => $admin->id], ['business_name' => 'HubPrice.AI', 'country' => 'GB']);
+        UserProfile::firstOrCreate(['user_id' => $admin->id], ['business_name' => 'AIPrice.app', 'country' => 'GB']);
 
         $brandsData = [
             ['name' => 'BMW', 'country' => 'DE', 'models' => ['3 Series', '5 Series', '7 Series', 'X3', 'X5', 'M3', 'M5']],
@@ -130,7 +132,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $settings = [
-            ['group' => 'general', 'key' => 'site_name', 'value' => 'HubPrice.AI', 'type' => 'text', 'label' => 'Site Name', 'is_public' => true],
+            ['group' => 'general', 'key' => 'site_name', 'value' => 'AIPrice.app', 'type' => 'text', 'label' => 'Site Name', 'is_public' => true],
             ['group' => 'general', 'key' => 'site_tagline', 'value' => 'AI-Powered Truth In Every Transaction', 'type' => 'text', 'label' => 'Tagline', 'is_public' => true],
             ['group' => 'general', 'key' => 'default_currency', 'value' => 'GBP', 'type' => 'text', 'label' => 'Default Currency', 'is_public' => true],
             ['group' => 'ai', 'key' => 'ai_price_enabled', 'value' => '1', 'type' => 'boolean', 'label' => 'AI Price Intelligence'],

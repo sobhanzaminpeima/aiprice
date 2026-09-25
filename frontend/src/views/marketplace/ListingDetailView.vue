@@ -6,8 +6,8 @@
     <!-- Loading state -->
     <div v-if="loading" class="min-h-screen flex items-center justify-center">
       <div class="text-center">
-        <div class="w-12 h-12 rounded-full border-2 animate-spin mx-auto mb-4" style="border-color:rgba(111,255,210,0.2);border-top-color:#6fffd2"></div>
-        <p style="color:#6e7f96">Loading...</p>
+        <div class="w-12 h-12 rounded-full border-2 animate-spin mx-auto mb-4" style="border-color:rgba(111,255,210,0.2);border-top-color:var(--accent-teal)"></div>
+        <p style="color:var(--text-muted)">Loading...</p>
       </div>
     </div>
 

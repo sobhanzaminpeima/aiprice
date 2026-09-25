@@ -1,4 +1,4 @@
-# HubPrice.AI — North Cyprus AI Marketplace
+# AIPrice.app — North Cyprus AI Marketplace
 
 > AI-powered price intelligence for cars & properties in North Cyprus.  
 > Every listing is scored, analyzed, and verified by OpenAI GPT-4o Mini.
@@ -63,13 +63,13 @@ npm run dev
 ### Backend `.env`
 
 ```env
-APP_NAME="HubPrice.AI"
+APP_NAME="AIPrice.app"
 APP_URL=http://localhost:8000
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=hubprice
+DB_DATABASE=aiprice
 DB_USERNAME=root
 DB_PASSWORD=
 
@@ -82,7 +82,7 @@ OPENAI_MODEL=gpt-4o-mini
 ## Project Structure
 
 ```
-Hubprice/
+AIPrice/
 ├── backend/                  # Laravel 12 API
 │   ├── app/
 │   │   ├── Http/Controllers/

@@ -4,7 +4,7 @@
     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
     :class="isActive
       ? 'text-[#6fffd2]'
-      : 'text-[#6e7f96] hover:text-[#f0f6fc]'"
+      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'"
     :style="isActive
       ? 'background:rgba(111,255,210,0.08);border:1px solid rgba(111,255,210,0.15)'
       : 'border:1px solid transparent'"

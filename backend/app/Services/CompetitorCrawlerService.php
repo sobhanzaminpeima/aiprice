@@ -67,7 +67,7 @@ class CompetitorCrawlerService
         try {
             // Fetch the vehicle listings page
             $response = Http::timeout(30)
-                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; HubPriceBot/1.0)'])
+                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; AIPriceBot/1.0)'])
                 ->get($source->url . '/araclar');
 
             if (!$response->ok()) {
@@ -119,7 +119,7 @@ class CompetitorCrawlerService
         $listings = [];
         try {
             $response = Http::timeout(30)
-                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; HubPriceBot/1.0)'])
+                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; AIPriceBot/1.0)'])
                 ->get($source->url);
 
             if (!$response->ok()) {

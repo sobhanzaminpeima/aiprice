@@ -17,12 +17,15 @@ class Listing extends Model
         'user_id', 'listing_number', 'type', 'listable_type', 'listable_id',
         'title', 'slug', 'description', 'price', 'currency', 'price_negotiable',
         'country', 'city', 'district', 'address', 'latitude', 'longitude',
+        'images', 'thumbnail', 'video_url',
         'status', 'is_featured', 'is_premium', 'is_verified',
         'view_count', 'inquiry_count', 'favorite_count',
         'published_at', 'expires_at',
         'ai_price_score', 'ai_trust_score', 'ai_investment_score',
+        'ai_demand_score', 'ai_deal_score',
         'ai_price_status', 'market_min_price', 'market_max_price', 'market_avg_price',
         'price_battery_percent', 'ai_confidence_score', 'ai_analysis', 'ai_comparable_ids',
+        'ai_score_breakdown', 'ai_scored_at',
         'meta', 'rejection_reason',
     ];
 
@@ -38,6 +41,8 @@ class Listing extends Model
             'expires_at' => 'datetime',
             'ai_analysis' => 'array',
             'ai_comparable_ids' => 'array',
+            'ai_score_breakdown' => 'array',
+            'ai_scored_at' => 'datetime',
             'meta' => 'array',
             'images' => 'array',
         ];
@@ -106,6 +111,15 @@ class Listing extends Model
         parent::boot();
         static::creating(function ($listing) {
             $listing->listing_number = 'HP-' . strtoupper(substr($listing->type, 0, 1)) . '-' . date('Y') . '-' . str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT);
+
+            // Auto-place on the map from the city name unless coordinates were
+            // explicitly provided (e.g. a precise pin dropped by the seller).
+            if (!$listing->latitude && !$listing->longitude && $listing->city) {
+                $coords = app(\App\Services\GeoService::class)->coordinatesFor($listing->city, $listing->title ?? uniqid());
+                if ($coords) {
+                    [$listing->latitude, $listing->longitude] = $coords;
+                }
+            }
         });
     }
 }

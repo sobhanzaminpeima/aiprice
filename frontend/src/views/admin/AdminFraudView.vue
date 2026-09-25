@@ -2,22 +2,22 @@
   <div class="p-8">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="text-3xl font-black mb-1" style="color:#f0f6fc">Fraud <span class="gradient-text">Detection</span></h1>
-        <p class="text-sm flex items-center gap-2" style="color:#6e7f96">
+        <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Fraud <span class="gradient-text">Detection</span></h1>
+        <p class="text-sm flex items-center gap-2" style="color:var(--text-muted)">
           <span class="w-2 h-2 rounded-full" style="background:#6fffd2;animation:pulse-glow 1.5s infinite"></span>
           AI monitoring active — real-time threat detection
         </p>
       </div>
       <div class="text-right p-4 rounded-2xl" style="background:rgba(111,255,210,0.06);border:1px solid rgba(111,255,210,0.2)">
-        <p class="text-2xl font-black" style="color:#6fffd2">98.4%</p>
-        <p class="text-xs" style="color:#6e7f96">Fraud Blocked Rate</p>
+        <p class="text-2xl font-black" style="color:var(--accent-teal)">98.4%</p>
+        <p class="text-xs" style="color:var(--text-muted)">Fraud Blocked Rate</p>
       </div>
     </div>
 
     <!-- Risk stats -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div v-for="s in stats" :key="s.label" class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <p class="text-xs mb-2" style="color:#6e7f96">{{ s.label }}</p>
+      <div v-for="s in stats" :key="s.label" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <p class="text-xs mb-2" style="color:var(--text-muted)">{{ s.label }}</p>
         <p class="text-2xl font-black" :style="{color: s.color}">{{ s.value }}</p>
         <p class="text-xs mt-1" :style="{color: s.trend > 0 ? '#ef4444' : '#6fffd2'}">{{ s.trend > 0 ? '↑' : '↓' }} {{ Math.abs(s.trend) }} this week</p>
       </div>
@@ -25,23 +25,23 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Active Risk Alerts -->
-      <div class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(239,68,68,0.2)">
-        <h2 class="font-bold mb-5 flex items-center gap-2" style="color:#f0f6fc">
+      <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(239,68,68,0.2)">
+        <h2 class="font-bold mb-5 flex items-center gap-2" style="color:var(--text-primary)">
           <span style="color:#ef4444">⚠️</span> Active Risk Alerts ({{ alerts.filter(a=>!a.resolved).length }})
         </h2>
         <div class="space-y-3 max-h-80 overflow-y-auto">
-          <div v-for="a in alerts" :key="a.id" class="p-4 rounded-xl" :style="a.resolved ? 'background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.04)' : `background:rgba(239,68,68,0.04);border:1px solid rgba(${a.riskColor},0.2)`">
+          <div v-for="a in alerts" :key="a.id" class="p-4 rounded-xl" :style="a.resolved ? 'background:rgba(255,255,255,0.01);border:1px solid var(--surface-overlay)' : `background:rgba(239,68,68,0.04);border:1px solid rgba(${a.riskColor},0.2)`">
             <div class="flex items-start gap-3">
               <span class="text-xl shrink-0">{{ a.icon }}</span>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between mb-1">
-                  <p class="text-xs font-bold" style="color:#f0f6fc">{{ a.title }}</p>
+                  <p class="text-xs font-bold" style="color:var(--text-primary)">{{ a.title }}</p>
                   <span class="text-xs px-2 py-0.5 rounded-full font-bold" :style="`background:rgba(${a.riskColor},0.1);color:rgb(${a.riskColor})`">{{ a.risk }}</span>
                 </div>
-                <p class="text-xs" style="color:#6e7f96">{{ a.desc }}</p>
+                <p class="text-xs" style="color:var(--text-muted)">{{ a.desc }}</p>
                 <div class="flex items-center gap-3 mt-2">
-                  <span class="text-xs" style="color:#6e7f96">{{ a.time }}</span>
-                  <button v-if="!a.resolved" @click="a.resolved = true" class="text-xs px-2 py-1 rounded-lg" style="background:rgba(111,255,210,0.08);color:#6fffd2;border:1px solid rgba(111,255,210,0.15)">Resolve</button>
+                  <span class="text-xs" style="color:var(--text-muted)">{{ a.time }}</span>
+                  <button v-if="!a.resolved" @click="a.resolved = true" class="text-xs px-2 py-1 rounded-lg" style="background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)">Resolve</button>
                   <button class="text-xs px-2 py-1 rounded-lg" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.15)">Ban User</button>
                 </div>
               </div>
@@ -51,19 +51,19 @@
       </div>
 
       <!-- Flagged Listings -->
-      <div class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(251,191,36,0.15)">
-        <h2 class="font-bold mb-5" style="color:#f0f6fc">Flagged Listings</h2>
+      <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(251,191,36,0.15)">
+        <h2 class="font-bold mb-5" style="color:var(--text-primary)">Flagged Listings</h2>
         <div class="space-y-3">
           <div v-for="l in flaggedListings" :key="l.id" class="p-4 rounded-xl" style="background:rgba(251,191,36,0.03);border:1px solid rgba(251,191,36,0.1)">
             <div class="flex items-center justify-between mb-2">
-              <p class="text-xs font-bold" style="color:#f0f6fc">{{ l.title }}</p>
+              <p class="text-xs font-bold" style="color:var(--text-primary)">{{ l.title }}</p>
               <span class="text-xs px-2 py-0.5 rounded-full font-bold" style="background:rgba(251,191,36,0.1);color:#fbbf24">{{ l.reason }}</span>
             </div>
-            <p class="text-xs mb-2" style="color:#6e7f96">{{ l.detail }}</p>
+            <p class="text-xs mb-2" style="color:var(--text-muted)">{{ l.detail }}</p>
             <div class="flex gap-2">
-              <button class="px-3 py-1 rounded-lg text-xs font-medium" style="background:rgba(111,255,210,0.08);color:#6fffd2;border:1px solid rgba(111,255,210,0.15)">Approve</button>
+              <button class="px-3 py-1 rounded-lg text-xs font-medium" style="background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)">Approve</button>
               <button class="px-3 py-1 rounded-lg text-xs font-medium" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.15)">Remove</button>
-              <button class="px-3 py-1 rounded-lg text-xs font-medium" style="background:rgba(255,255,255,0.04);color:#c5d3e4;border:1px solid rgba(255,255,255,0.08)">Investigate</button>
+              <button class="px-3 py-1 rounded-lg text-xs font-medium" style="background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)">Investigate</button>
             </div>
           </div>
         </div>

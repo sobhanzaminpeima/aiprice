@@ -2,49 +2,49 @@
   <div class="p-8">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="text-3xl font-black mb-1" style="color:#f0f6fc">Live <span class="gradient-text">Analytics</span></h1>
-        <p class="text-sm flex items-center gap-2" style="color:#6e7f96">
+        <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Live <span class="gradient-text">Analytics</span></h1>
+        <p class="text-sm flex items-center gap-2" style="color:var(--text-muted)">
           <span class="w-2 h-2 rounded-full inline-block" style="background:#6fffd2;animation:pulse-glow 1.5s infinite"></span>
           Real-time data — updates every 5 seconds
         </p>
       </div>
       <div class="text-right">
-        <p class="text-2xl font-black" style="color:#6fffd2">{{ liveVisitors }}</p>
-        <p class="text-xs" style="color:#6e7f96">Live Visitors</p>
+        <p class="text-2xl font-black" style="color:var(--accent-teal)">{{ liveVisitors }}</p>
+        <p class="text-xs" style="color:var(--text-muted)">Live Visitors</p>
       </div>
     </div>
 
     <!-- Live metrics -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div v-for="m in metrics" :key="m.label" class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+      <div v-for="m in metrics" :key="m.label" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <div class="flex items-center justify-between mb-2">
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="'background:rgba('+m.rgb+',0.12)'">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" :stroke="'rgb('+m.rgb+')'" stroke-width="1.8" v-html="m.iconPath"></svg>
           </div>
-          <span class="text-xs px-2 py-0.5 rounded-full" :style="m.up ? 'background:rgba(111,255,210,0.1);color:#6fffd2' : 'background:rgba(239,68,68,0.1);color:#ef4444'">
+          <span class="text-xs px-2 py-0.5 rounded-full" :style="m.up ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : 'background:rgba(239,68,68,0.1);color:#ef4444'">
             {{ m.up ? '↑' : '↓' }} {{ m.change }}
           </span>
         </div>
         <p class="text-2xl font-black" :style="{color: m.color}">{{ m.value }}</p>
-        <p class="text-xs mt-1" style="color:#6e7f96">{{ m.label }}</p>
+        <p class="text-xs mt-1" style="color:var(--text-muted)">{{ m.label }}</p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Live Activity Feed -->
-      <div class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <h2 class="font-bold mb-5 flex items-center gap-2" style="color:#f0f6fc">
+      <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <h2 class="font-bold mb-5 flex items-center gap-2" style="color:var(--text-primary)">
           <span class="w-2 h-2 rounded-full" style="background:#6fffd2;animation:pulse-glow 1.5s infinite"></span>
           Live Activity Feed
         </h2>
         <div class="space-y-3 max-h-80 overflow-y-auto">
-          <div v-for="(event, i) in activityFeed" :key="i" class="flex items-start gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)">
+          <div v-for="(event, i) in activityFeed" :key="i" class="flex items-start gap-3 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--surface-overlay)">
             <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" :style="'background:'+event.bg">
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24" :stroke="event.color" stroke-width="2" v-html="event.iconPath"></svg>
           </div>
             <div class="flex-1 min-w-0">
-              <p class="text-xs font-medium" style="color:#f0f6fc">{{ event.text }}</p>
-              <p class="text-xs mt-0.5" style="color:#6e7f96">{{ event.time }}</p>
+              <p class="text-xs font-medium" style="color:var(--text-primary)">{{ event.text }}</p>
+              <p class="text-xs mt-0.5" style="color:var(--text-muted)">{{ event.time }}</p>
             </div>
             <span class="text-xs px-1.5 py-0.5 rounded font-medium shrink-0" :style="`background:${event.bg};color:${event.color}`">{{ event.tag }}</span>
           </div>
@@ -52,27 +52,27 @@
       </div>
 
       <!-- Pages Right Now -->
-      <div class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <h2 class="font-bold mb-5" style="color:#f0f6fc">Pages Right Now</h2>
+      <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <h2 class="font-bold mb-5" style="color:var(--text-primary)">Pages Right Now</h2>
         <div class="space-y-3">
           <div v-for="page in topPages" :key="page.path" class="flex items-center gap-3">
-            <span class="text-xs font-mono w-36 truncate" style="color:#c5d3e4">{{ page.path }}</span>
-            <div class="flex-1 h-2 rounded-full" style="background:rgba(255,255,255,0.07)">
+            <span class="text-xs font-mono w-36 truncate" style="color:var(--text-secondary)">{{ page.path }}</span>
+            <div class="flex-1 h-2 rounded-full" style="background:var(--border-subtle)">
               <div class="h-2 rounded-full transition-all duration-1000" :style="`width:${page.pct}%;background:linear-gradient(90deg,#6fffd2,#56d8ff)`"></div>
             </div>
-            <span class="text-xs font-bold w-6 text-right" style="color:#6fffd2">{{ page.visitors }}</span>
+            <span class="text-xs font-bold w-6 text-right" style="color:var(--accent-teal)">{{ page.visitors }}</span>
           </div>
         </div>
 
-        <div class="mt-6 pt-5" style="border-top:1px solid rgba(255,255,255,0.06)">
-          <h3 class="text-sm font-semibold mb-4" style="color:#c5d3e4">Traffic by City</h3>
+        <div class="mt-6 pt-5" style="border-top:1px solid var(--border-subtle)">
+          <h3 class="text-sm font-semibold mb-4" style="color:var(--text-secondary)">Traffic by City</h3>
           <div class="space-y-2">
             <div v-for="city in trafficByCities" :key="city.name" class="flex items-center gap-3">
-              <span class="text-xs w-20" style="color:#c5d3e4">{{ city.name }}</span>
-              <div class="flex-1 h-1.5 rounded-full" style="background:rgba(255,255,255,0.07)">
+              <span class="text-xs w-20" style="color:var(--text-secondary)">{{ city.name }}</span>
+              <div class="flex-1 h-1.5 rounded-full" style="background:var(--border-subtle)">
                 <div class="h-1.5 rounded-full" :style="`width:${city.pct}%;background:${city.color}`"></div>
               </div>
-              <span class="text-xs w-8 text-right" style="color:#6e7f96">{{ city.pct }}%</span>
+              <span class="text-xs w-8 text-right" style="color:var(--text-muted)">{{ city.pct }}%</span>
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@ const trafficByCities = [
   { name: 'Lefkosa', pct: 28, color: '#56d8ff' },
   { name: 'Famagusta', pct: 18, color: '#a78bfa' },
   { name: 'Iskele', pct: 12, color: '#fbbf24' },
-  { name: 'Other', pct: 8, color: '#6e7f96' },
+  { name: 'Other', pct: 8, color: 'var(--text-muted)' },
 ]
 
 onMounted(() => {

@@ -1,22 +1,22 @@
 <template>
   <div v-if="loading" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
-      <div class="w-12 h-12 rounded-full border-2 border-t-[#6fffd2] animate-spin mx-auto mb-4" style="border-color:rgba(111,255,210,0.2);border-top-color:#6fffd2"></div>
-      <p style="color:#6e7f96">Loading listing...</p>
+      <div class="w-12 h-12 rounded-full border-2 border-t-[#6fffd2] animate-spin mx-auto mb-4" style="border-color:rgba(111,255,210,0.2);border-top-color:var(--accent-teal)"></div>
+      <p style="color:var(--text-muted)">Loading listing...</p>
     </div>
   </div>
 
   <div v-else-if="!listing" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
       <p class="text-6xl mb-4">🚗</p>
-      <h2 class="text-xl font-bold mb-2" style="color:#f0f6fc">Listing Not Found</h2>
+      <h2 class="text-xl font-bold mb-2" style="color:var(--text-primary)">Listing Not Found</h2>
       <RouterLink to="/cars" class="btn-primary mt-4 inline-block">Browse Cars</RouterLink>
     </div>
   </div>
 
   <div v-else>
     <!-- Hero image gallery -->
-    <div class="relative" style="height:480px;background:#080d13">
+    <div class="relative" style="height:480px;background:var(--bg-surface)">
       <img v-if="activeImage" :src="activeImage" :alt="listing.title" class="w-full h-full object-cover" @error="activeImageError = true" />
       <div v-else class="w-full h-full flex items-center justify-center text-9xl opacity-20">🚗</div>
       <!-- Gradient overlay -->
@@ -24,13 +24,13 @@
 
       <!-- Image thumbnails row -->
       <div v-if="images.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        <button v-for="(img, i) in images" :key="i" @click="setActiveImage(img)" class="w-14 h-10 rounded-lg overflow-hidden border-2 transition" :style="activeImage === img ? 'border-color:#6fffd2' : 'border-color:rgba(255,255,255,0.2)'">
+        <button v-for="(img, i) in images" :key="i" @click="setActiveImage(img)" class="w-14 h-10 rounded-lg overflow-hidden border-2 transition" :style="activeImage === img ? 'border-color:var(--accent-teal)' : 'border-color:rgba(255,255,255,0.2)'">
           <img :src="img" class="w-full h-full object-cover" @error="() => {}" />
         </button>
       </div>
 
       <!-- Back -->
-      <RouterLink to="/cars" class="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition" style="background:rgba(0,0,0,0.5);color:#f0f6fc;backdrop-filter:blur(8px)">
+      <RouterLink to="/cars" class="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition" style="background:rgba(0,0,0,0.5);color:var(--text-primary);backdrop-filter:blur(8px)">
         ← Back to Cars
       </RouterLink>
 
@@ -47,23 +47,23 @@
           <!-- Title + quick specs -->
           <div>
             <div class="flex flex-wrap items-start gap-3 mb-3">
-              <h1 class="text-3xl font-black" style="color:#f0f6fc">{{ listing.title }}</h1>
+              <h1 class="text-3xl font-black" style="color:var(--text-primary)">{{ listing.title }}</h1>
               <span v-if="listing.ai_price_status" class="px-3 py-1 rounded-full text-sm font-bold mt-1" :style="aiStatusStyle">{{ aiStatusLabel }}</span>
             </div>
-            <div class="flex flex-wrap items-center gap-3 text-sm" style="color:#6e7f96">
+            <div class="flex flex-wrap items-center gap-3 text-sm" style="color:var(--text-muted)">
               <span class="flex items-center gap-1">📍 {{ listing.city }}, North Cyprus</span>
               <span>·</span>
               <span>Listed {{ listedAgo }}</span>
               <span>·</span>
               <span>👁 {{ listing.view_count || 0 }} views</span>
-              <span v-if="listing.listing_number" class="ml-auto text-xs font-mono px-2 py-0.5 rounded" style="background:rgba(255,255,255,0.04);color:#6e7f96">{{ listing.listing_number }}</span>
+              <span v-if="listing.listing_number" class="ml-auto text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-overlay);color:var(--text-muted)">{{ listing.listing_number }}</span>
             </div>
           </div>
 
           <!-- Vehicle specs grid -->
-          <div class="rounded-2xl p-6" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h2 class="font-bold text-lg mb-5 flex items-center gap-2" style="color:#f0f6fc">
-              <span style="color:#6fffd2">🚗</span> Vehicle Specifications
+          <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold text-lg mb-5 flex items-center gap-2" style="color:var(--text-primary)">
+              <span style="color:var(--accent-teal)">🚗</span> Vehicle Specifications
             </h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <SpecItem v-if="vehicle?.year" icon="📅" label="Year" :value="String(vehicle.year)" />
@@ -78,10 +78,10 @@
             </div>
 
             <!-- Features -->
-            <div v-if="vehicleFeatures.length" class="mt-6 pt-5" style="border-top:1px solid rgba(255,255,255,0.06)">
-              <h3 class="text-sm font-semibold mb-3" style="color:#c5d3e4">Features & Equipment</h3>
+            <div v-if="vehicleFeatures.length" class="mt-6 pt-5" style="border-top:1px solid var(--border-subtle)">
+              <h3 class="text-sm font-semibold mb-3" style="color:var(--text-secondary)">Features & Equipment</h3>
               <div class="flex flex-wrap gap-2">
-                <span v-for="f in vehicleFeatures" :key="f" class="px-2.5 py-1 rounded-lg text-xs font-medium" style="background:rgba(111,255,210,0.07);color:#6fffd2;border:1px solid rgba(111,255,210,0.15)">
+                <span v-for="f in vehicleFeatures" :key="f" class="px-2.5 py-1 rounded-lg text-xs font-medium" style="background:rgba(111,255,210,0.07);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)">
                   ✓ {{ formatFeature(f) }}
                 </span>
               </div>
@@ -89,32 +89,32 @@
           </div>
 
           <!-- Description -->
-          <div class="rounded-2xl p-6" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h2 class="font-bold text-lg mb-4" style="color:#f0f6fc">Description</h2>
-            <p class="text-sm leading-relaxed whitespace-pre-line" style="color:#c5d3e4">{{ listing.description }}</p>
+          <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold text-lg mb-4" style="color:var(--text-primary)">Description</h2>
+            <p class="text-sm leading-relaxed whitespace-pre-line" style="color:var(--text-secondary)">{{ listing.description }}</p>
           </div>
 
           <!-- AI Price Analysis -->
           <div class="rounded-2xl p-6" style="background:linear-gradient(135deg,rgba(111,255,210,0.04),rgba(86,216,255,0.02));border:1px solid rgba(111,255,210,0.15)">
             <div class="flex items-center gap-3 mb-5">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b">AI</div>
-              <h2 class="font-bold text-lg" style="color:#f0f6fc">AI Price Intelligence</h2>
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">AI</div>
+              <h2 class="font-bold text-lg" style="color:var(--text-primary)">AI Price Intelligence</h2>
             </div>
 
             <!-- Price range bar -->
             <div v-if="listing.market_min_price && listing.market_max_price" class="mb-6">
-              <div class="flex items-center justify-between text-xs mb-2" style="color:#6e7f96">
+              <div class="flex items-center justify-between text-xs mb-2" style="color:var(--text-muted)">
                 <span>Market Min: {{ formatPrice(listing.market_min_price, listing.currency) }}</span>
                 <span>Market Max: {{ formatPrice(listing.market_max_price, listing.currency) }}</span>
               </div>
-              <div class="relative h-3 rounded-full" style="background:rgba(255,255,255,0.07)">
+              <div class="relative h-3 rounded-full" style="background:var(--border-subtle)">
                 <div class="absolute inset-y-0 rounded-full" style="background:linear-gradient(90deg,rgba(111,255,210,0.3),rgba(86,216,255,0.3))" :style="{ left: '0%', right: '0%' }"></div>
                 <!-- Price marker -->
-                <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 shadow-lg" style="background:#6fffd2;border-color:#05070b;box-shadow:0 0 12px rgba(111,255,210,0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
+                <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 shadow-lg" style="background:#6fffd2;border-color:var(--on-accent);box-shadow:0 0 12px rgba(111,255,210,0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
               </div>
-              <p class="text-xs mt-2 text-center" style="color:#6e7f96">
+              <p class="text-xs mt-2 text-center" style="color:var(--text-muted)">
                 This vehicle is priced at <span :style="`color:${aiColor};font-weight:700`">{{ formatPrice(listing.price, listing.currency) }}</span>
-                <template v-if="listing.market_avg_price"> vs market avg <span style="color:#c5d3e4;font-weight:600">{{ formatPrice(listing.market_avg_price, listing.currency) }}</span></template>
+                <template v-if="listing.market_avg_price"> vs market avg <span style="color:var(--text-secondary);font-weight:600">{{ formatPrice(listing.market_avg_price, listing.currency) }}</span></template>
               </p>
             </div>
 
@@ -126,17 +126,20 @@
             </div>
           </div>
 
+          <!-- Why this score? + Show Me Better -->
+          <AiExplainability :listing="listing" />
+
           <!-- Comparable listings -->
-          <div v-if="comparables.length" class="rounded-2xl p-6" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h2 class="font-bold text-lg mb-5" style="color:#f0f6fc">Similar Vehicles</h2>
+          <div v-if="comparables.length" class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold text-lg mb-5" style="color:var(--text-primary)">Similar Vehicles</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(111,255,210,0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='rgba(255,255,255,0.06)'">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0" style="background:rgba(255,255,255,0.04)">🚗</div>
+              <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(111,255,210,0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='var(--border-subtle)'">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0" style="background:var(--surface-overlay)">🚗</div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-xs font-medium truncate" style="color:#f0f6fc">{{ c.title }}</p>
-                  <p class="text-xs font-bold" style="color:#6fffd2">{{ formatPrice(c.price, c.currency) }}</p>
+                  <p class="text-xs font-medium truncate" style="color:var(--text-primary)">{{ c.title }}</p>
+                  <p class="text-xs font-bold" style="color:var(--accent-teal)">{{ formatPrice(c.price, c.currency) }}</p>
                 </div>
-                <span class="text-xs" style="color:#6e7f96">→</span>
+                <span class="text-xs" style="color:var(--text-muted)">→</span>
               </RouterLink>
             </div>
           </div>
@@ -145,64 +148,61 @@
         <!-- Right: Contact sidebar -->
         <div class="space-y-5">
           <!-- Price card -->
-          <div class="rounded-2xl p-6 sticky top-20" style="background:#0d1520;border:1px solid rgba(111,255,210,0.2)">
+          <div class="rounded-2xl p-6 sticky top-20" style="background:var(--bg-card);border:1px solid rgba(111,255,210,0.2)">
             <div class="mb-4">
-              <p class="text-3xl font-black mb-1" style="color:#f0f6fc">{{ formatPrice(listing.price, listing.currency) }}</p>
-              <p v-if="listing.price_negotiable" class="text-sm" style="color:#6fffd2">✓ Price is negotiable</p>
+              <p class="text-3xl font-black mb-1" style="color:var(--text-primary)">{{ formatPrice(listing.price, listing.currency) }}</p>
+              <p v-if="listing.price_negotiable" class="text-sm" style="color:var(--accent-teal)">✓ Price is negotiable</p>
             </div>
 
             <!-- Battery -->
-            <div v-if="listing.price_battery_percent" class="mb-5 p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+            <div v-if="listing.price_battery_percent" class="mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
               <div class="flex items-center justify-between text-xs mb-2">
-                <span style="color:#6e7f96">Price Fairness Score</span>
+                <span style="color:var(--text-muted)">Price Fairness Score</span>
                 <span :style="`color:${batteryColor};font-weight:700`">{{ listing.price_battery_percent }}%</span>
               </div>
-              <div class="h-2 rounded-full" style="background:rgba(255,255,255,0.07)">
+              <div class="h-2 rounded-full" style="background:var(--border-subtle)">
                 <div class="h-2 rounded-full transition-all" :style="`width:${listing.price_battery_percent}%;background:${batteryColor}`"></div>
               </div>
             </div>
 
-            <!-- Seller info -->
-            <div class="flex items-center gap-3 mb-5 p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="background:linear-gradient(135deg,rgba(111,255,210,0.2),rgba(86,216,255,0.2));color:#6fffd2">
-                {{ listing.user?.name?.charAt(0) || 'S' }}
+            <!-- Seller info: identity is never shown — all contact goes through AIPrice -->
+            <div class="flex items-center gap-3 mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="background:linear-gradient(135deg,rgba(111,255,210,0.2),rgba(86,216,255,0.2));color:var(--accent-teal)">
+                🛡️
               </div>
               <div>
-                <p class="text-sm font-semibold" style="color:#f0f6fc">{{ listing.user?.name || 'Private Seller' }}</p>
-                <p class="text-xs" style="color:#6e7f96">Verified Seller</p>
+                <p class="text-sm font-semibold" style="color:var(--text-primary)">Verified Listing</p>
+                <p class="text-xs" style="color:var(--text-muted)">Contact is handled by the AIPrice team</p>
               </div>
             </div>
 
             <!-- CTA buttons -->
             <div class="space-y-3">
-              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm transition-all" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b">
+              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm transition-all" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
                 📩 Send Inquiry
               </button>
-              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm transition-all" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:rgba(255,255,255,0.04);color:#c5d3e4;border:1px solid rgba(255,255,255,0.1)'">
+              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm transition-all" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
                 {{ isFavorited ? '❤️ Saved' : '♡ Save Listing' }}
               </button>
-              <a href="tel:+905001234567" class="block w-full py-3.5 rounded-xl font-semibold text-sm text-center transition-all" style="background:rgba(255,255,255,0.04);color:#c5d3e4;border:1px solid rgba(255,255,255,0.1)">
-                📞 Call Seller
-              </a>
             </div>
 
             <!-- Inquiry form -->
             <Transition name="slide-down">
-              <div v-if="showInquiry" class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.06)">
-                <textarea v-model="inquiryMsg" rows="3" placeholder="Hello, I am interested in this vehicle..." class="w-full rounded-xl p-3 text-sm resize-none outline-none" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc"></textarea>
-                <button @click="sendInquiry" :disabled="sendingInquiry" class="w-full mt-2 py-2.5 rounded-xl text-sm font-bold transition" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b" :class="{'opacity-60':sendingInquiry}">
+              <div v-if="showInquiry" class="mt-4 pt-4" style="border-top:1px solid var(--border-subtle)">
+                <textarea v-model="inquiryMsg" rows="3" placeholder="Hello, I am interested in this vehicle..." class="w-full rounded-xl p-3 text-sm resize-none outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
+                <button @click="sendInquiry" :disabled="sendingInquiry" class="w-full mt-2 py-2.5 rounded-xl text-sm font-bold transition" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)" :class="{'opacity-60':sendingInquiry}">
                   {{ sendingInquiry ? 'Sending...' : 'Send Message' }}
                 </button>
-                <p v-if="inquirySent" class="text-xs text-center mt-2" style="color:#6fffd2">✓ Message sent successfully!</p>
+                <p v-if="inquirySent" class="text-xs text-center mt-2" style="color:var(--accent-teal)">✓ Message sent successfully!</p>
               </div>
             </Transition>
           </div>
 
           <!-- Safety tips -->
-          <div class="rounded-2xl p-5" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h3 class="text-sm font-bold mb-3" style="color:#f0f6fc">🛡 Safety Tips</h3>
+          <div class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h3 class="text-sm font-bold mb-3" style="color:var(--text-primary)">🛡 Safety Tips</h3>
             <ul class="space-y-2">
-              <li v-for="tip in safetyTips" :key="tip" class="text-xs" style="color:#6e7f96">• {{ tip }}</li>
+              <li v-for="tip in safetyTips" :key="tip" class="text-xs" style="color:var(--text-muted)">• {{ tip }}</li>
             </ul>
           </div>
         </div>
@@ -215,22 +215,23 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useListingsStore } from '@/stores/listings'
+import AiExplainability from '@/components/listings/AiExplainability.vue'
 import type { Listing, Vehicle } from '@/types'
 
 // Sub-components defined inline
 const SpecItem = {
   props: ['icon', 'label', 'value'],
   template: `<div class="flex flex-col gap-1">
-    <span class="text-xs" style="color:#6e7f96">{{ icon }} {{ label }}</span>
-    <span class="text-sm font-semibold" style="color:#f0f6fc">{{ value }}</span>
+    <span class="text-xs" style="color:var(--text-muted)">{{ icon }} {{ label }}</span>
+    <span class="text-sm font-semibold" style="color:var(--text-primary)">{{ value }}</span>
   </div>`
 }
 const ScoreGauge = {
   props: ['label', 'value', 'color'],
-  template: `<div class="text-center p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+  template: `<div class="text-center p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
     <div class="text-2xl font-black mb-1" :style="{color}">{{ value }}</div>
-    <div class="text-xs" style="color:#6e7f96">{{ label }}</div>
-    <div class="mt-2 h-1 rounded-full" style="background:rgba(255,255,255,0.07)">
+    <div class="text-xs" style="color:var(--text-muted)">{{ label }}</div>
+    <div class="mt-2 h-1 rounded-full" style="background:var(--border-subtle)">
       <div class="h-1 rounded-full" :style="{width: value + '%', background: color}"></div>
     </div>
   </div>`
@@ -273,7 +274,7 @@ const pricePosition = computed(() => {
 
 const aiStatusStyle = computed(() => {
   const s = listing.value?.ai_price_status
-  if (s === 'fair') return 'background:rgba(111,255,210,0.12);color:#6fffd2;border:1px solid rgba(111,255,210,0.3)'
+  if (s === 'fair') return 'background:rgba(111,255,210,0.12);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.3)'
   return 'background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.3)'
 })
 const aiStatusLabel = computed(() => {

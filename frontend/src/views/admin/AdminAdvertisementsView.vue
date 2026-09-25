@@ -2,49 +2,49 @@
   <div class="p-8">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="text-3xl font-black mb-1" style="color:#f0f6fc">Advertisement <span class="gradient-text">Management</span></h1>
-        <p class="text-sm" style="color:#6e7f96">Manage Top 10 sponsored listings and banner ads</p>
+        <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Advertisement <span class="gradient-text">Management</span></h1>
+        <p class="text-sm" style="color:var(--text-muted)">Manage Top 10 sponsored listings and banner ads</p>
       </div>
-      <button @click="showAdd=true" class="px-5 py-2.5 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b">+ New Ad</button>
+      <button @click="showAdd=true" class="px-5 py-2.5 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ New Ad</button>
     </div>
 
     <!-- Stats -->
     <div class="grid grid-cols-4 gap-4 mb-8">
-      <div class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <p class="text-2xl font-black mb-1" style="color:#6fffd2">{{ ads.filter(a=>a.is_active).length }}</p>
-        <p class="text-xs" style="color:#6e7f96">Active Ads</p>
+      <div class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <p class="text-2xl font-black mb-1" style="color:var(--accent-teal)">{{ ads.filter(a=>a.is_active).length }}</p>
+        <p class="text-xs" style="color:var(--text-muted)">Active Ads</p>
       </div>
-      <div class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <p class="text-2xl font-black mb-1" style="color:#56d8ff">{{ ads.filter(a=>a.slot==='top10').length }}</p>
-        <p class="text-xs" style="color:#6e7f96">Top 10 Slots</p>
+      <div class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <p class="text-2xl font-black mb-1" style="color:var(--accent-cyan)">{{ ads.filter(a=>a.slot==='top10').length }}</p>
+        <p class="text-xs" style="color:var(--text-muted)">Top 10 Slots</p>
       </div>
-      <div class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+      <div class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <p class="text-2xl font-black mb-1" style="color:#fbbf24">{{ ads.reduce((s,a)=>s+(a.impression_count||0),0).toLocaleString() }}</p>
-        <p class="text-xs" style="color:#6e7f96">Total Impressions</p>
+        <p class="text-xs" style="color:var(--text-muted)">Total Impressions</p>
       </div>
-      <div class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <p class="text-2xl font-black mb-1" style="color:#a78bfa">{{ ads.reduce((s,a)=>s+(a.click_count||0),0).toLocaleString() }}</p>
-        <p class="text-xs" style="color:#6e7f96">Total Clicks</p>
+      <div class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <p class="text-2xl font-black mb-1" style="color:var(--accent-violet)">{{ ads.reduce((s,a)=>s+(a.click_count||0),0).toLocaleString() }}</p>
+        <p class="text-xs" style="color:var(--text-muted)">Total Clicks</p>
       </div>
     </div>
 
     <!-- Tabs -->
     <div class="flex gap-2 mb-6">
       <button v-for="t in slotTabs" :key="t.id" @click="activeTab=t.id" class="px-4 py-2 rounded-xl text-sm font-semibold"
-        :style="activeTab===t.id?'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b':'background:rgba(255,255,255,0.04);color:#6e7f96;border:1px solid rgba(255,255,255,0.08)'">
+        :style="activeTab===t.id?'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)':'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">
         {{ t.label }} ({{ ads.filter(a=>t.id==='all'||a.slot===t.id).length }})
       </button>
     </div>
 
     <!-- Ads list -->
     <div v-if="loading" class="space-y-3">
-      <div v-for="i in 4" :key="i" class="h-20 rounded-2xl animate-pulse" style="background:#0d1117"></div>
+      <div v-for="i in 4" :key="i" class="h-20 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
     </div>
-    <div v-else-if="filteredAds.length===0" class="text-center py-20 rounded-2xl" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-      <p style="color:#6e7f96">No advertisements in this category.</p>
+    <div v-else-if="filteredAds.length===0" class="text-center py-20 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+      <p style="color:var(--text-muted)">No advertisements in this category.</p>
     </div>
     <div v-else class="space-y-3">
-      <div v-for="ad in filteredAds" :key="ad.id" class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+      <div v-for="ad in filteredAds" :key="ad.id" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <div class="flex items-center justify-between flex-wrap gap-4">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2)">
@@ -52,22 +52,22 @@
             </div>
             <div>
               <div class="flex items-center gap-2 mb-0.5">
-                <p class="font-semibold text-sm" style="color:#f0f6fc">{{ ad.name }}</p>
+                <p class="font-semibold text-sm" style="color:var(--text-primary)">{{ ad.name }}</p>
                 <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(251,191,36,0.1);color:#fbbf24">{{ ad.slot }}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(86,216,255,0.1);color:#56d8ff">{{ ad.type }}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full" :style="ad.is_active?'background:rgba(111,255,210,0.1);color:#6fffd2':'background:rgba(239,68,68,0.1);color:#ef4444'">{{ ad.is_active?'Active':'Paused' }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(86,216,255,0.1);color:var(--accent-cyan)">{{ ad.type }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full" :style="ad.is_active?'background:rgba(111,255,210,0.1);color:var(--accent-teal)':'background:rgba(239,68,68,0.1);color:#ef4444'">{{ ad.is_active?'Active':'Paused' }}</span>
               </div>
-              <p class="text-xs" style="color:#6e7f96">
+              <p class="text-xs" style="color:var(--text-muted)">
                 Impressions: {{ (ad.impression_count||0).toLocaleString() }} · Clicks: {{ (ad.click_count||0).toLocaleString() }}
                 <span v-if="ad.starts_at"> · {{ new Date(ad.starts_at).toLocaleDateString('en-GB') }} → {{ ad.ends_at ? new Date(ad.ends_at).toLocaleDateString('en-GB') : 'No end' }}</span>
               </p>
             </div>
           </div>
           <div class="flex gap-2">
-            <button @click="toggleActive(ad)" class="px-3 py-1.5 text-xs rounded-lg" :style="ad.is_active?'background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)':'background:rgba(111,255,210,0.06);color:#6fffd2;border:1px solid rgba(111,255,210,0.15)'">
+            <button @click="toggleActive(ad)" class="px-3 py-1.5 text-xs rounded-lg" :style="ad.is_active?'background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)':'background:rgba(111,255,210,0.06);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)'">
               {{ ad.is_active ? 'Pause' : 'Activate' }}
             </button>
-            <button @click="openEdit(ad)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(86,216,255,0.08);color:#56d8ff;border:1px solid rgba(86,216,255,0.2)">Edit</button>
+            <button @click="openEdit(ad)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">Edit</button>
             <button @click="del(ad.id)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)">Delete</button>
           </div>
         </div>
@@ -76,17 +76,17 @@
 
     <!-- Add/Edit Modal -->
     <div v-if="showAdd||editing" class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.75)" @click.self="showAdd=false;editing=null">
-      <div class="w-full max-w-lg rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(111,255,210,0.25)">
-        <h2 class="font-bold mb-5" style="color:#f0f6fc">{{ editing ? 'Edit Ad' : 'New Advertisement' }}</h2>
+      <div class="w-full max-w-lg rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.25)">
+        <h2 class="font-bold mb-5" style="color:var(--text-primary)">{{ editing ? 'Edit Ad' : 'New Advertisement' }}</h2>
         <div class="space-y-3">
           <div>
-            <label class="text-xs mb-1 block" style="color:#6e7f96">Name (internal)</label>
-            <input v-model="form.name" placeholder="e.g. Toyota Camry Top10 Promo" class="w-full px-4 py-3 rounded-xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc" />
+            <label class="text-xs mb-1 block" style="color:var(--text-muted)">Name (internal)</label>
+            <input v-model="form.name" placeholder="e.g. Toyota Camry Top10 Promo" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="text-xs mb-1 block" style="color:#6e7f96">Slot</label>
-              <select v-model="form.slot" class="w-full px-4 py-3 rounded-xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc">
+              <label class="text-xs mb-1 block" style="color:var(--text-muted)">Slot</label>
+              <select v-model="form.slot" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
                 <option value="top10">Top 10 (Homepage)</option>
                 <option value="banner">Banner</option>
                 <option value="sidebar">Sidebar</option>
@@ -94,8 +94,8 @@
               </select>
             </div>
             <div>
-              <label class="text-xs mb-1 block" style="color:#6e7f96">Type</label>
-              <select v-model="form.type" class="w-full px-4 py-3 rounded-xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc">
+              <label class="text-xs mb-1 block" style="color:var(--text-muted)">Type</label>
+              <select v-model="form.type" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
                 <option value="vehicle">Vehicle</option>
                 <option value="property">Property</option>
                 <option value="both">Both</option>
@@ -103,30 +103,30 @@
             </div>
           </div>
           <div>
-            <label class="text-xs mb-1 block" style="color:#6e7f96">Listing ID (to link to a specific listing)</label>
-            <input v-model="form.listing_id" placeholder="UUID of the listing (optional)" class="w-full px-4 py-3 rounded-xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc" />
+            <label class="text-xs mb-1 block" style="color:var(--text-muted)">Listing ID (to link to a specific listing)</label>
+            <input v-model="form.listing_id" placeholder="UUID of the listing (optional)" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
           </div>
           <div>
-            <label class="text-xs mb-1 block" style="color:#6e7f96">External Link (if no listing)</label>
-            <input v-model="form.link" placeholder="https://..." class="w-full px-4 py-3 rounded-xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc" />
+            <label class="text-xs mb-1 block" style="color:var(--text-muted)">External Link (if no listing)</label>
+            <input v-model="form.link" placeholder="https://..." class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="text-xs mb-1 block" style="color:#6e7f96">Start Date</label>
-              <input v-model="form.starts_at" type="date" class="w-full px-4 py-3 rounded-xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc" />
+              <label class="text-xs mb-1 block" style="color:var(--text-muted)">Start Date</label>
+              <input v-model="form.starts_at" type="date" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
             </div>
             <div>
-              <label class="text-xs mb-1 block" style="color:#6e7f96">End Date</label>
-              <input v-model="form.ends_at" type="date" class="w-full px-4 py-3 rounded-xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc" />
+              <label class="text-xs mb-1 block" style="color:var(--text-muted)">End Date</label>
+              <input v-model="form.ends_at" type="date" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
             </div>
           </div>
-          <label class="flex items-center gap-2 text-sm cursor-pointer" style="color:#f0f6fc">
+          <label class="flex items-center gap-2 text-sm cursor-pointer" style="color:var(--text-primary)">
             <input type="checkbox" v-model="form.is_active" /> Active immediately
           </label>
         </div>
         <div class="flex gap-3 mt-5">
-          <button @click="save" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b">{{ saving?'Saving...':'Save Ad' }}</button>
-          <button @click="showAdd=false;editing=null" class="flex-1 py-3 rounded-xl text-sm" style="border:1px solid rgba(255,255,255,0.1);color:#c5d3e4">Cancel</button>
+          <button @click="save" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ saving?'Saving...':'Save Ad' }}</button>
+          <button @click="showAdd=false;editing=null" class="flex-1 py-3 rounded-xl text-sm" style="border:1px solid var(--border-strong);color:var(--text-secondary)">Cancel</button>
         </div>
       </div>
     </div>

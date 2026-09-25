@@ -4,7 +4,6 @@
       <div class="text-center mb-8">
         <RouterLink to="/" class="inline-flex items-center gap-2 mb-6">
           <BrandLogo :size="40" />
-          <span class="font-black text-2xl text-white">HubPrice<span class="text-sky-400">.AI</span></span>
         </RouterLink>
         <h1 class="text-3xl font-black text-white mb-2">Create Account</h1>
         <p class="text-slate-400">Join the AI marketplace revolution</p>

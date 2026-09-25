@@ -10,15 +10,20 @@ use App\Models\PriceHistory;
 use App\Models\Property;
 use App\Models\Rental;
 use App\Models\Vehicle;
+use App\Services\AI\RankingEngineService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ListingController extends Controller
 {
+    public function __construct(private RankingEngineService $rankingEngine)
+    {
+    }
+
     public function featured(): JsonResponse
     {
-        $listings = Listing::with(['listable', 'user:id,name,avatar'])
+        $listings = Listing::with(['listable'])
             ->where('status', 'active')
             ->where(function ($q) {
                 $q->where('is_featured', true)->orWhereNotNull('ai_trust_score');
@@ -32,22 +37,42 @@ class ListingController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Listing::with(['listable', 'user:id,name,avatar'])->where('status', 'active');
+        $query = Listing::with(['listable'])->where('status', 'active');
         if ($request->type) $query->where('type', $request->type);
         if ($request->city) $query->where('city', 'like', '%' . $request->city . '%');
         if ($request->min_price) $query->where('price', '>=', $request->min_price);
         if ($request->max_price) $query->where('price', '<=', $request->max_price);
+        if ($request->min_bedrooms) {
+            $query->whereHasMorph('listable', [\App\Models\Property::class, \App\Models\Rental::class], function ($q) use ($request) {
+                $q->where('bedrooms', '>=', $request->min_bedrooms);
+            });
+        }
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%')
                   ->orWhere('city', 'like', '%' . $request->search . '%');
             });
         }
+        // FIND / DEAL / INVEST — dynamic ranking (see RankingEngineService).
+        // Takes priority over `sort` when present; `sort` still works for
+        // buyers who just want plain price/newest ordering.
+        if ($request->mode && in_array($request->mode, RankingEngineService::MODES, true)) {
+            $this->rankingEngine->applyToQuery($query, $request->mode);
+            $result = $query->paginate($request->per_page ?? 12);
+
+            return response()->json([
+                ...$result->toArray(),
+                'ranking_mode' => $request->mode,
+                'ranking_weights' => $this->rankingEngine->weights($request->mode),
+            ]);
+        }
+
         $sort = $request->sort ?? 'newest';
         match ($sort) {
             'price_asc' => $query->orderBy('price'),
             'price_desc' => $query->orderByDesc('price'),
             'most_viewed' => $query->orderByDesc('view_count'),
+            'trust_score' => $query->orderByDesc('ai_trust_score'),
             default => $query->orderByDesc('published_at'),
         };
         return response()->json($query->paginate($request->per_page ?? 12));
@@ -55,13 +80,31 @@ class ListingController extends Controller
 
     public function show(Request $request, string $slug): JsonResponse
     {
-        $listing = Listing::with(['listable', 'user.profile', 'documents'])
+        // Never expose the owner's identity to buyers — inquiries go through
+        // admin, who relays contact manually. See POST /listings/{id}/inquire.
+        $listing = Listing::with(['listable', 'documents'])
             ->where('slug', $slug)->where('status', 'active')->firstOrFail();
         $listing->increment('view_count');
         ListingView::create(['listing_id' => $listing->id, 'user_id' => $request->user()?->id, 'ip_address' => $request->ip()]);
-        $comparables = Listing::where('type', $listing->type)->where('id', '!=', $listing->id)
-            ->where('status', 'active')->inRandomOrder()->limit(6)
+        // Price-band filter: ±40% of current listing price so similar class is shown
+        $price = $listing->price;
+        $comparableQuery = Listing::where('type', $listing->type)
+            ->where('id', '!=', $listing->id)
+            ->where('status', 'active');
+        if ($price && $price > 0) {
+            $comparableQuery->whereBetween('price', [$price * 0.6, $price * 1.4]);
+        }
+        $comparables = $comparableQuery->inRandomOrder()->limit(6)
             ->get(['id', 'title', 'price', 'currency', 'slug', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city']);
+        // Fallback: if not enough results in band, widen to ±65%
+        if ($comparables->count() < 3 && $price && $price > 0) {
+            $comparables = Listing::where('type', $listing->type)
+                ->where('id', '!=', $listing->id)
+                ->where('status', 'active')
+                ->whereBetween('price', [$price * 0.35, $price * 1.65])
+                ->inRandomOrder()->limit(6)
+                ->get(['id', 'title', 'price', 'currency', 'slug', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city']);
+        }
         return response()->json([
             'listing' => $listing,
             'comparable_listings' => $comparables,

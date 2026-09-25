@@ -1,36 +1,36 @@
 <template>
   <div class="p-8">
     <div class="mb-8">
-      <h1 class="text-3xl font-black mb-1" style="color:#f0f6fc">Dashboard <span class="gradient-text">Overview</span></h1>
-      <p class="text-sm" style="color:#6e7f96">Welcome back, {{ auth.user?.name }}</p>
+      <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Dashboard <span class="gradient-text">Overview</span></h1>
+      <p class="text-sm" style="color:var(--text-muted)">Welcome back, {{ auth.user?.name }}</p>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <div v-for="s in stats" :key="s.label" class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+      <div v-for="s in stats" :key="s.label" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <p class="text-2xl font-black mb-1" :style="{color:s.color}">{{ s.value }}</p>
-        <p class="text-xs" style="color:#6e7f96">{{ s.label }}</p>
+        <p class="text-xs" style="color:var(--text-muted)">{{ s.label }}</p>
       </div>
     </div>
-    <div class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+    <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
       <div class="flex items-center justify-between mb-5">
-        <h2 class="font-bold" style="color:#f0f6fc">Recent Listings</h2>
-        <RouterLink to="/dashboard/listings/new" class="px-4 py-2 text-xs font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b">+ New Listing</RouterLink>
+        <h2 class="font-bold" style="color:var(--text-primary)">Recent Listings</h2>
+        <RouterLink to="/dashboard/listings/new" class="px-4 py-2 text-xs font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ New Listing</RouterLink>
       </div>
       <div v-if="loading" class="space-y-2">
-        <div v-for="i in 3" :key="i" class="h-14 rounded-xl animate-pulse" style="background:rgba(255,255,255,0.04)"></div>
+        <div v-for="i in 3" :key="i" class="h-14 rounded-xl animate-pulse" style="background:var(--surface-overlay)"></div>
       </div>
       <div v-else-if="listings.length===0" class="text-center py-10">
         <p class="text-4xl mb-3">📋</p>
-        <p class="text-sm mb-4" style="color:#6e7f96">No listings yet</p>
-        <RouterLink to="/dashboard/listings/new" class="px-4 py-2 text-xs font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b">Create First Listing</RouterLink>
+        <p class="text-sm mb-4" style="color:var(--text-muted)">No listings yet</p>
+        <RouterLink to="/dashboard/listings/new" class="px-4 py-2 text-xs font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Create First Listing</RouterLink>
       </div>
       <div v-else class="space-y-2">
-        <div v-for="l in listings.slice(0,5)" :key="l.id" class="flex items-center justify-between p-4 rounded-xl" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)">
+        <div v-for="l in listings.slice(0,5)" :key="l.id" class="flex items-center justify-between p-4 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--surface-overlay)">
           <div>
-            <p class="font-medium text-sm" style="color:#f0f6fc">{{ l.title }}</p>
-            <p class="text-xs mt-0.5" style="color:#6e7f96">{{ l.type }} &middot; {{ l.listing_number }}</p>
+            <p class="font-medium text-sm" style="color:var(--text-primary)">{{ l.title }}</p>
+            <p class="text-xs mt-0.5" style="color:var(--text-muted)">{{ l.type }} &middot; {{ l.listing_number }}</p>
           </div>
           <div class="flex items-center gap-4">
-            <span class="font-semibold text-sm" style="color:#6fffd2">{{ formatPrice(l.price, l.currency) }}</span>
+            <span class="font-semibold text-sm" style="color:var(--accent-teal)">{{ formatPrice(l.price, l.currency) }}</span>
             <span class="text-xs px-2 py-0.5 rounded-full capitalize" :style="statusStyle(l.status)">{{ l.status }}</span>
           </div>
         </div>
@@ -54,5 +54,5 @@ const stats = computed(() => [
   { label: 'Total Views', value: listings.value.reduce((s:number,l:any) => s+(l.view_count||0), 0), color: '#a78bfa' },
 ])
 function formatPrice(v:number, cur='GBP') { return new Intl.NumberFormat('en-GB',{style:'currency',currency:cur||'GBP',maximumFractionDigits:0}).format(v) }
-function statusStyle(s:string) { const m:Record<string,string>={active:'background:rgba(111,255,210,0.1);color:#6fffd2',pending:'background:rgba(251,191,36,0.1);color:#fbbf24',rejected:'background:rgba(239,68,68,0.1);color:#ef4444'}; return m[s]||'background:rgba(255,255,255,0.05);color:#6e7f96' }
+function statusStyle(s:string) { const m:Record<string,string>={active:'background:rgba(111,255,210,0.1);color:var(--accent-teal)',pending:'background:rgba(251,191,36,0.1);color:#fbbf24',rejected:'background:rgba(239,68,68,0.1);color:#ef4444'}; return m[s]||'background:var(--surface-overlay);color:var(--text-muted)' }
 </script>

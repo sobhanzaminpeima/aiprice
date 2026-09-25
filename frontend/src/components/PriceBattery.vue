@@ -79,7 +79,7 @@ const fillStyle = computed(() => ({
   border: 2px solid rgba(255,255,255,0.2);
   border-radius: 4px;
   overflow: hidden;
-  background: rgba(255,255,255,0.05);
+  background: var(--surface-overlay);
 }
 
 .price-battery.sm .battery-body { width: 40px; height: 18px; border-radius: 3px; }
@@ -131,7 +131,7 @@ const fillStyle = computed(() => ({
 
 .battery-sub {
   font-size: 10px;
-  color: #6e7f96;
+  color: var(--text-muted);
   line-height: 1.2;
 }
 </style>

@@ -118,7 +118,15 @@
       "Bash(curl -s http://127.0.0.1:8123/install)",
       "Bash(grep -iE \"^\\(gd|imagick|fileinfo|openssl|mbstring|intl|pdo_mysql\\)$\")",
       "Bash(php -r \"echo extension_loaded\\('gd'\\)?'GD: yes':'GD: NO'; echo PHP_EOL; echo extension_loaded\\('fileinfo'\\)?'fileinfo: yes':'fileinfo: NO';\")",
-      "Bash(php -r \"echo extension_loaded\\('gd'\\)?'GD now: yes':'GD: still NO';\")"
+      "Bash(php -r \"echo extension_loaded\\('gd'\\)?'GD now: yes':'GD: still NO';\")",
+      "PowerShell(Get-Process -Id 12820)",
+      "Bash(ls \"E:/Codex/AI Chat\" 2>/dev/null || echo \"EMPTY_OR_NOT_EXISTS\")",
+      "PowerShell(cd \"E:\\\\Codex\\\\AI Chat\\\\ai-platform\"; $env:DATABASE_URL=\"file:./prisma/dev.db\"; npx prisma migrate dev --name init 2>&1)",
+      "PowerShell(cmd /c \"E: && cd \"\"E:\\\\Codex\\\\AI Agent\\\\backend\"\" && node \"\"node_modules/@nestjs/cli/bin/nest.js\"\" build 2>&1\")",
+      "PowerShell(Start-Process powershell -ArgumentList \"-NoExit\", \"-Command\", \"E:; cd 'E:\\\\Codex\\\\AI Agent\\\\backend'; Write-Host '=== BACKEND STARTING ===' -ForegroundColor Green; node dist/main\" -WindowStyle Normal)",
+      "Bash(node \"C:/Users/InexpoAI/AppData/Local/Temp/sshwork/fix-db.js\")",
+      "Bash(node \"C:/Users/InexpoAI/AppData/Local/Temp/sshwork/check-backend.js\")",
+      "Bash(node \"C:/Users/InexpoAI/AppData/Local/Temp/sshwork/fix-mysql.js\")"
     ]
   }
 }

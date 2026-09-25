@@ -2,12 +2,15 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-:root {
+:root, :root[data-theme="dark"] {
   --bg-base: #05070b;
   --bg-surface: #0d1117;
   --bg-card: #0f1923;
   --bg-elevated: #131d2a;
   --border-subtle: rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.12);
+  --surface-overlay: rgba(255,255,255,0.045);
+  --surface-overlay-soft: rgba(255,255,255,0.025);
   --border-teal: rgba(111,255,210,0.18);
   --border-cyan: rgba(86,216,255,0.15);
   --accent-teal: #6fffd2;
@@ -18,9 +21,44 @@
   --text-muted: #6e7f96;
   --glow-teal: rgba(111,255,210,0.15);
   --glow-cyan: rgba(86,216,255,0.12);
+  --nav-bg: rgba(5,7,11,0.85);
+  --scroll-thumb: #1e3a4a;
+  --bg-card-translucent: rgba(13,17,23,0.7);
+  --on-accent: #05070b;
+}
+
+:root[data-theme="light"] {
+  --bg-base: #f4f7fb;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-elevated: #f0f4f9;
+  --border-subtle: rgba(15,30,55,0.10);
+  --border-strong: rgba(15,30,55,0.16);
+  --surface-overlay: rgba(15,30,55,0.04);
+  --surface-overlay-soft: rgba(15,30,55,0.025);
+  --border-teal: rgba(13,160,140,0.30);
+  --border-cyan: rgba(20,140,200,0.25);
+  --accent-teal: #0bbf9a;
+  --accent-cyan: #1391c9;
+  --accent-violet: #7c5cff;
+  --text-primary: #0c1623;
+  --text-secondary: #3a4a5e;
+  --text-muted: #6a7a8d;
+  --glow-teal: rgba(11,191,154,0.12);
+  --glow-cyan: rgba(19,145,201,0.10);
+  --nav-bg: rgba(255,255,255,0.85);
+  --scroll-thumb: #c2cedd;
+  --bg-card-translucent: rgba(255,255,255,0.8);
+  --on-accent: #05070b;
 }
 
 html { scroll-behavior: smooth; }
+
+/* Brand logo is dark-navy artwork; render it as a flat white mark on the
+   default dark theme (where it would otherwise vanish against --nav-bg)
+   and keep its true color on the light theme. */
+.brand-logo-img { filter: brightness(0) invert(1); }
+:root[data-theme="light"] .brand-logo-img { filter: none; }
 
 body {
   background-color: var(--bg-base);
@@ -36,8 +74,8 @@ body {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
-::-webkit-scrollbar-thumb { background: #1e3a4a; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #2a4f63; }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb); }
 
 /* Glass morphism */
 .glass {

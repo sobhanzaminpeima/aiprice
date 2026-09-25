@@ -1,4 +1,4 @@
-# HubPrice.AI — Developer Setup Guide
+# AIPrice.app — Developer Setup Guide
 
 ## Architecture
 
@@ -7,7 +7,7 @@ Frontend (Vue 3 + Vite)  →  localhost:3000
      ↕ proxy /api → localhost:8000
 Backend (Laravel 12)      →  localhost:8000
      ↕
-MySQL (XAMPP)             →  localhost:3306  DB: hubprice
+MySQL (XAMPP)             →  localhost:3306  DB: aiprice
 ```
 
 ## Stack
@@ -31,13 +31,13 @@ Or use XAMPP Control Panel → Start MySQL.
 
 ### 2. Start Laravel Backend
 ```powershell
-cd E:\Codex\Hubprice\backend
+cd E:\Codex\AIPrice\backend
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
 ### 3. Start Vue Frontend
 ```powershell
-cd E:\Codex\Hubprice\frontend
+cd E:\Codex\AIPrice\frontend
 npm run dev
 ```
 
@@ -48,7 +48,7 @@ Then open: **http://localhost:3000**
 ## Admin Login
 
 - URL: `http://localhost:3000/admin`
-- Email: `admin@hubprice.ai`
+- Email: `admin@aiprice.app`
 - Password: `Admin@123456`
 
 ---
@@ -93,7 +93,7 @@ const client = axios.create({ baseURL: '/api/v1' })
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=hubprice
+DB_DATABASE=aiprice
 DB_USERNAME=root
 DB_PASSWORD=
 ```

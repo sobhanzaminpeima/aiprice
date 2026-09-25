@@ -18,6 +18,26 @@ class UserManagementController extends Controller
         return response()->json($q->paginate(20));
     }
 
+    public function store(Request $request): JsonResponse
+    {
+        $v = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+            'role' => 'required|in:buyer,seller,dealer,agency,investor,premium,moderator,support,finance_manager,ai_analyst,admin',
+            'phone' => 'nullable|string|max:20',
+            'business_name' => 'nullable|string|max:255',
+        ]);
+        $user = User::create([
+            'name' => $v['name'], 'email' => $v['email'], 'password' => Hash::make($v['password']),
+            'role' => $v['role'], 'phone' => $v['phone'] ?? null,
+            'is_active' => true, 'email_verified_at' => now(),
+        ]);
+        $user->assignRole($v['role']);
+        $user->profile()->create(['business_name' => $v['business_name'] ?? null]);
+        return response()->json(['user' => $user->load('profile'), 'message' => 'User created.'], 201);
+    }
+
     public function show(string $id): JsonResponse
     {
         return response()->json(User::withTrashed()->with(['profile', 'kyc', 'listings', 'activeSubscription.plan'])->findOrFail($id));

@@ -2,18 +2,18 @@
   <div class="p-8">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="text-3xl font-black mb-1" style="color:#f0f6fc">Competitor <span class="gradient-text">Intelligence</span></h1>
-        <p class="text-sm" style="color:#6e7f96">Market data sources — used only for AI price analysis, never shown as listings</p>
+        <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Competitor <span class="gradient-text">Intelligence</span></h1>
+        <p class="text-sm" style="color:var(--text-muted)">Market data sources — used only for AI price analysis, never shown as listings</p>
       </div>
       <div class="flex gap-3">
         <button @click="importAll" :disabled="importing"
           class="px-4 py-2.5 text-sm font-semibold rounded-xl disabled:opacity-50 transition-all"
-          style="background:rgba(167,139,250,0.1);color:#a78bfa;border:1px solid rgba(167,139,250,0.25)">
+          style="background:rgba(167,139,250,0.1);color:var(--accent-violet);border:1px solid rgba(167,139,250,0.25)">
           {{ importing ? 'Importing...' : 'Import All' }}
         </button>
         <button @click="showAdd = true"
           class="px-5 py-2.5 text-sm font-semibold rounded-xl"
-          style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b">
+          style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
           + Add Source
         </button>
       </div>
@@ -22,8 +22,8 @@
     <!-- Import result -->
     <div v-if="importResult" class="mb-6 rounded-2xl p-4"
       style="background:rgba(111,255,210,0.06);border:1px solid rgba(111,255,210,0.2)">
-      <p class="font-semibold mb-2" style="color:#6fffd2">Import Complete</p>
-      <div v-for="r in importResult" :key="r.source" class="text-sm" style="color:#c5d3e4">
+      <p class="font-semibold mb-2" style="color:var(--accent-teal)">Import Complete</p>
+      <div v-for="r in importResult" :key="r.source" class="text-sm" style="color:var(--text-secondary)">
         {{ r.source }}: +{{ r.imported }} new, {{ r.updated }} updated
         <span v-if="r.errors" style="color:#ef4444"> ({{ r.errors }} errors)</span>
       </div>
@@ -32,54 +32,54 @@
     <!-- Sources -->
     <div class="space-y-4 mb-8">
       <div v-for="s in sources" :key="s.id" class="rounded-2xl p-5"
-        style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+        style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-2">
-              <h3 class="font-semibold text-lg" style="color:#f0f6fc">{{ s.name }}</h3>
+              <h3 class="font-semibold text-lg" style="color:var(--text-primary)">{{ s.name }}</h3>
               <span class="text-xs px-2 py-0.5 rounded-full capitalize font-medium"
-                :style="s.is_active ? 'background:rgba(111,255,210,0.1);color:#6fffd2' : 'background:rgba(239,68,68,0.1);color:#ef4444'">
+                :style="s.is_active ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : 'background:rgba(239,68,68,0.1);color:#ef4444'">
                 {{ s.is_active ? 'Active' : 'Paused' }}
               </span>
               <span class="text-xs px-2 py-0.5 rounded-full capitalize"
-                style="background:rgba(255,255,255,0.06);color:#6e7f96">
+                style="background:var(--border-subtle);color:var(--text-muted)">
                 {{ s.type }}
               </span>
             </div>
-            <a :href="s.url" target="_blank" class="text-xs" style="color:#56d8ff">{{ s.url }}</a>
+            <a :href="s.url" target="_blank" class="text-xs" style="color:var(--accent-cyan)">{{ s.url }}</a>
             <div class="flex items-center gap-6 mt-3">
               <div class="text-center">
-                <p class="text-2xl font-black" style="color:#f0f6fc">{{ (stats[s.id]?.total_listings || 0).toLocaleString() }}</p>
-                <p class="text-xs" style="color:#6e7f96">Listings</p>
+                <p class="text-2xl font-black" style="color:var(--text-primary)">{{ (stats[s.id]?.total_listings || 0).toLocaleString() }}</p>
+                <p class="text-xs" style="color:var(--text-muted)">Listings</p>
               </div>
               <div class="text-center">
-                <p class="text-sm font-bold" style="color:#f0f6fc">{{ stats[s.id]?.avg_price ? formatPrice(stats[s.id].avg_price, s.type === 'vehicle' ? 'TRY' : 'GBP') : '-' }}</p>
-                <p class="text-xs" style="color:#6e7f96">Avg Price</p>
+                <p class="text-sm font-bold" style="color:var(--text-primary)">{{ stats[s.id]?.avg_price ? formatPrice(stats[s.id].avg_price, s.type === 'vehicle' ? 'TRY' : 'GBP') : '-' }}</p>
+                <p class="text-xs" style="color:var(--text-muted)">Avg Price</p>
               </div>
               <div class="text-center">
-                <p class="text-xs" style="color:#c5d3e4">{{ s.last_scraped_at ? formatDate(s.last_scraped_at) : 'Never' }}</p>
-                <p class="text-xs" style="color:#6e7f96">Last Import</p>
+                <p class="text-xs" style="color:var(--text-secondary)">{{ s.last_scraped_at ? formatDate(s.last_scraped_at) : 'Never' }}</p>
+                <p class="text-xs" style="color:var(--text-muted)">Last Import</p>
               </div>
               <div class="text-center">
-                <p class="text-xs capitalize" style="color:#c5d3e4">{{ s.scrape_interval || 'daily' }}</p>
-                <p class="text-xs" style="color:#6e7f96">Schedule</p>
+                <p class="text-xs capitalize" style="color:var(--text-secondary)">{{ s.scrape_interval || 'daily' }}</p>
+                <p class="text-xs" style="color:var(--text-muted)">Schedule</p>
               </div>
             </div>
           </div>
           <div class="flex flex-col gap-2 ml-6">
             <button @click="importSource(s)" :disabled="importingId === s.id"
               class="px-4 py-2 text-xs rounded-xl font-medium disabled:opacity-50 transition-all"
-              style="background:rgba(86,216,255,0.08);color:#56d8ff;border:1px solid rgba(86,216,255,0.2)">
+              style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">
               {{ importingId === s.id ? 'Importing...' : 'Import Now' }}
             </button>
             <button @click="toggleSource(s)"
               class="px-4 py-2 text-xs rounded-xl font-medium transition-all"
-              style="background:rgba(255,255,255,0.04);color:#6e7f96;border:1px solid rgba(255,255,255,0.08)">
+              style="background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)">
               {{ s.is_active ? 'Pause' : 'Activate' }}
             </button>
             <button @click="viewListings(s)"
               class="px-4 py-2 text-xs rounded-xl font-medium transition-all"
-              style="background:rgba(167,139,250,0.08);color:#a78bfa;border:1px solid rgba(167,139,250,0.2)">
+              style="background:rgba(167,139,250,0.08);color:var(--accent-violet);border:1px solid rgba(167,139,250,0.2)">
               View Data
             </button>
           </div>
@@ -87,28 +87,28 @@
       </div>
 
       <div v-if="sources.length === 0" class="text-center py-16 rounded-2xl"
-        style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+        style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <div class="text-5xl mb-3">C</div>
-        <p class="font-semibold" style="color:#f0f6fc">No competitor sources configured</p>
-        <p class="text-xs mt-1" style="color:#6e7f96">Add kktcarabam, hangiev, noyanlarinvest, etc.</p>
+        <p class="font-semibold" style="color:var(--text-primary)">No competitor sources configured</p>
+        <p class="text-xs mt-1" style="color:var(--text-muted)">Add kktcarabam, hangiev, noyanlarinvest, etc.</p>
       </div>
     </div>
 
     <!-- Data Preview Table -->
-    <div v-if="selectedSource" class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+    <div v-if="selectedSource" class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
       <div class="flex items-center justify-between mb-5">
-        <h2 class="font-bold" style="color:#f0f6fc">{{ selectedSource.name }} — Imported Data</h2>
+        <h2 class="font-bold" style="color:var(--text-primary)">{{ selectedSource.name }} — Imported Data</h2>
         <span class="text-xs px-3 py-1 rounded-full"
           style="background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.2)">
           AI Analysis Only — Not Public
         </span>
       </div>
       <div v-if="loadingListings" class="space-y-2">
-        <div v-for="i in 5" :key="i" class="h-12 rounded-xl animate-pulse" style="background:rgba(255,255,255,0.04)"></div>
+        <div v-for="i in 5" :key="i" class="h-12 rounded-xl animate-pulse" style="background:var(--surface-overlay)"></div>
       </div>
       <table v-else class="w-full">
         <thead>
-          <tr class="text-xs" style="color:#6e7f96;border-bottom:1px solid rgba(255,255,255,0.06)">
+          <tr class="text-xs" style="color:var(--text-muted);border-bottom:1px solid var(--border-subtle)">
             <th class="text-left pb-3 font-medium">Title</th>
             <th class="text-left pb-3 font-medium">Price</th>
             <th class="text-left pb-3 font-medium">City</th>
@@ -118,22 +118,22 @@
         </thead>
         <tbody>
           <tr v-for="l in competitorListings" :key="l.id" class="border-b text-xs"
-            style="border-color:rgba(255,255,255,0.04)">
-            <td class="py-3" style="color:#f0f6fc">{{ l.title }}</td>
-            <td class="py-3 font-medium" style="color:#6fffd2">{{ l.price ? formatPrice(l.price, l.currency) : '-' }}</td>
-            <td class="py-3" style="color:#6e7f96">{{ l.city || '-' }}</td>
+            style="border-color:var(--surface-overlay)">
+            <td class="py-3" style="color:var(--text-primary)">{{ l.title }}</td>
+            <td class="py-3 font-medium" style="color:var(--accent-teal)">{{ l.price ? formatPrice(l.price, l.currency) : '-' }}</td>
+            <td class="py-3" style="color:var(--text-muted)">{{ l.city || '-' }}</td>
             <td class="py-3">
               <span class="px-2 py-0.5 rounded-full capitalize"
-                style="background:rgba(255,255,255,0.06);color:#6e7f96">{{ l.type }}</span>
+                style="background:var(--border-subtle);color:var(--text-muted)">{{ l.type }}</span>
             </td>
-            <td class="py-3" style="color:#6e7f96">{{ formatDate(l.created_at) }}</td>
+            <td class="py-3" style="color:var(--text-muted)">{{ formatDate(l.created_at) }}</td>
           </tr>
         </tbody>
       </table>
       <div v-if="competitorPagination.last_page > 1" class="flex gap-2 mt-4">
         <button v-for="p in competitorPagination.last_page" :key="p" @click="loadListingsPage(p)"
           class="w-8 h-8 rounded-lg text-xs font-semibold"
-          :style="p === competitorPagination.current_page ? 'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b' : 'background:rgba(255,255,255,0.06);color:#6e7f96'">
+          :style="p === competitorPagination.current_page ? 'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)' : 'background:var(--border-subtle);color:var(--text-muted)'">
           {{ p }}
         </button>
       </div>
@@ -142,36 +142,36 @@
     <!-- Add Source Modal -->
     <div v-if="showAdd" class="fixed inset-0 flex items-center justify-center z-50"
       style="background:rgba(0,0,0,0.7)" @click.self="showAdd = false">
-      <div class="rounded-2xl p-6 w-full max-w-md" style="background:#0d1117;border:1px solid rgba(111,255,210,0.2)">
-        <h2 class="font-bold mb-5" style="color:#f0f6fc">Add Competitor Source</h2>
+      <div class="rounded-2xl p-6 w-full max-w-md" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.2)">
+        <h2 class="font-bold mb-5" style="color:var(--text-primary)">Add Competitor Source</h2>
         <form @submit.prevent="addSource" class="space-y-4">
           <input v-model="newSource.name" required placeholder="Display name (e.g. KKT Carabam)"
             class="w-full px-4 py-3 rounded-xl text-sm outline-none"
-            style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc" />
+            style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
           <input v-model="newSource.url" required type="url" placeholder="https://..."
             class="w-full px-4 py-3 rounded-xl text-sm outline-none"
-            style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc" />
+            style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
           <select v-model="newSource.type"
             class="w-full px-4 py-3 rounded-xl text-sm"
-            style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc">
+            style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
             <option value="vehicle">Vehicle</option>
             <option value="property">Property</option>
             <option value="rental">Rental</option>
           </select>
           <select v-model="newSource.scrape_interval"
             class="w-full px-4 py-3 rounded-xl text-sm"
-            style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc">
+            style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
             <option value="hourly">Every Hour</option>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
           </select>
           <div class="flex gap-3">
             <button type="submit" class="flex-1 py-3 font-bold text-sm rounded-xl"
-              style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:#05070b">
+              style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
               Add Source
             </button>
             <button type="button" @click="showAdd = false" class="flex-1 py-3 text-sm rounded-xl"
-              style="border:1px solid rgba(255,255,255,0.1);color:#c5d3e4">
+              style="border:1px solid var(--border-strong);color:var(--text-secondary)">
               Cancel
             </button>
           </div>

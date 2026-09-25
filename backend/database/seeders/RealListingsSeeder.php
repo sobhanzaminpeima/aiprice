@@ -77,11 +77,11 @@ class RealListingsSeeder extends Seeder
     {
         $seller = User::where('role', 'dealer')->first()
             ?? User::where('role', 'seller')->first()
-            ?? User::where('email', 'admin@hubprice.ai')->first();
+            ?? User::where('email', 'admin@aiprice.app')->first();
         if (!$seller) return;
 
         UserProfile::firstOrCreate(['user_id' => $seller->id], [
-            'business_name' => 'HubPrice Motors',
+            'business_name' => 'AIPrice Motors',
             'country' => 'CY',
             'city' => 'Lefkosa',
         ]);

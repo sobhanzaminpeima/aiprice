@@ -1,34 +1,34 @@
 <template>
   <div v-if="loading" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
-      <div class="w-12 h-12 rounded-full border-2 animate-spin mx-auto mb-4" style="border-color:rgba(111,255,210,0.2);border-top-color:#6fffd2"></div>
-      <p style="color:#6e7f96">Loading property...</p>
+      <div class="w-12 h-12 rounded-full border-2 animate-spin mx-auto mb-4" style="border-color:rgba(111,255,210,0.2);border-top-color:var(--accent-teal)"></div>
+      <p style="color:var(--text-muted)">Loading property...</p>
     </div>
   </div>
 
   <div v-else-if="!listing" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
       <p class="text-6xl mb-4">🏠</p>
-      <h2 class="text-xl font-bold mb-2" style="color:#f0f6fc">Property Not Found</h2>
+      <h2 class="text-xl font-bold mb-2" style="color:var(--text-primary)">Property Not Found</h2>
       <RouterLink to="/properties" class="btn-primary mt-4 inline-block">Browse Properties</RouterLink>
     </div>
   </div>
 
   <div v-else>
     <!-- Hero gallery -->
-    <div class="relative" style="height:500px;background:#080d13">
+    <div class="relative" style="height:500px;background:var(--bg-surface)">
       <img v-if="activeImage && !imgErr" :src="activeImage" :alt="listing.title" class="w-full h-full object-cover" @error="imgErr = true" />
       <div v-else class="w-full h-full flex items-center justify-center text-9xl opacity-20">🏠</div>
       <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(5,7,11,0.15) 0%,transparent 35%,rgba(5,7,11,0.85) 100%)"></div>
 
       <!-- Thumbnails -->
       <div v-if="images.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        <button v-for="(img, i) in images" :key="i" @click="setImg(img)" class="w-16 h-11 rounded-xl overflow-hidden border-2 transition" :style="activeImage === img ? 'border-color:#6fffd2' : 'border-color:rgba(255,255,255,0.2)'">
+        <button v-for="(img, i) in images" :key="i" @click="setImg(img)" class="w-16 h-11 rounded-xl overflow-hidden border-2 transition" :style="activeImage === img ? 'border-color:var(--accent-teal)' : 'border-color:rgba(255,255,255,0.2)'">
           <img :src="img" class="w-full h-full object-cover" />
         </button>
       </div>
 
-      <RouterLink to="/properties" class="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium" style="background:rgba(0,0,0,0.5);color:#f0f6fc;backdrop-filter:blur(8px)">
+      <RouterLink to="/properties" class="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium" style="background:rgba(0,0,0,0.5);color:var(--text-primary);backdrop-filter:blur(8px)">
         ← Properties
       </RouterLink>
 
@@ -52,17 +52,17 @@
 
           <!-- Key facts ribbon -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div v-for="f in keyFacts" :key="f.label" class="rounded-xl p-4 text-center" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
+            <div v-for="f in keyFacts" :key="f.label" class="rounded-xl p-4 text-center" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
               <div class="text-2xl mb-1">{{ f.icon }}</div>
-              <div class="text-base font-black" style="color:#f0f6fc">{{ f.value }}</div>
-              <div class="text-xs mt-0.5" style="color:#6e7f96">{{ f.label }}</div>
+              <div class="text-base font-black" style="color:var(--text-primary)">{{ f.value }}</div>
+              <div class="text-xs mt-0.5" style="color:var(--text-muted)">{{ f.label }}</div>
             </div>
           </div>
 
           <!-- Property details -->
-          <div class="rounded-2xl p-6" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h2 class="font-bold text-lg mb-5 flex items-center gap-2" style="color:#f0f6fc">
-              <span style="color:#56d8ff">🏠</span> Property Details
+          <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold text-lg mb-5 flex items-center gap-2" style="color:var(--text-primary)">
+              <span style="color:var(--accent-cyan)">🏠</span> Property Details
             </h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-5">
               <SpecItem v-if="property?.bedrooms" icon="🛏" label="Bedrooms" :value="String(property.bedrooms)" />
@@ -77,10 +77,10 @@
             </div>
 
             <!-- Amenities -->
-            <div class="mt-6 pt-5" style="border-top:1px solid rgba(255,255,255,0.06)">
-              <h3 class="text-sm font-semibold mb-3" style="color:#c5d3e4">Amenities</h3>
+            <div class="mt-6 pt-5" style="border-top:1px solid var(--border-subtle)">
+              <h3 class="text-sm font-semibold mb-3" style="color:var(--text-secondary)">Amenities</h3>
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <div v-for="a in amenitiesList" :key="a.label" class="flex items-center gap-2 text-xs py-2 px-3 rounded-lg" :style="a.has ? 'background:rgba(111,255,210,0.06);color:#6fffd2;border:1px solid rgba(111,255,210,0.15)' : 'background:rgba(255,255,255,0.02);color:#6e7f96;border:1px solid rgba(255,255,255,0.05)'">
+                <div v-for="a in amenitiesList" :key="a.label" class="flex items-center gap-2 text-xs py-2 px-3 rounded-lg" :style="a.has ? 'background:rgba(111,255,210,0.06);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)' : 'background:var(--surface-overlay-soft);color:var(--text-muted);border:1px solid var(--surface-overlay)'">
                   <span>{{ a.has ? '✓' : '✗' }}</span> {{ a.label }}
                 </div>
               </div>
@@ -88,19 +88,19 @@
           </div>
 
           <!-- Description -->
-          <div class="rounded-2xl p-6" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h2 class="font-bold text-lg mb-4" style="color:#f0f6fc">About This Property</h2>
-            <p class="text-sm leading-relaxed whitespace-pre-line" style="color:#c5d3e4">{{ listing.description }}</p>
+          <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold text-lg mb-4" style="color:var(--text-primary)">About This Property</h2>
+            <p class="text-sm leading-relaxed whitespace-pre-line" style="color:var(--text-secondary)">{{ listing.description }}</p>
           </div>
 
           <!-- Location info -->
-          <div class="rounded-2xl p-6" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h2 class="font-bold text-lg mb-4" style="color:#f0f6fc">📍 Location</h2>
+          <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold text-lg mb-4" style="color:var(--text-primary)">📍 Location</h2>
             <div class="grid grid-cols-3 gap-4">
-              <div v-for="loc in nearbyLocations" :key="loc.label" class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+              <div v-for="loc in nearbyLocations" :key="loc.label" class="rounded-xl p-3 text-center" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
                 <div class="text-lg mb-1">{{ loc.icon }}</div>
-                <div class="text-sm font-bold" style="color:#f0f6fc">{{ loc.dist }}</div>
-                <div class="text-xs" style="color:#6e7f96">{{ loc.label }}</div>
+                <div class="text-sm font-bold" style="color:var(--text-primary)">{{ loc.dist }}</div>
+                <div class="text-xs" style="color:var(--text-muted)">{{ loc.label }}</div>
               </div>
             </div>
           </div>
@@ -108,18 +108,18 @@
           <!-- AI Investment Analysis -->
           <div class="rounded-2xl p-6" style="background:linear-gradient(135deg,rgba(86,216,255,0.04),rgba(167,139,250,0.03));border:1px solid rgba(86,216,255,0.15)">
             <div class="flex items-center gap-3 mb-5">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:#05070b">AI</div>
-              <h2 class="font-bold text-lg" style="color:#f0f6fc">AI Investment Analysis</h2>
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)">AI</div>
+              <h2 class="font-bold text-lg" style="color:var(--text-primary)">AI Investment Analysis</h2>
             </div>
 
             <div v-if="listing.market_min_price && listing.market_max_price" class="mb-6">
-              <div class="flex justify-between text-xs mb-2" style="color:#6e7f96">
+              <div class="flex justify-between text-xs mb-2" style="color:var(--text-muted)">
                 <span>Min: {{ formatPrice(listing.market_min_price, listing.currency) }}</span>
                 <span>Max: {{ formatPrice(listing.market_max_price, listing.currency) }}</span>
               </div>
-              <div class="relative h-3 rounded-full" style="background:rgba(255,255,255,0.07)">
+              <div class="relative h-3 rounded-full" style="background:var(--border-subtle)">
                 <div class="h-3 rounded-full" style="background:linear-gradient(90deg,rgba(86,216,255,0.3),rgba(167,139,250,0.3));width:100%"></div>
-                <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2" style="background:#56d8ff;border-color:#05070b;box-shadow:0 0 12px rgba(86,216,255,0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
+                <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2" style="background:#56d8ff;border-color:var(--on-accent);box-shadow:0 0 12px rgba(86,216,255,0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
               </div>
             </div>
 
@@ -129,20 +129,23 @@
               <ScoreGauge v-if="listing.ai_confidence_score" label="Confidence" :value="listing.ai_confidence_score" color="#56d8ff" />
             </div>
 
-            <div class="mt-5 p-4 rounded-xl text-sm leading-relaxed" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#c5d3e4">
-              <strong style="color:#56d8ff">AI Analysis:</strong> This property in {{ listing.city }} is priced at <strong style="color:#f0f6fc">{{ formatPrice(listing.price, listing.currency) }}</strong>. Based on comparable listings and market trends, this represents a <strong :style="`color:${aiColor}`">{{ aiStatusLabel }}</strong> opportunity. North Cyprus property market has shown consistent growth, particularly in coastal areas.
+            <div v-if="listing.ai_analysis" class="mt-5 p-4 rounded-xl text-sm leading-relaxed" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle);color:var(--text-secondary)">
+              <strong style="color:var(--accent-cyan)">AI Analysis:</strong> {{ listing.ai_analysis }}
             </div>
           </div>
 
+          <!-- Why this score? + Show Me Better -->
+          <AiExplainability :listing="listing" />
+
           <!-- Similar properties -->
-          <div v-if="comparables.length" class="rounded-2xl p-6" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h2 class="font-bold text-lg mb-5" style="color:#f0f6fc">Similar Properties</h2>
+          <div v-if="comparables.length" class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold text-lg mb-5" style="color:var(--text-primary)">Similar Properties</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(86,216,255,0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='rgba(255,255,255,0.06)'">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0" style="background:rgba(255,255,255,0.04)">🏠</div>
+              <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(86,216,255,0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='var(--border-subtle)'">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0" style="background:var(--surface-overlay)">🏠</div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-xs font-medium truncate" style="color:#f0f6fc">{{ c.title }}</p>
-                  <p class="text-xs font-bold" style="color:#56d8ff">{{ formatPrice(c.price, c.currency) }}</p>
+                  <p class="text-xs font-medium truncate" style="color:var(--text-primary)">{{ c.title }}</p>
+                  <p class="text-xs font-bold" style="color:var(--accent-cyan)">{{ formatPrice(c.price, c.currency) }}</p>
                 </div>
               </RouterLink>
             </div>
@@ -151,62 +154,59 @@
 
         <!-- Right sidebar -->
         <div class="space-y-5">
-          <div class="rounded-2xl p-6 sticky top-20" style="background:#0d1520;border:1px solid rgba(86,216,255,0.2)">
-            <p class="text-3xl font-black mb-0.5" style="color:#f0f6fc">{{ formatPrice(listing.price, listing.currency) }}</p>
-            <p v-if="property?.area_sqm" class="text-sm mb-4" style="color:#6e7f96">{{ formatPrice(listing.price / property.area_sqm, listing.currency) }}/m²</p>
-            <p v-if="listing.price_negotiable" class="text-sm mb-4" style="color:#56d8ff">✓ Price negotiable</p>
+          <div class="rounded-2xl p-6 sticky top-20" style="background:var(--bg-card);border:1px solid rgba(86,216,255,0.2)">
+            <p class="text-3xl font-black mb-0.5" style="color:var(--text-primary)">{{ formatPrice(listing.price, listing.currency) }}</p>
+            <p v-if="property?.area_sqm" class="text-sm mb-4" style="color:var(--text-muted)">{{ formatPrice(listing.price / property.area_sqm, listing.currency) }}/m²</p>
+            <p v-if="listing.price_negotiable" class="text-sm mb-4" style="color:var(--accent-cyan)">✓ Price negotiable</p>
 
             <!-- Battery -->
-            <div v-if="listing.price_battery_percent" class="mb-5 p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+            <div v-if="listing.price_battery_percent" class="mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
               <div class="flex justify-between text-xs mb-2">
-                <span style="color:#6e7f96">Investment Score</span>
+                <span style="color:var(--text-muted)">Investment Score</span>
                 <span :style="`color:${batteryColor};font-weight:700`">{{ listing.price_battery_percent }}%</span>
               </div>
-              <div class="h-2 rounded-full" style="background:rgba(255,255,255,0.07)">
+              <div class="h-2 rounded-full" style="background:var(--border-subtle)">
                 <div class="h-2 rounded-full" :style="`width:${listing.price_battery_percent}%;background:${batteryColor}`"></div>
               </div>
             </div>
 
-            <!-- Seller -->
-            <div class="flex items-center gap-3 mb-5 p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="background:linear-gradient(135deg,rgba(86,216,255,0.2),rgba(167,139,250,0.2));color:#56d8ff">
-                {{ listing.user?.name?.charAt(0) || 'A' }}
+            <!-- Seller: identity is never shown — all contact goes through AIPrice -->
+            <div class="flex items-center gap-3 mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="background:linear-gradient(135deg,rgba(86,216,255,0.2),rgba(167,139,250,0.2));color:var(--accent-cyan)">
+                🛡️
               </div>
               <div>
-                <p class="text-sm font-semibold" style="color:#f0f6fc">{{ listing.user?.name || 'Agency' }}</p>
-                <p class="text-xs" style="color:#6e7f96">Licensed Agent</p>
+                <p class="text-sm font-semibold" style="color:var(--text-primary)">Verified Listing</p>
+                <p class="text-xs" style="color:var(--text-muted)">Contact is handled by the AIPrice team</p>
               </div>
             </div>
 
             <div class="space-y-3">
-              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:#05070b">
+              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)">
                 📩 Request Viewing
               </button>
-              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:rgba(255,255,255,0.04);color:#c5d3e4;border:1px solid rgba(255,255,255,0.1)'">
+              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
                 {{ isFavorited ? '❤️ Saved' : '♡ Save Property' }}
               </button>
-              <a href="tel:+905001234567" class="block w-full py-3.5 rounded-xl font-semibold text-sm text-center" style="background:rgba(255,255,255,0.04);color:#c5d3e4;border:1px solid rgba(255,255,255,0.1)">
-                📞 Call Agent
-              </a>
             </div>
 
             <Transition name="slide-down">
-              <div v-if="showInquiry" class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.06)">
-                <textarea v-model="inquiryMsg" rows="3" placeholder="I am interested in viewing this property..." class="w-full rounded-xl p-3 text-sm resize-none outline-none" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#f0f6fc"></textarea>
-                <button @click="sendInquiry" :disabled="sendingInquiry" class="w-full mt-2 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:#05070b">
+              <div v-if="showInquiry" class="mt-4 pt-4" style="border-top:1px solid var(--border-subtle)">
+                <textarea v-model="inquiryMsg" rows="3" placeholder="I am interested in viewing this property..." class="w-full rounded-xl p-3 text-sm resize-none outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
+                <button @click="sendInquiry" :disabled="sendingInquiry" class="w-full mt-2 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)">
                   {{ sendingInquiry ? 'Sending...' : 'Send Request' }}
                 </button>
-                <p v-if="inquirySent" class="text-xs text-center mt-2" style="color:#6fffd2">✓ Request sent!</p>
+                <p v-if="inquirySent" class="text-xs text-center mt-2" style="color:var(--accent-teal)">✓ Request sent!</p>
               </div>
             </Transition>
           </div>
 
           <!-- Why buy in NC -->
-          <div class="rounded-2xl p-5" style="background:#0d1520;border:1px solid rgba(255,255,255,0.07)">
-            <h3 class="text-sm font-bold mb-3" style="color:#f0f6fc">🌟 Why North Cyprus?</h3>
+          <div class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h3 class="text-sm font-bold mb-3" style="color:var(--text-primary)">🌟 Why North Cyprus?</h3>
             <ul class="space-y-2">
-              <li v-for="r in whyNC" :key="r" class="text-xs flex items-start gap-2" style="color:#6e7f96">
-                <span style="color:#56d8ff;flex-shrink:0">✓</span> {{ r }}
+              <li v-for="r in whyNC" :key="r" class="text-xs flex items-start gap-2" style="color:var(--text-muted)">
+                <span style="color:var(--accent-cyan);flex-shrink:0">✓</span> {{ r }}
               </li>
             </ul>
           </div>
@@ -220,10 +220,11 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useListingsStore } from '@/stores/listings'
+import AiExplainability from '@/components/listings/AiExplainability.vue'
 import type { Listing, Property } from '@/types'
 
-const SpecItem = { props: ['icon', 'label', 'value'], template: `<div class="flex flex-col gap-1"><span class="text-xs" style="color:#6e7f96">{{ icon }} {{ label }}</span><span class="text-sm font-semibold" style="color:#f0f6fc">{{ value }}</span></div>` }
-const ScoreGauge = { props: ['label', 'value', 'color'], template: `<div class="text-center p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)"><div class="text-2xl font-black mb-1" :style="{color}">{{ value }}</div><div class="text-xs" style="color:#6e7f96">{{ label }}</div><div class="mt-2 h-1 rounded-full" style="background:rgba(255,255,255,0.07)"><div class="h-1 rounded-full" :style="{width: value + '%', background: color}"></div></div></div>` }
+const SpecItem = { props: ['icon', 'label', 'value'], template: `<div class="flex flex-col gap-1"><span class="text-xs" style="color:var(--text-muted)">{{ icon }} {{ label }}</span><span class="text-sm font-semibold" style="color:var(--text-primary)">{{ value }}</span></div>` }
+const ScoreGauge = { props: ['label', 'value', 'color'], template: `<div class="text-center p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)"><div class="text-2xl font-black mb-1" :style="{color}">{{ value }}</div><div class="text-xs" style="color:var(--text-muted)">{{ label }}</div><div class="mt-2 h-1 rounded-full" style="background:var(--border-subtle)"><div class="h-1 rounded-full" :style="{width: value + '%', background: color}"></div></div></div>` }
 
 const route = useRoute()
 const store = useListingsStore()

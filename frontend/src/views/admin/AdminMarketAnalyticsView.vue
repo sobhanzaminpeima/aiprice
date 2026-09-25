@@ -1,22 +1,22 @@
 <template>
   <div class="p-8">
     <div class="mb-8">
-      <h1 class="text-3xl font-black mb-1" style="color:#f0f6fc">Market <span class="gradient-text">Analytics</span></h1>
-      <p class="text-sm" style="color:#6e7f96">Price heatmaps, trends, and investment analysis</p>
+      <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Market <span class="gradient-text">Analytics</span></h1>
+      <p class="text-sm" style="color:var(--text-muted)">Price heatmaps, trends, and investment analysis</p>
     </div>
 
     <!-- Market Trust Index -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-      <div v-for="idx in trustIndexes" :key="idx.market" class="rounded-2xl p-5" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
+      <div v-for="idx in trustIndexes" :key="idx.market" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-bold" style="color:#f0f6fc">{{ idx.market }}</h3>
+          <h3 class="text-sm font-bold" style="color:var(--text-primary)">{{ idx.market }}</h3>
           <span class="text-2xl font-black" :style="{color: idx.color}">{{ idx.score }}</span>
         </div>
         <!-- Circular gauge representation -->
         <div class="flex items-center gap-3 mb-3">
           <div class="relative w-16 h-16">
             <svg viewBox="0 0 36 36" class="w-16 h-16 -rotate-90">
-              <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--border-subtle)" stroke-width="3"/>
               <circle cx="18" cy="18" r="15.9" fill="none" :stroke="idx.color" stroke-width="3" stroke-linecap="round"
                 :stroke-dasharray="`${idx.score} ${100-idx.score}`" stroke-dashoffset="0"/>
             </svg>
@@ -24,8 +24,8 @@
           </div>
           <div class="space-y-1.5 flex-1">
             <div v-for="sub in idx.subs" :key="sub.name" class="flex items-center gap-2">
-              <span class="text-xs w-16 truncate" style="color:#6e7f96">{{ sub.name }}</span>
-              <div class="flex-1 h-1 rounded-full" style="background:rgba(255,255,255,0.07)">
+              <span class="text-xs w-16 truncate" style="color:var(--text-muted)">{{ sub.name }}</span>
+              <div class="flex-1 h-1 rounded-full" style="background:var(--border-subtle)">
                 <div class="h-1 rounded-full" :style="`width:${sub.val}%;background:${idx.color}`"></div>
               </div>
             </div>
@@ -39,15 +39,15 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Price by City Heatmap -->
-      <div class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <h2 class="font-bold mb-5" style="color:#f0f6fc">🗺 Price by City (Vehicles)</h2>
+      <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <h2 class="font-bold mb-5" style="color:var(--text-primary)">🗺 Price by City (Vehicles)</h2>
         <div class="space-y-3">
           <div v-for="city in cityVehiclePrices" :key="city.name" class="rounded-xl p-3" :style="`background:rgba(${city.rgb},0.06);border:1px solid rgba(${city.rgb},0.15)`">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-semibold" :style="`color:rgb(${city.rgb})`">{{ city.name }}</span>
-              <span class="text-sm font-black" style="color:#f0f6fc">{{ city.avg }}</span>
+              <span class="text-sm font-black" style="color:var(--text-primary)">{{ city.avg }}</span>
             </div>
-            <div class="flex gap-2 text-xs" style="color:#6e7f96">
+            <div class="flex gap-2 text-xs" style="color:var(--text-muted)">
               <span>Min: {{ city.min }}</span>
               <span>·</span>
               <span>Max: {{ city.max }}</span>
@@ -59,43 +59,43 @@
       </div>
 
       <!-- Property Price Trends -->
-      <div class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <h2 class="font-bold mb-5 flex items-center gap-2" style="color:#f0f6fc">
+      <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <h2 class="font-bold mb-5 flex items-center gap-2" style="color:var(--text-primary)">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#56d8ff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
           Property Price Trends (£/m²)
         </h2>
         <div class="space-y-4">
           <div v-for="area in propertyTrends" :key="area.name">
             <div class="flex justify-between text-xs mb-1.5">
-              <span style="color:#c5d3e4">{{ area.name }}</span>
+              <span style="color:var(--text-secondary)">{{ area.name }}</span>
               <div class="flex items-center gap-2">
-                <span style="color:#f0f6fc" class="font-bold">£{{ area.price }}/m²</span>
-                <span class="font-bold" :style="area.trend > 0 ? 'color:#6fffd2' : 'color:#ef4444'">
+                <span style="color:var(--text-primary)" class="font-bold">£{{ area.price }}/m²</span>
+                <span class="font-bold" :style="area.trend > 0 ? 'color:var(--accent-teal)' : 'color:#ef4444'">
                   {{ area.trend > 0 ? '↑' : '↓' }} {{ Math.abs(area.trend) }}% YoY
                 </span>
               </div>
             </div>
-            <div class="h-2 rounded-full" style="background:rgba(255,255,255,0.07)">
+            <div class="h-2 rounded-full" style="background:var(--border-subtle)">
               <div class="h-2 rounded-full" :style="`width:${area.pct}%;background:linear-gradient(90deg,#56d8ff,#a78bfa)`"></div>
             </div>
           </div>
         </div>
-        <div class="mt-5 pt-4 grid grid-cols-2 gap-3" style="border-top:1px solid rgba(255,255,255,0.06)">
+        <div class="mt-5 pt-4 grid grid-cols-2 gap-3" style="border-top:1px solid var(--border-subtle)">
           <div class="text-center p-3 rounded-xl" style="background:rgba(86,216,255,0.06);border:1px solid rgba(86,216,255,0.15)">
-            <p class="text-xl font-black" style="color:#56d8ff">+18%</p>
-            <p class="text-xs" style="color:#6e7f96">Avg YoY Growth</p>
+            <p class="text-xl font-black" style="color:var(--accent-cyan)">+18%</p>
+            <p class="text-xs" style="color:var(--text-muted)">Avg YoY Growth</p>
           </div>
           <div class="text-center p-3 rounded-xl" style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.15)">
-            <p class="text-xl font-black" style="color:#a78bfa">Girne</p>
-            <p class="text-xs" style="color:#6e7f96">Highest Growth Area</p>
+            <p class="text-xl font-black" style="color:var(--accent-violet)">Girne</p>
+            <p class="text-xs" style="color:var(--text-muted)">Highest Growth Area</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Investment Opportunities -->
-    <div class="rounded-2xl p-6" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-      <h2 class="font-bold mb-5 flex items-center gap-2" style="color:#f0f6fc">
+    <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+      <h2 class="font-bold mb-5 flex items-center gap-2" style="color:var(--text-primary)">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fbbf24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
         Top Investment Opportunities
       </h2>
@@ -104,8 +104,8 @@
           <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" :style="'background:rgba('+opp.rgb+',0.12)'">
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" :stroke="'rgb('+opp.rgb+')'" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" :d="opp.iconPath"/></svg>
           </div>
-          <h3 class="text-sm font-bold mb-1" style="color:#f0f6fc">{{ opp.title }}</h3>
-          <p class="text-xs mb-3" style="color:#6e7f96">{{ opp.desc }}</p>
+          <h3 class="text-sm font-bold mb-1" style="color:var(--text-primary)">{{ opp.title }}</h3>
+          <p class="text-xs mb-3" style="color:var(--text-muted)">{{ opp.desc }}</p>
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold" :style="`color:rgb(${opp.rgb})`">ROI: {{ opp.roi }}</span>
             <span class="text-xs px-2 py-0.5 rounded-full font-bold" :style="`background:rgba(${opp.rgb},0.1);color:rgb(${opp.rgb})`">{{ opp.tag }}</span>

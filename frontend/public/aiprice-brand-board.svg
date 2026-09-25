@@ -21,7 +21,7 @@
 <rect x="0" y="0" width="680" height="1232" rx="18" fill="#08090B"/>
 <rect x="16" y="16" width="648" height="200" rx="12" fill="#101216" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="0.5"/>
 <use href="#markL" transform="translate(48,52) scale(1.5)"/>
-<text x="224" y="112" font-family="Arial, sans-serif" font-size="36" font-weight="700" letter-spacing="3" fill="#F5F7FA">HUBPRICE<tspan fill="url(#bg)">.AI</tspan></text>
+<text x="224" y="112" font-family="Arial, sans-serif" font-size="36" font-weight="700" letter-spacing="3" fill="#F5F7FA">AIPRICE<tspan fill="url(#bg)">.AI</tspan></text>
 <line x1="226" y1="126" x2="356" y2="126" stroke="url(#bg)" stroke-width="2"/>
 <text x="226" y="148" font-family="Arial, sans-serif" font-size="11.5" letter-spacing="5" fill="#8A9099">AI-POWERED TRUTH IN EVERY TRANSACTION</text>
 <text x="226" y="178" font-family="Arial, sans-serif" font-size="11" letter-spacing="1" fill="#5C636C">Marketplace intelligence · cars · real estate · investments</text>
@@ -33,12 +33,12 @@
 <text x="508" y="424" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1" fill="#5F5E5A">Monogram · light mode</text>
 <rect x="16" y="458" width="648" height="140" rx="12" fill="#101216" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="0.5"/>
 <use href="#markL" transform="translate(44,468) scale(0.92)"/>
-<text x="156" y="522" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="2.5" fill="#F5F7FA">HUBPRICE<tspan fill="url(#bg)">.AI</tspan></text>
+<text x="156" y="522" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="2.5" fill="#F5F7FA">AIPRICE<tspan fill="url(#bg)">.AI</tspan></text>
 <text x="158" y="550" font-family="Arial, sans-serif" font-size="10.5" letter-spacing="4" fill="#8A9099">AI-POWERED TRUTH IN EVERY TRANSACTION</text>
 <text x="158" y="576" font-family="Arial, sans-serif" font-size="11" letter-spacing="1" fill="#5C636C">Horizontal lockup</text>
 <rect x="16" y="614" width="312" height="250" rx="12" fill="#101216" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="0.5"/>
 <use href="#markL" transform="translate(128,646) scale(0.82)"/>
-<text x="172" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="2" fill="#F5F7FA">HUBPRICE<tspan fill="url(#bg)">.AI</tspan></text>
+<text x="172" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="2" fill="#F5F7FA">AIPRICE<tspan fill="url(#bg)">.AI</tspan></text>
 <text x="172" y="782" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" letter-spacing="2.5" fill="#8A9099">AI-POWERED TRUTH</text>
 <text x="172" y="844" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1" fill="#5C636C">Vertical lockup</text>
 <rect x="352" y="614" width="312" height="250" rx="12" fill="#101216" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="0.5"/>

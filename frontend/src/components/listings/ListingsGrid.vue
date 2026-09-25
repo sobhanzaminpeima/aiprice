@@ -74,20 +74,22 @@ import { useListingsStore } from '@/stores/listings'
 const props = defineProps<{
   type?: string
   initialSearch?: string
-  initialType?: string,
+  initialType?: string
   initialCity?: string
+  initialMode?: string
+  initialBudgetMax?: string
 }>()
 
 const listingsStore = useListingsStore()
 
 const filters = ref({
   search: props.initialSearch || '',
-  city: '',
+  city: props.initialCity || '',
   min_price: '',
-  max_price: '',
+  max_price: props.initialBudgetMax || '',
   sort: 'newest',
   type: props.type || props.initialType || '',
-  city: props.initialCity || '',
+  mode: props.initialMode || '',
   page: 1,
 })
 
@@ -99,7 +101,13 @@ function debouncedFetch() {
 }
 
 async function fetchListings() {
-  const params: Record<string, any> = { page: filters.value.page, sort: filters.value.sort }
+  const params: Record<string, any> = { page: filters.value.page }
+  if (filters.value.mode) {
+    // Ranking mode (FIND/DEAL/INVEST) overrides plain sort on the backend.
+    params.mode = filters.value.mode
+  } else {
+    params.sort = filters.value.sort
+  }
   if (filters.value.type) params.type = filters.value.type
   if (filters.value.search) params.search = filters.value.search
   if (filters.value.city) params.city = filters.value.city
@@ -126,5 +134,7 @@ const pageNumbers = computed(() => {
 watch(() => props.initialSearch, (v) => { filters.value.search = v || ''; fetchListings() })
 watch(() => props.initialType, (v) => { filters.value.type = v || ''; fetchListings() })
 watch(() => props.initialCity, (v) => { filters.value.city = v || ''; fetchListings() })
+watch(() => props.initialMode, (v) => { filters.value.mode = v || ''; fetchListings() })
+watch(() => props.initialBudgetMax, (v) => { filters.value.max_price = v || ''; fetchListings() })
 onMounted(fetchListings)
 </script>

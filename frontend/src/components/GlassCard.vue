@@ -16,7 +16,7 @@ const glowClass = computed(() => {
   background: rgba(13,25,35,0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
   transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
 }

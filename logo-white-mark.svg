@@ -1,0 +1,12 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(18,12) scale(0.84)">
+<rect x="20" y="30" width="11" height="48" rx="2.5" fill="#FFFFFF"/>
+<rect x="61" y="24" width="11" height="54" rx="2.5" fill="#FFFFFF"/>
+<path d="M72 27 H80 C90.5 27 90.5 45 80 45 H72" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
+<polyline points="25,62 39,55 52,49 66,40" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="25" cy="62" r="3.6" fill="#FFFFFF"/>
+<circle cx="39" cy="55" r="2.6" fill="#FFFFFF"/>
+<circle cx="52" cy="49" r="2.6" fill="#FFFFFF"/>
+<circle cx="66" cy="40" r="4" fill="#FFFFFF"/>
+</g>
+</svg>

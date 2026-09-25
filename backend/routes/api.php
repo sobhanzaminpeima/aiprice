@@ -5,6 +5,9 @@ use App\Http\Controllers\Admin\ListingManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ListingController;
+use App\Http\Controllers\Api\ListingExtractionController;
+use App\Http\Controllers\Api\KycController;
+use App\Http\Controllers\Api\SubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,19 +22,47 @@ Route::prefix('v1')->group(function () {
     Route::get('/listings', [ListingController::class, 'index']);
     Route::get('/listings/featured', [ListingController::class, 'featured']);
     Route::get('/listings/{slug}', [ListingController::class, 'show']);
+    // Lightweight marker payload for the map view — never the full listing object.
+    Route::get('/listings-map', function (Request $req) {
+        $listings = \App\Models\Listing::where('status', 'active')
+            ->whereNotNull('latitude')->whereNotNull('longitude')
+            ->when($req->type, fn ($q) => $q->where('type', $req->type))
+            ->get(['id', 'slug', 'title', 'type', 'price', 'currency', 'city', 'latitude', 'longitude', 'thumbnail', 'price_battery_percent', 'ai_price_status']);
+        return response()->json([
+            'listings' => $listings,
+            'bounds' => \App\Services\GeoService::BOUNDS,
+            'center' => \App\Services\GeoService::CENTER,
+        ]);
+    });
+    // "Show Me Better" — real alternatives with grounded, comparable-data reasons.
+    Route::get('/listings/{id}/better', function (string $id) {
+        $listing = \App\Models\Listing::findOrFail($id);
+        $alternatives = app(\App\Services\AI\AlternativesService::class)->findBetter($listing);
+        return response()->json(['alternatives' => $alternatives]);
+    });
 
     // Vehicle brands/models
     Route::get('/vehicle-brands', fn() => response()->json(\App\Models\VehicleBrand::where('is_active', true)->with('models')->orderBy('name')->get()));
     Route::get('/property-types', fn() => response()->json(\App\Models\PropertyType::where('is_active', true)->orderBy('name')->get()));
     Route::get('/subscription-plans', fn() => response()->json(\App\Models\SubscriptionPlan::where('is_active', true)->orderBy('sort_order')->get()));
 
-    // Market stats (public)
+    // AI chat assistant — public, throttled (grounded in real DB search, see ChatService)
+    Route::post('/chat', function (Request $req) {
+        $req->validate(['message' => 'required|string|max:500']);
+        $chat = app(\App\Services\AI\ChatService::class);
+        return response()->json($chat->respond($req->message));
+    })->middleware('throttle:20,1');
+
+    // Market stats (public) — field names match what HomeView.vue's stats bar reads.
     Route::get('/market/stats', function () {
+        $activeListings = \App\Models\Listing::where('status', 'active')->count();
         return response()->json([
-            'total_listings' => \App\Models\Listing::where('status', 'active')->count(),
+            'total_listings' => $activeListings,
+            'active_listings' => $activeListings,
             'vehicle_listings' => \App\Models\Listing::where('type', 'vehicle')->where('status', 'active')->count(),
             'property_listings' => \App\Models\Listing::where('type', 'property')->where('status', 'active')->count(),
             'rental_listings' => \App\Models\Listing::where('type', 'rental')->where('status', 'active')->count(),
+            'ai_analyses_today' => \App\Models\Listing::whereDate('ai_scored_at', today())->count(),
         ]);
     });
 
@@ -41,12 +72,63 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
 
+        // AI Preference Graph — "welcome back" memory. Save/read/delete only,
+        // no inference beyond what the user actually searched for.
+        Route::post('/me/search-preferences', function (Request $req) {
+            $req->validate([
+                'asset_type' => 'required|in:vehicle,property,rental',
+                'budget_max' => 'nullable|numeric',
+                'city' => 'nullable|string',
+                'priorities' => 'nullable|array',
+            ]);
+            $pref = app(\App\Services\AI\PreferenceService::class)->remember($req->user(), $req->all(), 'intent_composer');
+            return response()->json($pref, 201);
+        });
+        Route::get('/me/search-preferences/last', function (Request $req) {
+            $service = app(\App\Services\AI\PreferenceService::class);
+            $pref = $service->last($req->user());
+            if (!$pref) {
+                return response()->json(['preference' => null]);
+            }
+            return response()->json([
+                'preference' => $pref,
+                'new_matches' => $service->newMatchesSince($pref),
+            ]);
+        });
+        Route::delete('/me/search-preferences/{id}', function (Request $req, string $id) {
+            app(\App\Services\AI\PreferenceService::class)->forget($req->user(), $id);
+            return response()->json(['message' => 'Deleted.']);
+        });
+
         // Listings CRUD
         Route::post('/listings', [ListingController::class, 'store']);
+        // AI draft: turns free text into a pre-filled listing form. Never
+        // creates a listing itself — the seller still reviews and submits.
+        Route::post('/listings/extract', [ListingExtractionController::class, 'extract'])->middleware('throttle:10,1');
         Route::put('/listings/{id}', [ListingController::class, 'update']);
         Route::delete('/listings/{id}', [ListingController::class, 'destroy']);
         Route::post('/listings/{id}/favorite', [ListingController::class, 'toggleFavorite']);
         Route::get('/my-listings', [ListingController::class, 'myListings']);
+        // Inquiries received on the seller's own listings — message only,
+        // never the buyer's name/phone/email. Admin relays contact manually.
+        Route::get('/my-listing-inquiries', function (Request $req) {
+            return response()->json(
+                \App\Models\Inquiry::whereHas('listing', fn($q) => $q->where('user_id', $req->user()->id))
+                    ->with('listing:id,title,slug')
+                    ->orderByDesc('created_at')
+                    ->get(['id', 'listing_id', 'message', 'status', 'created_at'])
+            );
+        });
+
+        // KYC verification
+        Route::get('/kyc', [KycController::class, 'show']);
+        Route::post('/kyc', [KycController::class, 'store']);
+        Route::get('/kyc/{id}/{field}', [KycController::class, 'document']);
+
+        // Subscription
+        Route::get('/my-subscription', [SubscriptionController::class, 'mine']);
+        Route::get('/my-subscription/history', [SubscriptionController::class, 'history']);
+        Route::post('/my-subscription/{id}/cancel', [SubscriptionController::class, 'cancel']);
 
         // User profile
         Route::get('/profile', fn(Request $req) => response()->json($req->user()->load('profile')));
@@ -88,17 +170,28 @@ Route::prefix('v1')->group(function () {
             return response()->json($msg, 201);
         });
 
-        // Start conversation
+        // Admin-mediated inquiry — buyer never learns the owner's identity,
+        // and the owner never sees the buyer's. Only admin sees both sides
+        // and relays contact manually. See GET /admin/inquiries.
         Route::post('/listings/{id}/inquire', function (Request $req, string $id) {
             $req->validate(['message' => 'required|string|max:2000']);
             $listing = \App\Models\Listing::findOrFail($id);
-            $conv = \App\Models\Conversation::firstOrCreate(
-                ['listing_id' => $id, 'buyer_id' => $req->user()->id, 'seller_id' => $listing->user_id],
-                ['subject' => 'Inquiry: ' . $listing->title, 'last_message_at' => now()]
-            );
-            \App\Models\Message::create(['conversation_id' => $conv->id, 'sender_id' => $req->user()->id, 'body' => $req->message]);
+            $inquiry = \App\Models\Inquiry::create([
+                'listing_id' => $id,
+                'buyer_id' => $req->user()->id,
+                'message' => $req->message,
+            ]);
             $listing->increment('inquiry_count');
-            return response()->json(['conversation' => $conv, 'message' => 'Message sent.'], 201);
+            return response()->json(['message' => 'Your request was sent to our team — we\'ll be in touch shortly.', 'inquiry' => $inquiry], 201);
+        });
+
+        // Buyer's own sent inquiries — listing info only, never the owner's identity.
+        Route::get('/my-inquiries', function (Request $req) {
+            return response()->json(
+                \App\Models\Inquiry::where('buyer_id', $req->user()->id)
+                    ->with('listing:id,title,slug,price,currency,thumbnail')
+                    ->orderByDesc('created_at')->paginate(20)
+            );
         });
 
         // Fraud report
@@ -145,7 +238,7 @@ Route::prefix('v1')->group(function () {
                 $listable = null;
                 if ($req->type === 'vehicle') {
                     $brand = \App\Models\VehicleBrand::firstOrCreate(['name' => $req->brand_name], ['is_active' => true]);
-                    $model = \App\Models\VehicleModel::firstOrCreate(['vehicle_brand_id' => $brand->id, 'name' => $req->model_name], ['is_active' => true]);
+                    $model = \App\Models\VehicleModel::firstOrCreate(['brand_id' => $brand->id, 'name' => $req->model_name], ['is_active' => true]);
                     $listable = \App\Models\Vehicle::create([
                         'brand_id' => $brand->id, 'model_id' => $model->id,
                         'year' => $req->year, 'mileage' => $req->mileage,
@@ -205,27 +298,35 @@ Route::prefix('v1')->group(function () {
             return response()->json(['message' => 'Analysis complete.', 'listing' => $listing->fresh()]);
         });
 
-        // Public AI price estimate (before listing created)
+        // Public AI price estimate (before listing created) — real comparable-based
+        // price intelligence only. Trust/invest/demand require an actual listing
+        // history and are averaged from real comparable listings, never randomized.
         Route::post('/ai/price-estimate', function (Request $req) {
             $req->validate(['type' => 'required|in:vehicle,property,rental', 'price' => 'required|numeric']);
-            $price = (float)$req->price;
-            $similar = \App\Models\Listing::where('type', $req->type)->where('status', 'active')
-                ->when($req->city, fn($q) => $q->where('city', $req->city))
-                ->whereNotNull('price')->pluck('price');
-            if ($similar->count() > 0) {
-                $avg = $similar->avg(); $min = $similar->min(); $max = $similar->max();
-                $battery = max(10, min(98, round(100 - (($price - $avg) / $avg) * 150)));
-            } else {
-                $avg = $price * (0.9 + (rand(0,100)/400));
-                $min = $avg * 0.75; $max = $avg * 1.25;
-                $battery = rand(55, 92);
-            }
+
+            $priceService = app(\App\Services\AI\PriceIntelligenceService::class);
+            $result = $priceService->estimate($req->type, (float) $req->price, $req->city);
+
+            $comparableIds = $result['comparable_ids'] ?? [];
+            $avgScores = $comparableIds
+                ? \App\Models\Listing::whereIn('id', $comparableIds)
+                    ->selectRaw('AVG(ai_trust_score) as trust, AVG(ai_investment_score) as invest, AVG(ai_demand_score) as demand')
+                    ->first()
+                : null;
+
             return response()->json([
-                'battery_score' => $battery,
-                'battery_label' => $battery >= 85 ? 'Excellent Price' : ($battery >= 60 ? 'Fair Price' : 'Overpriced'),
-                'market_avg' => round($avg), 'market_min' => round($min), 'market_max' => round($max),
-                'comparables' => $similar->count(),
-                'trust_score' => rand(55, 90), 'invest_score' => rand(50, 88), 'demand_score' => rand(60, 92),
+                'battery_score' => $result['battery_score'],
+                'battery_label' => $result['battery_label'],
+                'market_avg' => $result['market_avg'],
+                'market_min' => $result['market_min'],
+                'market_max' => $result['market_max'],
+                'comparables' => $result['comparable_count'],
+                'confidence' => $result['confidence'],
+                'reasons' => $result['reasons'],
+                // Null (not fabricated) when no comparable listings have been scored yet.
+                'trust_score' => $avgScores?->trust ? (int) round($avgScores->trust) : null,
+                'invest_score' => $avgScores?->invest ? (int) round($avgScores->invest) : null,
+                'demand_score' => $avgScores?->demand ? (int) round($avgScores->demand) : null,
             ]);
         });
     });
@@ -247,7 +348,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Admin routes
-    Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+    Route::middleware(['auth:sanctum', 'is_admin'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'overview']);
 
         // Listing management
@@ -258,13 +359,43 @@ Route::prefix('v1')->group(function () {
         Route::delete('/listings/{id}', [ListingManagementController::class, 'destroy']);
         Route::post('/listings/{id}/reanalyze', [ListingManagementController::class, 'reanalyze']);
 
+        // Buyer inquiries — the ONLY place both the buyer's and the owner's
+        // real contact details appear together. Admin reviews and relays
+        // contact manually; neither party ever sees the other's identity.
+        Route::get('/inquiries', function (Request $req) {
+            $q = \App\Models\Inquiry::with([
+                    'buyer:id,name,email,phone',
+                    'listing:id,title,slug,price,currency,user_id',
+                    'listing.user:id,name,email,phone',
+                ])
+                ->when($req->status, fn($q) => $q->where('status', $req->status))
+                ->orderByDesc('created_at');
+            return response()->json($q->paginate(20));
+        });
+        Route::put('/inquiries/{id}', function (Request $req, string $id) {
+            $inquiry = \App\Models\Inquiry::findOrFail($id);
+            $v = $req->validate(['status' => 'sometimes|in:pending,contacted,closed', 'admin_notes' => 'nullable|string']);
+            $inquiry->update($v);
+            return response()->json($inquiry);
+        });
+
         // User management
+        Route::post('/users', [UserManagementController::class, 'store']);
         Route::get('/users', [UserManagementController::class, 'index']);
         Route::get('/users/{id}', [UserManagementController::class, 'show']);
         Route::post('/users/{id}/toggle-active', [UserManagementController::class, 'toggleActive']);
         Route::put('/users/{id}/role', [UserManagementController::class, 'updateRole']);
         Route::post('/users/{id}/approve-kyc', [UserManagementController::class, 'approveKyc']);
         Route::delete('/users/{id}', [UserManagementController::class, 'destroy']);
+        Route::get('/users/{id}/tokens', function (string $id) {
+            $user = \App\Models\User::findOrFail($id);
+            return response()->json($user->tokens()->select('id', 'name', 'abilities', 'last_used_at', 'created_at')->orderByDesc('created_at')->get());
+        });
+        Route::delete('/users/{id}/tokens/{tokenId}', function (string $id, string $tokenId) {
+            $user = \App\Models\User::findOrFail($id);
+            $user->tokens()->where('id', $tokenId)->delete();
+            return response()->json(['message' => 'Token revoked.']);
+        });
 
         // Vehicle brands/models CRUD
         Route::apiResource('vehicle-brands', \App\Http\Controllers\Admin\VehicleBrandController::class);
@@ -323,32 +454,77 @@ Route::prefix('v1')->group(function () {
             ]);
         });
 
+        // AI Market Insights — real aggregates from listings/scores (no mock data)
+        Route::get('/ai-insights', function () {
+            $insights = app(\App\Services\AI\MarketInsightsService::class);
+            return response()->json([
+                'market_trust' => $insights->marketTrust(),
+                'undervalued' => $insights->undervalued(),
+                'overpriced' => $insights->overpriced(),
+                'demand_by_category' => $insights->demandByCategory(),
+                'fast_selling' => $insights->fastSelling(),
+            ]);
+        });
+
         // AI Models management
-        Route::get('/ai-models', fn() => response()->json(\App\Models\AiModel::all()));
+        Route::get('/ai-models', fn() => response()->json(\App\Models\AiModel::orderByDesc('created_at')->get()));
+        Route::post('/ai-models', function (Request $req) {
+            $v = $req->validate([
+                'name' => 'required|string|max:255',
+                'provider' => 'required|in:openai,nvidia,anthropic,gemini',
+                'model_id' => 'required|string|max:255',
+                'purpose' => 'required|string|max:255',
+                'is_active' => 'boolean',
+                'is_default' => 'boolean',
+                'temperature' => 'nullable|numeric|min:0|max:2',
+                'max_tokens' => 'nullable|integer|min:1',
+            ]);
+            $model = \App\Models\AiModel::create($v + ['temperature' => $v['temperature'] ?? 0.7, 'max_tokens' => $v['max_tokens'] ?? 2000]);
+            return response()->json($model, 201);
+        });
         Route::put('/ai-models/{id}', function (Request $req, string $id) {
             $model = \App\Models\AiModel::findOrFail($id);
             $model->update($req->only(['is_active', 'is_default', 'temperature', 'max_tokens', 'monthly_cost_limit', 'rate_limit_per_minute']));
             return response()->json($model);
         });
+        Route::delete('/ai-models/{id}', function (string $id) {
+            \App\Models\AiModel::findOrFail($id)->delete();
+            return response()->json(['message' => 'Model removed.']);
+        });
 
-        // LLM Management
+        // LLM Management — providers configured via env; this just proves the
+        // configured key for the chosen provider can actually reach the API.
+        Route::get('/llm/providers', function () {
+            return response()->json([
+                ['provider' => 'openai', 'configured' => !empty(config('services.openai.key')), 'model' => config('services.openai.model')],
+                ['provider' => 'nvidia', 'configured' => !empty(config('services.nvidia.key')), 'model' => config('services.nvidia.model')],
+            ]);
+        });
         Route::post('/llm/test', function (Request $req) {
-            $req->validate(['prompt' => 'required|string|max:500']);
-            $apiKey = config('services.openai.key', '');
-            if (empty($apiKey)) {
-                return response()->json(['error' => 'OpenAI API key not configured.'], 422);
+            $req->validate(['prompt' => 'required|string|max:500', 'provider' => 'nullable|in:openai,nvidia']);
+            $provider = $req->input('provider', 'openai');
+            if ($provider === 'nvidia') {
+                $apiKey = config('services.nvidia.key', '');
+                $baseUrl = rtrim(config('services.nvidia.base_url', 'https://integrate.api.nvidia.com/v1'), '/');
+                $model = $req->input('model', config('services.nvidia.model', 'meta/llama-3.2-11b-vision-instruct'));
+            } else {
+                $apiKey = config('services.openai.key', '');
+                $baseUrl = 'https://api.openai.com/v1';
+                $model = $req->input('model', config('services.openai.model', 'gpt-4o-mini'));
             }
-            $model = $req->input('model', config('services.openai.model', 'gpt-4o-mini'));
+            if (empty($apiKey)) {
+                return response()->json(['error' => ucfirst($provider) . ' API key not configured.'], 422);
+            }
             $resp = \Illuminate\Support\Facades\Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
-            ])->timeout(20)->post('https://api.openai.com/v1/chat/completions', [
+            ])->timeout(20)->post($baseUrl . '/chat/completions', [
                 'model'       => $model,
                 'messages'    => [['role' => 'user', 'content' => $req->prompt]],
                 'temperature' => 0.7,
                 'max_tokens'  => 200,
             ]);
             if (!$resp->successful()) {
-                return response()->json(['error' => 'OpenAI error: ' . $resp->status()], 422);
+                return response()->json(['error' => ucfirst($provider) . ' error: ' . $resp->status() . ' — ' . $resp->body()], 422);
             }
             return response()->json(['response' => $resp->json('choices.0.message.content')]);
         });
@@ -367,6 +543,15 @@ Route::prefix('v1')->group(function () {
             return response()->json(['analyzed' => $count, 'message' => "Analyzed {$count} listings."]);
         });
 
+        // Social / Instagram auto-publishing
+        Route::get('/social/posts', [\App\Http\Controllers\Admin\SocialController::class, 'index']);
+        Route::post('/social/generate', [\App\Http\Controllers\Admin\SocialController::class, 'generate']);
+        Route::post('/social/generate-batch', [\App\Http\Controllers\Admin\SocialController::class, 'generateBatch']);
+        Route::put('/social/posts/{socialPost}', [\App\Http\Controllers\Admin\SocialController::class, 'update']);
+        Route::post('/social/posts/{socialPost}/publish', [\App\Http\Controllers\Admin\SocialController::class, 'publish']);
+        Route::delete('/social/posts/{socialPost}', [\App\Http\Controllers\Admin\SocialController::class, 'destroy']);
+        Route::get('/social/test', [\App\Http\Controllers\Admin\SocialController::class, 'testConnection']);
+
         // Settings
         Route::get('/settings', fn() => response()->json(\App\Models\Setting::all()));
         Route::put('/settings/{key}', function (Request $req, string $key) {
@@ -377,16 +562,108 @@ Route::prefix('v1')->group(function () {
 
         // Analytics
         Route::get('/analytics/market', fn() => response()->json(\App\Models\MarketAnalytic::orderByDesc('period_date')->limit(30)->get()));
-        Route::get('/analytics/ai-usage', fn() => response()->json(\App\Models\AiUsageLog::orderByDesc('created_at')->limit(100)->get()));
+        Route::get('/analytics/ai-usage', function () {
+            $month = \App\Models\AiUsageLog::where('created_at', '>=', now()->startOfMonth());
+            return response()->json([
+                'logs' => \App\Models\AiUsageLog::with('model:id,name,provider')->orderByDesc('created_at')->limit(100)->get(),
+                'stats' => [
+                    'total_calls' => (clone $month)->count(),
+                    'total_tokens' => (int) (clone $month)->sum('total_tokens'),
+                    'cost' => round((float) (clone $month)->sum('cost'), 2),
+                    'success_rate' => (clone $month)->count() > 0
+                        ? round((clone $month)->where('success', true)->count() / (clone $month)->count() * 100, 1)
+                        : 100.0,
+                    'avg_latency_ms' => (int) round((float) (clone $month)->avg('latency_ms')),
+                ],
+            ]);
+        });
 
-        // Listing CRUD (edit/update)
+
+        // Listing CRUD (create/edit/update)
         Route::get('/listings/{id}', function (string $id) {
             return response()->json(\App\Models\Listing::with(['user:id,name,email,role', 'listable'])->findOrFail($id));
         });
+        Route::post('/listings', function (Request $req) {
+            $v = $req->validate([
+                'user_id' => 'required|uuid|exists:users,id',
+                'type' => 'required|in:vehicle,property,rental',
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'currency' => 'sometimes|string|size:3',
+                'city' => 'nullable|string|max:100',
+                'country' => 'nullable|string|max:3',
+                'status' => 'sometimes|in:pending,active,rejected,sold,expired',
+                'brand_id' => 'required_if:type,vehicle',
+                'model_id' => 'required_if:type,vehicle',
+                'year' => 'required_if:type,vehicle|integer',
+                'property_type_id' => 'required_if:type,property',
+            ]);
+            return \Illuminate\Support\Facades\DB::transaction(function () use ($v) {
+                $listable = match ($v['type']) {
+                    'vehicle' => \App\Models\Vehicle::create([
+                        'brand_id' => $v['brand_id'], 'model_id' => $v['model_id'], 'year' => $v['year'],
+                        'condition' => $v['condition'] ?? 'used',
+                    ]),
+                    'property' => \App\Models\Property::create([
+                        'property_type_id' => $v['property_type_id'],
+                    ]),
+                    'rental' => \App\Models\Rental::create(['title' => $v['title']]),
+                };
+                $listing = \App\Models\Listing::create([
+                    'user_id' => $v['user_id'], 'type' => $v['type'],
+                    'listable_type' => get_class($listable), 'listable_id' => $listable->id,
+                    'title' => $v['title'], 'description' => $v['description'] ?? null,
+                    'price' => $v['price'], 'currency' => $v['currency'] ?? 'GBP',
+                    'city' => $v['city'] ?? null, 'country' => $v['country'] ?? null,
+                    'status' => $v['status'] ?? 'active',
+                    'published_at' => ($v['status'] ?? 'active') === 'active' ? now() : null,
+                ]);
+                return response()->json(['listing' => $listing->fresh(['listable', 'user:id,name,email'])], 201);
+            });
+        });
         Route::put('/listings/{id}', function (Request $req, string $id) {
-            $listing = \App\Models\Listing::findOrFail($id);
+            $listing = \App\Models\Listing::with('listable')->findOrFail($id);
             $listing->update($req->only(['title', 'description', 'price', 'currency', 'city', 'district', 'status', 'is_featured', 'is_premium', 'price_negotiable']));
+
+            if ($listing->listable) {
+                if ($listing->type === 'vehicle') {
+                    $listing->listable->update($req->only(['year', 'mileage', 'fuel_type', 'transmission', 'body_type', 'color', 'condition', 'engine_size']));
+                } elseif ($listing->type === 'property') {
+                    $listing->listable->update($req->only(['bedrooms', 'bathrooms', 'area_sqm', 'floor_number', 'build_year', 'furnishing', 'has_parking', 'has_garden', 'has_pool', 'has_elevator']));
+                }
+            }
             return response()->json($listing->fresh(['listable', 'user:id,name,email']));
+        });
+        // Admin image management — no ownership check, admin can edit any listing's gallery.
+        Route::post('/listings/{id}/upload-images', function (Request $req, string $id) {
+            $listing = \App\Models\Listing::findOrFail($id);
+            $req->validate(['images' => 'required|array|min:1', 'images.*' => 'image|max:10240']);
+            $urls = [];
+            foreach ($req->file('images') as $file) {
+                $path = $file->store('listings/'.$id, 'public');
+                $urls[] = '/storage/'.$path;
+            }
+            $existing = $listing->images ?? [];
+            if (is_string($existing)) $existing = json_decode($existing, true) ?? [];
+            $all = array_merge($existing, $urls);
+            $listing->update(['images' => $all, 'thumbnail' => $listing->thumbnail ?: ($all[0] ?? null)]);
+            return response()->json(['images' => $all, 'message' => count($urls).' images uploaded.']);
+        });
+        Route::delete('/listings/{id}/images', function (Request $req, string $id) {
+            $listing = \App\Models\Listing::findOrFail($id);
+            $req->validate(['url' => 'required|string']);
+            $existing = $listing->images ?? [];
+            if (is_string($existing)) $existing = json_decode($existing, true) ?? [];
+            $remaining = array_values(array_filter($existing, fn($u) => $u !== $req->url));
+            $listing->update(['images' => $remaining, 'thumbnail' => $listing->thumbnail === $req->url ? ($remaining[0] ?? null) : $listing->thumbnail]);
+            return response()->json(['images' => $remaining]);
+        });
+        Route::put('/listings/{id}/thumbnail', function (Request $req, string $id) {
+            $listing = \App\Models\Listing::findOrFail($id);
+            $req->validate(['url' => 'required|string']);
+            $listing->update(['thumbnail' => $req->url]);
+            return response()->json(['thumbnail' => $listing->thumbnail]);
         });
 
         // Subscription Plans CRUD
