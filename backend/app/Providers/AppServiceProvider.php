@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\Payments\PaymentGateway;
+use App\Services\Payments\StripeGateway;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -14,7 +16,14 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->bind(PaymentGateway::class, fn () => match (config('services.payments.gateway')) {
+            'stripe' => new StripeGateway(
+                config('services.stripe.secret'),
+                config('services.stripe.webhook_secret'),
+                (string) config('app.frontend_url'),
+            ),
+            default => throw new \InvalidArgumentException('Unknown PAYMENT_GATEWAY: '.config('services.payments.gateway')),
+        });
     }
 
     public function boot(): void

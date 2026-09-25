@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Listing;
 use App\Models\Subscription;
+use App\Services\Payments\PaymentGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -50,6 +51,17 @@ class SubscriptionController extends Controller
 
         if ($subscription->status !== 'active' || $subscription->cancelled_at) {
             return response()->json(['message' => 'This subscription is not active or is already set to end.'], 422);
+        }
+
+        // Stop the provider from charging again before recording it locally —
+        // if that call fails, the user must not be told they're cancelled.
+        if ($subscription->gateway_subscription_id) {
+            try {
+                app(PaymentGateway::class)->cancelAtPeriodEnd($subscription);
+            } catch (\Throwable $e) {
+                report($e);
+                return response()->json(['message' => 'We could not reach the payment provider. Please try again in a moment.'], 502);
+            }
         }
 
         // Cancel at period end: it stays active (the user keeps what they paid

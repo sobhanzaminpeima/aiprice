@@ -52,6 +52,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/vehicle-brands', fn() => response()->json(\App\Models\VehicleBrand::where('is_active', true)->with('models')->orderBy('name')->get()));
     Route::get('/property-types', fn() => response()->json(\App\Models\PropertyType::where('is_active', true)->orderBy('name')->get()));
 
+    // Billing: provider webhooks are public and authenticated by signature.
+    Route::get('/billing/status', [\App\Http\Controllers\Api\BillingController::class, 'status']);
+    Route::post('/webhooks/payments', \App\Http\Controllers\Api\PaymentWebhookController::class)->middleware('throttle:120,1');
+
     // Public blog + FAQ
     Route::get('/blog', [\App\Http\Controllers\Api\ContentController::class, 'posts']);
     Route::get('/blog/categories', [\App\Http\Controllers\Api\ContentController::class, 'categories']);
@@ -156,6 +160,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/my-subscription', [SubscriptionController::class, 'mine']);
         Route::get('/my-subscription/history', [SubscriptionController::class, 'history']);
         Route::post('/my-subscription/{id}/cancel', [SubscriptionController::class, 'cancel']);
+
+        // Billing
+        Route::post('/billing/checkout', [\App\Http\Controllers\Api\BillingController::class, 'checkout'])->middleware(['verified', 'throttle:10,60']);
+        Route::get('/billing/invoices', [\App\Http\Controllers\Api\BillingController::class, 'invoices']);
+        Route::get('/billing/invoices/{id}', [\App\Http\Controllers\Api\BillingController::class, 'invoice']);
 
         // User profile
         Route::get('/profile', fn(Request $req) => response()->json($req->user()->load('profile')));

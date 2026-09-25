@@ -50,9 +50,22 @@
         </button>
       </div>
 
-      <RouterLink to="/pricing" class="flex items-center justify-between p-4 rounded-2xl font-semibold" style="background:linear-gradient(135deg,rgba(111,255,210,0.08),rgba(86,216,255,0.08));border:1px solid rgba(111,255,210,0.2);color:var(--accent-teal)">
+      <RouterLink to="/pricing" class="flex items-center justify-between p-4 rounded-2xl font-semibold mb-8" style="background:linear-gradient(135deg,rgba(111,255,210,0.08),rgba(86,216,255,0.08));border:1px solid rgba(111,255,210,0.2);color:var(--accent-teal)">
         <span>{{ isActive ? 'Change Plan' : 'Upgrade Plan' }}</span><span>→</span>
       </RouterLink>
+
+      <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <h2 class="font-bold mb-4" style="color:var(--text-primary)">Invoices</h2>
+        <p v-if="!invoices.length" class="text-sm" style="color:var(--text-muted)">No invoices yet.</p>
+        <div v-else class="space-y-2">
+          <RouterLink v-for="inv in invoices" :key="inv.id" :to="`/dashboard/invoices/${inv.id}`" class="flex items-center gap-3 p-3 rounded-xl hover:opacity-80" style="background:var(--surface-overlay-soft)">
+            <span class="text-xs font-mono flex-1" style="color:var(--text-secondary)">{{ inv.invoice_number }}</span>
+            <span class="text-xs" style="color:var(--text-muted)">{{ fmtDate(inv.created_at) }}</span>
+            <span class="text-xs font-bold w-24 text-right" style="color:var(--text-primary)">{{ inv.currency }} {{ Number(inv.total).toFixed(2) }}</span>
+            <span class="text-[10px] uppercase font-bold w-16 text-right" :style="inv.status === 'paid' ? 'color:var(--accent-teal)' : 'color:#ef4444'">{{ inv.status === 'void' ? 'refunded' : inv.status }}</span>
+          </RouterLink>
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -68,6 +81,7 @@ const isActive = ref(false)
 const loading = ref(true)
 const cancelling = ref(false)
 const error = ref('')
+const invoices = ref<any[]>([])
 
 const usagePercent = computed(() =>
   usage.value.listing_limit ? Math.min(100, Math.round((usage.value.listings / usage.value.listing_limit) * 100)) : 0
@@ -103,5 +117,8 @@ function fmtDate(d?: string) {
   return d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Never'
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  client.get('/billing/invoices').then((r) => (invoices.value = r.data.data)).catch(() => {})
+})
 </script>

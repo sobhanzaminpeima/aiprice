@@ -46,6 +46,16 @@ return [
         'logo_id'    => env('CLOUDINARY_LOGO_ID', 'aiprice_logo'),
     ],
 
+    // Which PaymentGateway driver handles checkout and webhooks.
+    'payments' => [
+        'gateway' => env('PAYMENT_GATEWAY', 'stripe'),
+    ],
+
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),                 // sk_live_… / sk_test_…
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'), // whsec_… from the webhook endpoint
+    ],
+
     'instagram' => [
         'user_id'      => env('IG_USER_ID', ''),      // Instagram Business account ID
         'access_token' => env('IG_ACCESS_TOKEN', ''), // long-lived page access token
