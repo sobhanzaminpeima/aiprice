@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Notifications\WelcomeVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, HasUuids, SoftDeletes, HasRoles;
 
@@ -98,6 +100,11 @@ class User extends Authenticatable
         }
 
         return $this->getAllPermissions()->pluck('name')->values()->all();
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new WelcomeVerifyEmail);
     }
 
     public function isSeller(): bool

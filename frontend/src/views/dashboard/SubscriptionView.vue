@@ -23,7 +23,7 @@
 
         <div v-if="sub" class="grid grid-cols-2 gap-4 mt-4">
           <div class="p-3 rounded-xl" style="background:var(--surface-overlay-soft)">
-            <p class="text-xs mb-1" style="color:var(--text-muted)">{{ isActive ? 'Renews' : 'Ended' }}</p>
+            <p class="text-xs mb-1" style="color:var(--text-muted)">{{ !isActive ? 'Ended' : sub.cancelled_at ? 'Access ends' : 'Renews' }}</p>
             <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ fmtDate(sub.current_period_end) }}</p>
           </div>
           <div class="p-3 rounded-xl" style="background:var(--surface-overlay-soft)">
@@ -44,7 +44,8 @@
           </div>
         </div>
 
-        <button v-if="isActive" @click="cancel" :disabled="cancelling" class="mt-4 text-xs font-medium disabled:opacity-50" style="color:#ef4444">
+        <p v-if="isActive && sub?.cancelled_at" class="mt-4 text-xs" style="color:#fbbf24">Cancelled — you keep access until {{ fmtDate(sub.current_period_end) }}.</p>
+        <button v-else-if="isActive" @click="cancel" :disabled="cancelling" class="mt-4 text-xs font-medium disabled:opacity-50" style="color:#ef4444">
           {{ cancelling ? 'Cancelling…' : 'Cancel subscription' }}
         </button>
       </div>

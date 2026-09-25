@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ListingController;
 use App\Http\Controllers\Api\ListingExtractionController;
 use App\Http\Controllers\Api\KycController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,11 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:password-reset');
     Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset');
+    // Signed link from the verification email; the signature is relative so it
+    // survives the SPA proxy forwarding it from a different host.
+    Route::get('/auth/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+        ->middleware(['signed:relative', 'throttle:6,1'])
+        ->name('verification.verify');
 
     // Public listings
     Route::get('/listings', [ListingController::class, 'index']);
@@ -72,6 +78,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+        Route::post('/auth/email/resend', [AuthController::class, 'resendVerification'])->middleware('throttle:3,1');
 
         // AI Preference Graph — "welcome back" memory. Save/read/delete only,
         // no inference beyond what the user actually searched for.
@@ -102,7 +109,8 @@ Route::prefix('v1')->group(function () {
         });
 
         // Listings CRUD
-        Route::post('/listings', [ListingController::class, 'store']);
+        // Publishing needs a verified email so the marketplace isn't open to throwaway accounts.
+        Route::post('/listings', [ListingController::class, 'store'])->middleware('verified');
         // AI draft: turns free text into a pre-filled listing form. Never
         // creates a listing itself — the seller still reviews and submits.
         Route::post('/listings/extract', [ListingExtractionController::class, 'extract'])->middleware('throttle:10,1');
@@ -120,6 +128,12 @@ Route::prefix('v1')->group(function () {
                     ->get(['id', 'listing_id', 'message', 'status', 'created_at'])
             );
         });
+
+        // In-app notifications
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
 
         // KYC verification
         Route::get('/kyc', [KycController::class, 'show']);
@@ -183,8 +197,14 @@ Route::prefix('v1')->group(function () {
                 'message' => $req->message,
             ]);
             $listing->increment('inquiry_count');
+
+            $staff = \App\Models\User::permission('manage_support')->where('is_active', true)->get()
+                ->merge(\App\Models\User::role('super_admin')->where('is_active', true)->get())
+                ->unique('id');
+            \Illuminate\Support\Facades\Notification::send($staff, new \App\Notifications\NewInquiryForStaff($inquiry->load('listing')));
+
             return response()->json(['message' => 'Your request was sent to our team — we\'ll be in touch shortly.', 'inquiry' => $inquiry], 201);
-        });
+        })->middleware(['verified', 'throttle:10,60']);
 
         // Buyer's own sent inquiries — listing info only, never the owner's identity.
         Route::get('/my-inquiries', function (Request $req) {
@@ -272,7 +292,7 @@ Route::prefix('v1')->group(function () {
                 \App\Models\PriceHistory::create(['listing_id' => $listing->id, 'price' => $listing->price, 'currency' => $listing->currency, 'changed_by' => 'seller']);
                 return response()->json(['listing' => $listing->fresh(['listable']), 'message' => 'Submitted for review.'], 201);
             });
-        });
+        })->middleware('verified');
 
         // Upload images for a listing (multipart)
         Route::post('/listings/{id}/upload-images', function (Request $req, string $id) {
@@ -294,10 +314,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/listings/{id}/ai-analyze', function (Request $req, string $id) {
             $listing = \App\Models\Listing::where('user_id', $req->user()->id)->findOrFail($id);
             if ($req->price) $listing->update(['price' => $req->price]);
-            $aiService = app(\App\Services\AiPriceService::class);
-            $result = $aiService->analyzeListingPrice($listing->fresh());
-            return response()->json(['message' => 'Analysis complete.', 'listing' => $listing->fresh()]);
-        });
+            \App\Jobs\AnalyzeListingPrice::dispatch($listing->id);
+            return response()->json(['message' => 'Analysis queued.', 'listing' => $listing->fresh()], 202);
+        })->middleware('throttle:10,60');
 
         // Public AI price estimate (before listing created) — real comparable-based
         // price intelligence only. Trust/invest/demand require an actual listing
@@ -423,14 +442,14 @@ Route::prefix('v1')->group(function () {
         // Trigger import for a source
         Route::post('/competitor-sources/{id}/import', function (string $id) {
             $source = \App\Models\CompetitorSource::findOrFail($id);
-            $crawler = app(\App\Services\CompetitorCrawlerService::class);
-            $result = $crawler->crawlSource($source);
-            return response()->json($result);
+            \App\Jobs\CrawlCompetitorSource::dispatch($source->id);
+            return response()->json(['queued' => 1, 'message' => "Crawl of {$source->name} queued."], 202);
         });
         // Import all sources
         Route::post('/competitor-sources/import-all', function () {
-            $crawler = app(\App\Services\CompetitorCrawlerService::class);
-            return response()->json($crawler->crawlAll());
+            $ids = \App\Models\CompetitorSource::where('is_active', true)->pluck('id');
+            $ids->each(fn ($id) => \App\Jobs\CrawlCompetitorSource::dispatch($id));
+            return response()->json(['queued' => $ids->count(), 'message' => "{$ids->count()} crawls queued."], 202);
         });
         // View competitor listings (admin only, never public)
         Route::get('/competitor-listings', function (Request $req) {
@@ -534,16 +553,12 @@ Route::prefix('v1')->group(function () {
 
         // Batch AI analyze pending listings
         Route::post('/listings/batch-analyze', function () {
-            $service = app(\App\Services\AiPriceService::class);
-            $listings = \App\Models\Listing::where('status', 'active')
+            $ids = \App\Models\Listing::where('status', 'active')
                 ->whereNull('ai_trust_score')
-                ->limit(20)
-                ->get();
-            $count = 0;
-            foreach ($listings as $listing) {
-                try { $service->analyzeListingPrice($listing); $count++; } catch (\Throwable $e) {}
-            }
-            return response()->json(['analyzed' => $count, 'message' => "Analyzed {$count} listings."]);
+                ->limit(200)
+                ->pluck('id');
+            $ids->each(fn ($id) => \App\Jobs\AnalyzeListingPrice::dispatch($id));
+            return response()->json(['queued' => $ids->count(), 'message' => "Queued {$ids->count()} listings for analysis."], 202);
         });
 
         // Social / Instagram auto-publishing

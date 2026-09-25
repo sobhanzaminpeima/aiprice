@@ -24,7 +24,39 @@ class AuthController extends Controller
         $user = User::create(['name' => $v['name'], 'email' => $v['email'], 'password' => Hash::make($v['password']), 'role' => $v['role'] ?? 'buyer', 'phone' => $v['phone'] ?? null]);
         UserProfile::create(['user_id' => $user->id]);
         $user->assignRole($user->role);
-        return response()->json(['user' => $user, 'token' => $user->createToken('auth')->plainTextToken, 'token_type' => 'Bearer'], 201);
+        $user->sendEmailVerificationNotification();
+        return response()->json([
+            'user' => $this->withAccess($user),
+            'token' => $user->createToken('auth')->plainTextToken,
+            'token_type' => 'Bearer',
+        ], 201);
+    }
+
+    public function verifyEmail(Request $request, string $id, string $hash): JsonResponse
+    {
+        $user = User::findOrFail($id);
+
+        if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
+            return response()->json(['message' => 'This verification link is invalid.'], 403);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return response()->json(['message' => 'Email verified.', 'verified' => true]);
+    }
+
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Your email is already verified.']);
+        }
+
+        $user->sendEmailVerificationNotification();
+        return response()->json(['message' => 'Verification email sent.']);
     }
 
     public function login(Request $request): JsonResponse
@@ -45,6 +77,7 @@ class AuthController extends Controller
     private function withAccess(User $user): array
     {
         return $user->toArray() + [
+            'email_verified' => $user->hasVerifiedEmail(),
             'is_staff' => $user->isStaff(),
             'permissions' => $user->permissionNames(),
         ];

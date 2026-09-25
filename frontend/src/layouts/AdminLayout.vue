@@ -25,6 +25,7 @@
         </div>
         <div class='flex items-center gap-2'>
           <button @click='logout' class='flex-1 py-2 rounded-lg text-xs font-medium' style='background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);color:#ef4444'>Sign Out</button>
+          <NotificationBell align="up" />
           <ThemeToggle :size="34" />
         </div>
       </div>
@@ -39,6 +40,7 @@ import { h, defineComponent, computed } from 'vue'
 import BrandLogo from '@/components/BrandLogo.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { adminNav, roleLabels } from '@/router/adminNav'
+import NotificationBell from '@/components/NotificationBell.vue'
 
 const route = useRoute()
 const auth = useAuthStore()

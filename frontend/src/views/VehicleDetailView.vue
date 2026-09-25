@@ -194,6 +194,7 @@
                   {{ sendingInquiry ? 'Sending...' : 'Send Message' }}
                 </button>
                 <p v-if="inquirySent" class="text-xs text-center mt-2" style="color:var(--accent-teal)">✓ Message sent successfully!</p>
+                <p v-if="inquiryError" class="text-xs text-center mt-2" style="color:#ef4444">{{ inquiryError }}</p>
               </div>
             </Transition>
           </div>
@@ -212,6 +213,7 @@
 </template>
 
 <script setup lang="ts">
+import { apiErrorMessage } from '@/api/errors'
 import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useListingsStore } from '@/stores/listings'
@@ -250,6 +252,7 @@ const showInquiry = ref(false)
 const inquiryMsg = ref('')
 const sendingInquiry = ref(false)
 const inquirySent = ref(false)
+const inquiryError = ref('')
 
 const vehicle = computed(() => listing.value?.listable as Vehicle | null)
 const images = computed(() => {
@@ -313,11 +316,12 @@ async function toggleFavorite() {
 async function sendInquiry() {
   if (!inquiryMsg.value.trim()) return
   sendingInquiry.value = true
+  inquiryError.value = ''
   try {
     await store.sendInquiry(listing.value!.id, inquiryMsg.value)
     inquirySent.value = true; inquiryMsg.value = ''
     setTimeout(() => { showInquiry.value = false; inquirySent.value = false }, 3000)
-  } catch {} finally { sendingInquiry.value = false }
+  } catch (e) { inquiryError.value = apiErrorMessage(e, 'Could not send your message.') } finally { sendingInquiry.value = false }
 }
 
 const safetyTips = [

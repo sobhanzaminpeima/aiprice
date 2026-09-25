@@ -31,17 +31,45 @@ Or use XAMPP Control Panel → Start MySQL.
 
 ### 2. Start Laravel Backend
 ```powershell
-cd E:\Codex\AIPrice\backend
+cd "C:\Claude Projects\Hubprice\backend"
 php artisan serve --host=127.0.0.1 --port=8000
 ```
+If `artisan serve` reports `Failed to listen`, use PHP's built-in server directly:
+`php -S 127.0.0.1:8000 -t public public/index.php`
 
-### 3. Start Vue Frontend
+### 3. Start the queue worker and scheduler
+AI scoring, competitor crawls and all emails/notifications run on the queue —
+without a worker they sit in the `jobs` table and nothing is sent.
 ```powershell
-cd E:\Codex\AIPrice\frontend
+cd "C:\Claude Projects\Hubprice\backend"
+php artisan queue:work --queue=default,ai,crawl
+```
+In a second terminal (runs expiry, re-scoring and crawl tasks on schedule):
+```powershell
+php artisan schedule:work
+```
+In production, run the worker under a supervisor (systemd/Supervisor) and add
+one cron entry: `* * * * * php /path/to/backend/artisan schedule:run`.
+
+### 4. Start Vue Frontend
+```powershell
+cd "C:\Claude Projects\Hubprice\frontend"
 npm run dev
 ```
 
 Then open: **http://localhost:3000**
+
+### Email
+`MAIL_MAILER=log` writes every email to `storage/logs/laravel.log` — that is
+where to find password-reset and verification links in development. Set SMTP
+credentials (or Postmark/SES/Resend) in `.env` for real delivery, and set
+`FRONTEND_URL` so links in emails point at the SPA.
+
+### Tests
+```powershell
+cd "C:\Claude Projects\Hubprice\backend"
+php vendor/bin/phpunit
+```
 
 ---
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\KycVerification;
 use App\Models\User;
+use App\Notifications\KycReviewed;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -106,6 +107,7 @@ class UserManagementController extends Controller
         $kyc?->update(['status' => 'approved', 'verified_at' => now(), 'rejection_reason' => null]);
 
         $user->update(['kyc_verified' => true]);
+        $user->notify(new KycReviewed(approved: true));
         return response()->json(['message' => 'KYC approved.']);
     }
 
@@ -118,6 +120,7 @@ class UserManagementController extends Controller
         $kyc->update(['status' => 'rejected', 'rejection_reason' => $v['reason']]);
 
         $user->update(['kyc_verified' => false]);
+        $user->notify(new KycReviewed(approved: false, reason: $v['reason']));
         return response()->json(['message' => 'KYC rejected.']);
     }
 

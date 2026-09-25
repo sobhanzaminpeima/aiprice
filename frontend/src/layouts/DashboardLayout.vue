@@ -30,6 +30,7 @@
         </div>
         <div class="flex items-center gap-2">
           <button @click="logout" class="flex-1 py-2 rounded-lg text-xs font-medium transition" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-muted)">Sign Out</button>
+          <NotificationBell align="up" />
           <ThemeToggle :size="34" />
         </div>
       </div>
@@ -40,6 +41,7 @@
 
     <!-- Content -->
     <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8 overflow-auto">
+      <VerifyEmailBanner />
       <RouterView />
     </main>
   </div>
@@ -51,6 +53,8 @@ import SidebarLink from "@/components/ui/SidebarLink.vue"
 import BrandLogo from "@/components/BrandLogo.vue"
 import ThemeToggle from "@/components/ThemeToggle.vue"
 import DashboardMobileNav from "@/components/DashboardMobileNav.vue"
+import NotificationBell from "@/components/NotificationBell.vue"
+import VerifyEmailBanner from "@/components/VerifyEmailBanner.vue"
 const auth = useAuthStore(); const router = useRouter()
 async function logout() { await auth.logout(); router.push("/") }
 </script>

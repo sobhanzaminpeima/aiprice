@@ -1,15 +1,15 @@
 <?php
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
+use App\Jobs\AnalyzeListingPrice;
 use App\Models\Listing;
-use App\Services\AiPriceService;
+use App\Notifications\ListingReviewed;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ListingManagementController extends Controller
 {
-    public function __construct(private AiPriceService $aiService) {}
-
     public function index(Request $request): JsonResponse
     {
         $q = Listing::with(['user:id,name,email', 'listable'])->orderByDesc('created_at');
@@ -21,17 +21,26 @@ class ListingManagementController extends Controller
 
     public function approve(string $id): JsonResponse
     {
-        $listing = Listing::findOrFail($id);
-        $listing->update(['status' => 'active', 'published_at' => now(), 'expires_at' => now()->addDays(90)]);
-        $this->aiService->analyzeListingPrice($listing);
+        $listing = Listing::with('user')->findOrFail($id);
+        $listing->update([
+            'status' => 'active', 'published_at' => now(), 'expires_at' => now()->addDays(90), 'rejection_reason' => null,
+        ]);
+
+        // Scoring calls the LLM for its insight sentence — run it on the queue.
+        AnalyzeListingPrice::dispatch($listing->id);
+        $listing->user?->notify(new ListingReviewed($listing, approved: true));
+
         return response()->json(['message' => 'Listing approved and AI analysis queued.', 'listing' => $listing]);
     }
 
     public function reject(Request $request, string $id): JsonResponse
     {
         $request->validate(['reason' => 'required|string|max:500']);
-        $listing = Listing::findOrFail($id);
+        $listing = Listing::with('user')->findOrFail($id);
         $listing->update(['status' => 'rejected', 'rejection_reason' => $request->reason]);
+
+        $listing->user?->notify(new ListingReviewed($listing, approved: false, reason: $request->reason));
+
         return response()->json(['message' => 'Listing rejected.']);
     }
 
@@ -51,7 +60,7 @@ class ListingManagementController extends Controller
     public function reanalyze(string $id): JsonResponse
     {
         $listing = Listing::findOrFail($id);
-        $this->aiService->analyzeListingPrice($listing);
-        return response()->json(['message' => 'AI re-analysis complete.', 'listing' => $listing->fresh()]);
+        AnalyzeListingPrice::dispatch($listing->id);
+        return response()->json(['message' => 'AI re-analysis queued.', 'listing' => $listing], 202);
     }
 }

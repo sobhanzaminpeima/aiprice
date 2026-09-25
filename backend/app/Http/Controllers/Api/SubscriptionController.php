@@ -48,12 +48,13 @@ class SubscriptionController extends Controller
     {
         $subscription = Subscription::where('user_id', $request->user()->id)->findOrFail($id);
 
-        if ($subscription->status !== 'active') {
-            return response()->json(['message' => 'Only an active subscription can be cancelled.'], 422);
+        if ($subscription->status !== 'active' || $subscription->cancelled_at) {
+            return response()->json(['message' => 'This subscription is not active or is already set to end.'], 422);
         }
 
-        // Cancel at period end — the user keeps what they paid for.
-        $subscription->update(['status' => 'cancelled', 'cancelled_at' => now()]);
+        // Cancel at period end: it stays active (the user keeps what they paid
+        // for) and the scheduled subscriptions:expire task ends it.
+        $subscription->update(['cancelled_at' => now()]);
 
         return response()->json(['subscription' => $subscription->fresh('plan')]);
     }
