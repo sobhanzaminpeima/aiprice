@@ -68,7 +68,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Authenticated user routes
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'password.fresh'])->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
@@ -349,7 +349,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Admin routes
-    Route::middleware(['auth:sanctum', 'admin.permission'])->prefix('admin')->group(function () {
+    Route::middleware(['auth:sanctum', 'password.fresh', 'admin.permission'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'overview']);
 
         // Listing management

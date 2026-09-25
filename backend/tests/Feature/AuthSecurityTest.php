@@ -88,6 +88,22 @@ class AuthSecurityTest extends TestCase
         $this->actingAs($buyer, 'sanctum')->getJson('/api/v1/kyc')->assertJsonPath('kyc.rejection_reason', 'Blurry photo');
     }
 
+    public function test_forced_password_change_blocks_everything_else(): void
+    {
+        $user = User::factory()->create(['force_password_change' => true, 'password' => bcrypt('Temp@12345')]);
+        $user->assignRole('buyer');
+        $this->actingAs($user, 'sanctum');
+
+        $this->getJson('/api/v1/my-listings')->assertForbidden()->assertJsonPath('code', 'password_change_required');
+        $this->getJson('/api/v1/auth/me')->assertOk();
+
+        $this->postJson('/api/v1/auth/change-password', [
+            'current_password' => 'Temp@12345', 'password' => 'Mine@123456', 'password_confirmation' => 'Mine@123456',
+        ])->assertOk();
+
+        $this->getJson('/api/v1/my-listings')->assertOk();
+    }
+
     public function test_unknown_api_path_is_a_json_404(): void
     {
         $this->getJson('/api/v1/definitely-not-a-route')->assertNotFound();

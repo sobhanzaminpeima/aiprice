@@ -104,7 +104,9 @@ class AuthController extends Controller
         if (!Hash::check($request->current_password, $user->password)) return response()->json(['message' => 'Current password incorrect.'], 422);
         $user->update(['password' => Hash::make($request->password), 'force_password_change' => false]);
         // Sign out every other device; keep the session that made the change.
-        $user->tokens()->where('id', '!=', $user->currentAccessToken()->id)->delete();
+        // Session-authenticated requests carry a TransientToken with no id.
+        $currentId = $user->currentAccessToken()?->id ?? null;
+        $user->tokens()->when($currentId, fn ($q) => $q->where('id', '!=', $currentId))->delete();
         return response()->json(['message' => 'Password changed.']);
     }
 }

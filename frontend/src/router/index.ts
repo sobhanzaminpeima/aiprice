@@ -21,6 +21,7 @@ const router = createRouter({
     { path: "/login", name: "login", component: () => import("@/views/auth/LoginView.vue"), meta: { guest: true } },
     { path: "/register", name: "register", component: () => import("@/views/auth/RegisterView.vue"), meta: { guest: true } },
     { path: "/forgot-password", name: "forgot-password", component: () => import("@/views/auth/ForgotPasswordView.vue"), meta: { guest: true } },
+    { path: "/change-password", name: "change-password", component: () => import("@/views/auth/ChangePasswordView.vue"), meta: { requiresAuth: true } },
     { path: "/reset-password", name: "reset-password", component: () => import("@/views/auth/ResetPasswordView.vue"), meta: { guest: true } },
     {
       path: "/dashboard",
@@ -80,6 +81,9 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
   if (to.meta.requiresAuth && !auth.isAuthenticated) return next({ name: "login", query: { redirect: to.fullPath } })
+  if (auth.isAuthenticated && auth.user?.force_password_change && to.name !== "change-password") {
+    return next({ name: "change-password" })
+  }
   if (to.meta.requiresStaff && !auth.isStaff) return next({ name: "dashboard-overview" })
 
   const leaf = to.matched[to.matched.length - 1]?.path ?? ""

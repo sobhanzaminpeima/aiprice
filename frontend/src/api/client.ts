@@ -17,6 +17,9 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (res) => res,
   (err) => {
+    if (err.response?.status === 403 && err.response?.data?.code === 'password_change_required') {
+      if (window.location.pathname !== '/change-password') window.location.href = '/change-password'
+    }
     if (err.response?.status === 401) {
       localStorage.removeItem('hp_token')
       localStorage.removeItem('hp_user')
