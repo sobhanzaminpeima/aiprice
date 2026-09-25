@@ -73,6 +73,7 @@ const links = [
   { to: '/dashboard/analytics', label: 'Analytics' },
   { to: '/dashboard/favorites', label: 'Favourites' },
   { to: '/dashboard/kyc', label: 'KYC Verification' },
+  { to: '/dashboard/support', label: 'Help & Support' },
   { to: '/dashboard/subscription', label: 'Subscription' },
 ]
 

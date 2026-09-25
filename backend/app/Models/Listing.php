@@ -110,7 +110,12 @@ class Listing extends Model
     {
         parent::boot();
         static::creating(function ($listing) {
-            $listing->listing_number = 'HP-' . strtoupper(substr($listing->type, 0, 1)) . '-' . date('Y') . '-' . str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT);
+            // listing_number is unique; retry on the rare collision rather than
+            // letting the insert fail. Older listings keep their HP- numbers.
+            do {
+                $number = 'AP-' . strtoupper(substr($listing->type, 0, 1)) . '-' . date('Y') . '-' . str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT);
+            } while (static::withTrashed()->where('listing_number', $number)->exists());
+            $listing->listing_number ??= $number;
 
             // Auto-place on the map from the city name unless coordinates were
             // explicitly provided (e.g. a precise pin dropped by the seller).

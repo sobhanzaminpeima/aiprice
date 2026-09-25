@@ -1,92 +1,226 @@
 <template>
   <div class="p-8">
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-3xl font-black" style="color:var(--text-primary)">Content <span class="gradient-text">Management</span></h1>
-      <button class="btn-primary px-5 py-2.5 text-sm">+ New Post</button>
+    <div class="mb-6">
+      <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Content <span class="gradient-text">Management</span></h1>
+      <p class="text-sm" style="color:var(--text-muted)">Blog posts and FAQs shown on the public site.</p>
     </div>
 
-    <!-- Content tabs -->
     <div class="flex gap-2 mb-6">
-      <button v-for="t in tabs" :key="t" @click="activeTab = t"
-        class="px-4 py-2 rounded-xl text-xs font-semibold transition-all"
-        :style="activeTab===t ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">
-        {{ t }}
-      </button>
+      <button v-for="t in tabs" :key="t" @click="tab = t; editing = null" class="px-4 py-2 rounded-xl text-xs font-semibold" :style="tab === t ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">{{ t }}</button>
     </div>
 
-    <!-- Blog Posts -->
-    <div v-if="activeTab === 'Blog Posts'" class="space-y-3">
-      <div v-for="post in blogPosts" :key="post.id" class="flex items-center gap-4 p-4 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <div class="w-16 h-12 rounded-xl overflow-hidden shrink-0">
-          <img :src="post.img" class="w-full h-full object-cover" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold truncate" style="color:var(--text-primary)">{{ post.title }}</p>
-          <p class="text-xs" style="color:var(--text-muted)">{{ post.date }} · {{ post.views }} views</p>
-        </div>
-        <span class="text-xs px-2 py-1 rounded-full font-medium" :style="post.published ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : 'background:rgba(251,191,36,0.1);color:#fbbf24'">
-          {{ post.published ? 'Published' : 'Draft' }}
-        </span>
-        <div class="flex gap-2">
-          <button class="text-xs px-3 py-1.5 rounded-lg" style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.15)">Edit</button>
-          <button class="text-xs px-3 py-1.5 rounded-lg" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.15)">Delete</button>
-        </div>
-      </div>
-    </div>
+    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
 
-    <!-- Banners -->
-    <div v-if="activeTab === 'Banners'" class="space-y-3">
-      <div v-for="b in banners" :key="b.id" class="flex items-center gap-4 p-4 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <div class="w-24 h-12 rounded-xl flex items-center justify-center text-xs font-bold" :style="`background:rgba(${b.rgb},0.1);color:rgb(${b.rgb})`">
-          {{ b.type }}
-        </div>
-        <div class="flex-1">
-          <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ b.title }}</p>
-          <p class="text-xs" style="color:var(--text-muted)">Position: {{ b.position }} · Clicks: {{ b.clicks }}</p>
-        </div>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" :checked="b.active" class="sr-only peer" />
-          <div class="w-9 h-5 rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:transition-all" :style="b.active ? 'background:#6fffd2' : 'background:var(--border-strong)'"></div>
-        </label>
+    <!-- ============ POSTS ============ -->
+    <template v-if="tab === 'Blog posts'">
+      <div v-if="editing" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <form @submit.prevent="savePost" class="rounded-2xl p-6 space-y-4" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+          <input v-model="editing.title" required maxlength="200" placeholder="Title" class="w-full px-4 py-3 rounded-xl text-lg font-bold outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
+          <div class="grid grid-cols-2 gap-3">
+            <select v-model="editing.category_id" class="px-3 py-2 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
+              <option :value="null">No category</option>
+              <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+            </select>
+            <input v-model="editing.slug" placeholder="url-slug (auto)" class="px-3 py-2 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
+          </div>
+          <textarea v-model="editing.excerpt" rows="2" maxlength="500" placeholder="Excerpt — shown on the blog list and in search results" class="w-full px-3 py-2 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
+          <textarea v-model="editing.content" required rows="16" placeholder="Write in Markdown: ## Heading, **bold**, - list, [link](https://…)" class="w-full px-3 py-2 rounded-xl text-sm font-mono outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
+          <input v-model="editing.featured_image" type="url" placeholder="Featured image URL (https://…)" class="w-full px-3 py-2 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
+          <input v-model="tagsText" placeholder="Tags, comma separated" class="w-full px-3 py-2 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
+          <details class="text-sm" style="color:var(--text-secondary)">
+            <summary class="cursor-pointer text-xs font-semibold" style="color:var(--text-muted)">SEO</summary>
+            <div class="space-y-2 mt-2">
+              <input v-model="editing.seo_title" maxlength="70" placeholder="SEO title (≤70 chars)" class="w-full px-3 py-2 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
+              <textarea v-model="editing.seo_description" maxlength="160" rows="2" placeholder="Meta description (≤160 chars)" class="w-full px-3 py-2 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
+            </div>
+          </details>
+          <div class="flex flex-wrap items-center gap-3">
+            <select v-model="editing.status" class="px-3 py-2 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="scheduled">Scheduled</option>
+            </select>
+            <input v-if="editing.status === 'scheduled'" v-model="editing.published_at" type="datetime-local" required class="px-3 py-2 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
+            <button type="button" @click="editing = null" class="ml-auto px-4 py-2 text-sm" style="color:var(--text-muted)">Cancel</button>
+            <button type="submit" :disabled="busy" class="px-5 py-2 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ busy ? 'Saving…' : 'Save' }}</button>
+          </div>
+        </form>
+        <article class="rounded-2xl p-6 prose-content" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+          <p class="text-xs mb-3" style="color:var(--text-muted)">Preview</p>
+          <h1 class="text-2xl font-black mb-3" style="color:var(--text-primary)">{{ editing.title || 'Untitled' }}</h1>
+          <div v-html="preview"></div>
+        </article>
       </div>
-    </div>
 
-    <!-- Pages -->
-    <div v-if="activeTab === 'Pages'" class="space-y-3">
-      <div v-for="pg in pages" :key="pg.slug" class="flex items-center gap-4 p-4 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="'background:var(--surface-overlay)'">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" :stroke="pg.color" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" :d="pg.iconPath"/></svg>
+      <div v-else>
+        <div class="flex justify-between mb-4">
+          <input v-model="postSearch" @keyup.enter="loadPosts" placeholder="Search posts" class="px-3 py-2 rounded-lg text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
+          <button @click="newPost" class="px-4 py-2 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">New post</button>
         </div>
-        <div class="flex-1">
-          <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ pg.title }}</p>
-          <p class="text-xs font-mono" style="color:var(--text-muted)">/{{ pg.slug }}</p>
+        <p v-if="!posts.length" class="text-sm py-12 text-center rounded-2xl" style="background:var(--bg-surface);color:var(--text-muted)">No posts yet.</p>
+        <div v-else class="space-y-2">
+          <div v-for="p in posts" :key="p.id" class="flex items-center gap-3 p-4 rounded-xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold truncate" style="color:var(--text-primary)">{{ p.title }}</p>
+              <p class="text-xs" style="color:var(--text-muted)">{{ p.category?.name || 'Uncategorised' }} · {{ p.view_count }} views · updated {{ fmt(p.updated_at) }}</p>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded-full capitalize" :style="p.status === 'published' ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : p.status === 'scheduled' ? 'background:rgba(86,216,255,0.1);color:var(--accent-cyan)' : 'background:var(--surface-overlay);color:var(--text-muted)'">{{ p.status }}</span>
+            <a v-if="p.status === 'published'" :href="`/blog/${p.slug}`" target="_blank" class="text-xs" style="color:var(--text-muted)">View</a>
+            <button @click="editPost(p.id)" class="text-xs" style="color:var(--accent-teal)">Edit</button>
+            <button @click="deletePost(p)" class="text-xs" style="color:#ef4444">Delete</button>
+          </div>
         </div>
-        <button class="text-xs px-3 py-1.5 rounded-lg" style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.15)">Edit</button>
       </div>
-    </div>
+    </template>
+
+    <!-- ============ CATEGORIES ============ -->
+    <template v-else-if="tab === 'Categories'">
+      <form @submit.prevent="addCategory" class="flex gap-2 mb-4">
+        <input v-model="newCategory" required placeholder="New category name" class="px-3 py-2 rounded-lg text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
+        <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Add</button>
+      </form>
+      <div class="space-y-2">
+        <div v-for="c in categories" :key="c.id" class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+          <p class="flex-1 text-sm" style="color:var(--text-primary)">{{ c.name }} <span class="text-xs" style="color:var(--text-muted)">/{{ c.slug }} · {{ c.posts_count }} posts</span></p>
+          <button @click="deleteCategory(c)" :disabled="c.posts_count > 0" class="text-xs disabled:opacity-30" style="color:#ef4444" :title="c.posts_count > 0 ? 'Has posts' : ''">Delete</button>
+        </div>
+      </div>
+    </template>
+
+    <!-- ============ FAQ ============ -->
+    <template v-else>
+      <form @submit.prevent="saveFaq" class="rounded-2xl p-5 mb-4 space-y-3" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input v-model="faqForm.question" required placeholder="Question" class="md:col-span-3 px-3 py-2 rounded-lg text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
+          <input v-model="faqForm.category" placeholder="Category" class="px-3 py-2 rounded-lg text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
+        </div>
+        <textarea v-model="faqForm.answer" required rows="3" placeholder="Answer" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
+        <div class="flex justify-end gap-2">
+          <button v-if="faqForm.id" type="button" @click="resetFaq" class="px-3 py-2 text-sm" style="color:var(--text-muted)">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ faqForm.id ? 'Update' : 'Add FAQ' }}</button>
+        </div>
+      </form>
+      <div class="space-y-2">
+        <div v-for="f in faqs" :key="f.id" class="p-4 rounded-xl" :style="`background:var(--bg-surface);border:1px solid var(--border-subtle);${f.is_active ? '' : 'opacity:.5'}`">
+          <div class="flex items-start gap-3">
+            <div class="flex-1">
+              <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ f.question }} <span v-if="f.category" class="text-xs font-normal" style="color:var(--text-muted)">· {{ f.category }}</span></p>
+              <p class="text-xs mt-1" style="color:var(--text-secondary)">{{ f.answer }}</p>
+            </div>
+            <button @click="toggleFaq(f)" class="text-xs" style="color:var(--text-muted)">{{ f.is_active ? 'Hide' : 'Show' }}</button>
+            <button @click="faqForm = { ...f }" class="text-xs" style="color:var(--accent-teal)">Edit</button>
+            <button @click="deleteFaq(f)" class="text-xs" style="color:#ef4444">Delete</button>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-const tabs = ['Blog Posts', 'Banners', 'Pages']
-const activeTab = ref('Blog Posts')
-const blogPosts = [
-  { id: 1, title: 'How AI is Changing North Cyprus Real Estate in 2026', date: '2026-06-15', views: 1284, published: true, img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&q=70' },
-  { id: 2, title: 'Best Areas to Buy Property in Kyrenia: 2026 Guide', date: '2026-06-08', views: 943, published: true, img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=200&q=70' },
-  { id: 3, title: 'Hybrid Cars Coming to North Cyprus: What You Need to Know', date: '2026-06-01', views: 621, published: true, img: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=200&q=70' },
-  { id: 4, title: 'Investment Guide: Long Beach Apartments ROI Analysis', date: '2026-05-20', views: 0, published: false, img: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=200&q=70' },
-]
-const banners = [
-  { id: 1, title: 'Summer 2026 — List Free!', type: 'Hero', position: 'Homepage Top', clicks: 284, active: true, rgb: '111,255,210' },
-  { id: 2, title: 'Dealer Plan Special Offer', type: 'Sidebar', position: 'Listing Pages', clicks: 93, active: true, rgb: '86,216,255' },
-  { id: 3, title: 'AI Price Check is Live', type: 'Popup', position: 'Cars Page', clicks: 421, active: false, rgb: '167,139,250' },
-]
-const pages = [
-  { iconPath: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', color: '#6fffd2', title: 'About AIPrice.app', slug: 'about' },
-  { iconPath: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', color: '#56d8ff', title: 'Contact Us', slug: 'contact' },
-  { iconPath: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', color: '#a78bfa', title: 'Privacy Policy', slug: 'privacy' },
-  { iconPath: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', color: '#fbbf24', title: 'Terms of Service', slug: 'terms' },
-  { iconPath: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z', color: 'var(--text-muted)', title: 'Cookie Policy', slug: 'cookies' },
-]
+import { ref, computed, onMounted } from 'vue'
+import client from '@/api/client'
+import { apiErrorMessage } from '@/api/errors'
+import { renderSafeMarkdown } from '@/utils/safeMarkdown'
+
+const tabs = ['Blog posts', 'Categories', 'FAQ'] as const
+const tab = ref<(typeof tabs)[number]>('Blog posts')
+const error = ref('')
+const busy = ref(false)
+
+const posts = ref<any[]>([])
+const postSearch = ref('')
+const categories = ref<any[]>([])
+const newCategory = ref('')
+const editing = ref<any>(null)
+const tagsText = ref('')
+const faqs = ref<any[]>([])
+const faqForm = ref<any>({ question: '', answer: '', category: '' })
+
+const preview = computed(() => renderSafeMarkdown(editing.value?.content ?? ''))
+
+const fail = (fallback: string) => (e: unknown) => { error.value = apiErrorMessage(e, fallback) }
+
+async function loadPosts() {
+  posts.value = (await client.get('/admin/content/posts', { params: { search: postSearch.value || undefined } })).data.data
+}
+async function loadCategories() { categories.value = (await client.get('/admin/content/categories')).data }
+async function loadFaqs() { faqs.value = (await client.get('/admin/content/faqs')).data }
+
+function newPost() {
+  editing.value = { title: '', slug: '', excerpt: '', content: '', category_id: null, featured_image: '', status: 'draft', published_at: '', seo_title: '', seo_description: '' }
+  tagsText.value = ''
+}
+
+async function editPost(id: string) {
+  try {
+    const p = (await client.get(`/admin/content/posts/${id}`)).data
+    editing.value = { ...p, published_at: p.published_at ? p.published_at.slice(0, 16) : '' }
+    tagsText.value = (p.tags ?? []).join(', ')
+  } catch (e) { fail('Could not open the post.')(e) }
+}
+
+async function savePost() {
+  busy.value = true
+  error.value = ''
+  const e = editing.value
+  const payload = {
+    title: e.title, slug: e.slug || null, excerpt: e.excerpt || null, content: e.content,
+    category_id: e.category_id || null, featured_image: e.featured_image || null, status: e.status,
+    published_at: e.status === 'scheduled' ? e.published_at : null,
+    tags: tagsText.value.split(',').map((t) => t.trim()).filter(Boolean),
+    seo_title: e.seo_title || null, seo_description: e.seo_description || null,
+  }
+  try {
+    if (e.id) await client.put(`/admin/content/posts/${e.id}`, payload)
+    else await client.post('/admin/content/posts', payload)
+    editing.value = null
+    await loadPosts()
+  } catch (err) { fail('Could not save the post.')(err) } finally { busy.value = false }
+}
+
+async function deletePost(p: any) {
+  if (!window.confirm(`Delete “${p.title}”?`)) return
+  await client.delete(`/admin/content/posts/${p.id}`).then(loadPosts).catch(fail('Delete failed.'))
+}
+
+async function addCategory() {
+  await client.post('/admin/content/categories', { name: newCategory.value })
+    .then(() => { newCategory.value = ''; return loadCategories() })
+    .catch(fail('Could not add the category.'))
+}
+async function deleteCategory(c: any) {
+  await client.delete(`/admin/content/categories/${c.id}`).then(loadCategories).catch(fail('Delete failed.'))
+}
+
+function resetFaq() { faqForm.value = { question: '', answer: '', category: '' } }
+async function saveFaq() {
+  const f = faqForm.value
+  const payload = { question: f.question, answer: f.answer, category: f.category || null }
+  const req = f.id ? client.put(`/admin/content/faqs/${f.id}`, payload) : client.post('/admin/content/faqs', { ...payload, is_active: true })
+  await req.then(() => { resetFaq(); return loadFaqs() }).catch(fail('Could not save the FAQ.'))
+}
+async function toggleFaq(f: any) {
+  await client.put(`/admin/content/faqs/${f.id}`, { is_active: !f.is_active }).then(loadFaqs).catch(fail('Update failed.'))
+}
+async function deleteFaq(f: any) {
+  if (!window.confirm('Delete this FAQ?')) return
+  await client.delete(`/admin/content/faqs/${f.id}`).then(loadFaqs).catch(fail('Delete failed.'))
+}
+
+function fmt(d: string) { return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) }
+
+onMounted(() => Promise.all([loadPosts(), loadCategories(), loadFaqs()]).catch(fail('Could not load content.')))
 </script>
+
+<style scoped>
+.prose-content :deep(h2) { font-size: 1.25rem; font-weight: 800; margin: 1.25rem 0 .5rem; color: var(--text-primary); }
+.prose-content :deep(h3) { font-size: 1.05rem; font-weight: 700; margin: 1rem 0 .4rem; color: var(--text-primary); }
+.prose-content :deep(p), .prose-content :deep(li) { font-size: .9rem; line-height: 1.7; color: var(--text-secondary); }
+.prose-content :deep(p) { margin: .6rem 0; }
+.prose-content :deep(ul) { list-style: disc; padding-left: 1.25rem; }
+.prose-content :deep(ol) { list-style: decimal; padding-left: 1.25rem; }
+.prose-content :deep(a) { color: var(--accent-teal); text-decoration: underline; }
+.prose-content :deep(code) { font-size: .8rem; padding: .1rem .3rem; border-radius: 4px; background: var(--surface-overlay); }
+.prose-content :deep(blockquote) { border-left: 3px solid var(--accent-teal); padding-left: .8rem; color: var(--text-muted); }
+</style>

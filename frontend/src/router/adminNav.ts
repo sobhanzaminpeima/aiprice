@@ -51,7 +51,7 @@ export const adminNav: AdminNavSection[] = [
       { path: 'support', label: 'Support Tickets', permission: 'manage_support' },
       { path: 'reports', label: 'Reports', permission: 'view_analytics' },
       { path: 'content', label: 'Content', permission: 'manage_cms' },
-      { path: 'notifications', label: 'Notifications', permission: 'view_dashboard' },
+      { path: 'notifications', label: 'Announcements', permission: 'manage_cms' },
       { path: 'competitors', label: 'Competitors', permission: 'manage_competitors' },
       { path: 'settings', label: 'Settings', permission: 'manage_settings' },
     ],

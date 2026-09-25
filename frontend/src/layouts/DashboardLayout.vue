@@ -18,6 +18,7 @@
         <p class="text-xs font-bold px-3 mb-2 mt-4" style="color:var(--text-muted);letter-spacing:0.08em">ACCOUNT</p>
         <SidebarLink to="/dashboard/profile" icon="user">Profile</SidebarLink>
         <SidebarLink to="/dashboard/kyc" icon="shield">KYC Verification</SidebarLink>
+        <SidebarLink to="/dashboard/support" icon="message">Help &amp; Support</SidebarLink>
         <SidebarLink to="/dashboard/subscription" icon="star">Subscription</SidebarLink>
       </nav>
       <div class="p-4" style="border-top:1px solid var(--border-subtle)">

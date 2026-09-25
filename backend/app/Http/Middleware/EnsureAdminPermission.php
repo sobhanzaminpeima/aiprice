@@ -72,8 +72,17 @@ class EnsureAdminPermission
         'audit-logs/*' => 'manage_settings',
 
         'analytics/*' => 'view_analytics',
+        'market' => 'view_analytics',
+        'market/*' => 'view_analytics',
+        'live' => 'view_analytics',
+        'live/*' => 'view_analytics',
+        // Each export additionally checks its own data permission in ReportController.
         'reports' => 'view_analytics',
         'reports/*' => 'view_analytics',
+
+        // Broadcasting to every user is an admin-level action.
+        'announcements' => 'manage_cms',
+        'announcements/*' => 'manage_cms',
 
         'subscription-plans' => 'manage_subscriptions',
         'subscription-plans/*' => 'manage_subscriptions',

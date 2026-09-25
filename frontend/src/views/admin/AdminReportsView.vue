@@ -1,60 +1,79 @@
 <template>
-  <div class="p-8">
-    <div class="flex items-center justify-between mb-8">
+  <div class="p-8 max-w-4xl">
+    <div class="mb-8">
+      <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Data <span class="gradient-text">Exports</span></h1>
+      <p class="text-sm" style="color:var(--text-muted)">CSV exports open in Excel and Google Sheets. Exports contain personal data — handle them accordingly.</p>
+    </div>
+
+    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+
+    <div class="rounded-2xl p-5 mb-6 flex flex-wrap items-end gap-4" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
       <div>
-        <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Reports <span class="gradient-text">Center</span></h1>
-        <p class="text-sm" style="color:var(--text-muted)">Generate and download platform reports</p>
+        <label class="block text-xs mb-1" style="color:var(--text-muted)">From</label>
+        <input v-model="from" type="date" class="px-3 py-2 rounded-lg text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
       </div>
+      <div>
+        <label class="block text-xs mb-1" style="color:var(--text-muted)">To</label>
+        <input v-model="to" type="date" class="px-3 py-2 rounded-lg text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
+      </div>
+      <p class="text-xs pb-2" style="color:var(--text-muted)">Leave empty to export everything.</p>
     </div>
 
-    <!-- Quick Generate -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-      <div v-for="r in reportTypes" :key="r.title" class="rounded-2xl p-5 cursor-pointer hover:scale-105 transition-transform" :style="`background:var(--bg-surface);border:1px solid rgba(${r.rgb},0.2)`">
-        <div class="text-3xl mb-3">{{ r.icon }}</div>
-        <h3 class="font-bold mb-1" style="color:var(--text-primary)">{{ r.title }}</h3>
-        <p class="text-xs mb-4" style="color:var(--text-muted)">{{ r.desc }}</p>
-        <div class="flex gap-2">
-          <button class="flex-1 py-2 rounded-xl text-xs font-semibold" :style="`background:rgba(${r.rgb},0.1);color:rgb(${r.rgb});border:1px solid rgba(${r.rgb},0.2)`">
-            📊 CSV
-          </button>
-          <button class="flex-1 py-2 rounded-xl text-xs font-semibold" :style="`background:rgba(${r.rgb},0.1);color:rgb(${r.rgb});border:1px solid rgba(${r.rgb},0.2)`">
-            📄 PDF
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Reports -->
-    <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-      <h2 class="font-bold mb-5" style="color:var(--text-primary)">Recent Reports</h2>
-      <div class="space-y-3">
-        <div v-for="rpt in recentReports" :key="rpt.name" class="flex items-center gap-4 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--surface-overlay)">
-          <span class="text-xl">{{ rpt.icon }}</span>
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-semibold" style="color:var(--text-primary)">{{ rpt.name }}</p>
-            <p class="text-xs" style="color:var(--text-muted)">{{ rpt.date }} · {{ rpt.size }}</p>
-          </div>
-          <span class="text-xs px-2 py-1 rounded-full" :style="`background:rgba(${rpt.rgb},0.1);color:rgb(${rpt.rgb})`">{{ rpt.type }}</span>
-          <button class="text-xs px-3 py-1.5 rounded-lg font-medium" style="background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)">Download</button>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div v-for="r in reports" :key="r.key" class="rounded-2xl p-5" :style="`background:var(--bg-surface);border:1px solid var(--border-subtle);${r.allowed ? '' : 'opacity:.5'}`">
+        <p class="font-bold mb-1" style="color:var(--text-primary)">{{ r.label }}</p>
+        <p class="text-xs mb-4" style="color:var(--text-muted)">{{ r.description }}</p>
+        <button v-if="r.allowed" @click="download(r.key)" :disabled="busy === r.key" class="px-4 py-2 rounded-xl text-xs font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+          {{ busy === r.key ? 'Preparing…' : 'Download CSV' }}
+        </button>
+        <p v-else class="text-xs" style="color:var(--text-muted)">Your role cannot export this data.</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const reportTypes = [
-  { icon: '📊', title: 'Listings Report', desc: 'All active, pending, and rejected listings with full details', rgb: '111,255,210' },
-  { icon: '👥', title: 'Users Report', desc: 'Registered users, KYC status, subscription details', rgb: '86,216,255' },
-  { icon: '💰', title: 'Revenue Report', desc: 'Subscription payments, plan breakdown, MRR trends', rgb: '167,139,250' },
-  { icon: '🛡', title: 'Fraud Report', desc: 'Flagged listings, banned users, risk incidents', rgb: '239,68,68' },
-  { icon: '🤖', title: 'AI Analysis Report', desc: 'AI scores, trust metrics, overpriced/undervalued summary', rgb: '251,191,36' },
-  { icon: '📈', title: 'Market Report', desc: 'Price trends by city and category, competitor comparison', rgb: '111,255,210' },
-]
-const recentReports = [
-  { icon: '📊', name: 'Listings Report — June 2026', date: '2026-06-19', size: '2.4 MB', type: 'CSV', rgb: '111,255,210' },
-  { icon: '💰', name: 'Revenue Report — May 2026', date: '2026-06-01', size: '0.8 MB', type: 'PDF', rgb: '167,139,250' },
-  { icon: '👥', name: 'User Report — Q1 2026', date: '2026-04-01', size: '1.1 MB', type: 'CSV', rgb: '86,216,255' },
-  { icon: '🛡', name: 'Fraud Incidents — Q2 2026', date: '2026-06-01', size: '0.4 MB', type: 'PDF', rgb: '239,68,68' },
-]
+import { ref, onMounted } from 'vue'
+import client from '@/api/client'
+import { apiErrorMessage } from '@/api/errors'
+
+const reports = ref<any[]>([])
+const from = ref('')
+const to = ref('')
+const busy = ref<string | null>(null)
+const error = ref('')
+
+// The export needs the bearer token, so fetch it as a blob rather than
+// pointing the browser at the URL directly.
+async function download(key: string) {
+  busy.value = key
+  error.value = ''
+  try {
+    const r = await client.get(`/admin/reports/${key}/export`, {
+      params: { from: from.value || undefined, to: to.value || undefined },
+      responseType: 'blob',
+    })
+    const name = /filename="?([^"]+)"?/.exec(r.headers['content-disposition'] ?? '')?.[1] ?? `aiprice-${key}.csv`
+    const url = URL.createObjectURL(r.data)
+    const a = Object.assign(document.createElement('a'), { href: url, download: name })
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e: any) {
+    // Error bodies arrive as a Blob when responseType is blob.
+    if (e?.response?.data instanceof Blob) {
+      try { e.response.data = JSON.parse(await e.response.data.text()) } catch { /* keep generic */ }
+    }
+    error.value = apiErrorMessage(e, 'Export failed.')
+  } finally {
+    busy.value = null
+  }
+}
+
+onMounted(async () => {
+  try {
+    reports.value = (await client.get('/admin/reports')).data
+  } catch (e) {
+    error.value = apiErrorMessage(e, 'Could not load exports.')
+  }
+})
 </script>

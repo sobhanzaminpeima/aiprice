@@ -51,6 +51,12 @@ Route::prefix('v1')->group(function () {
     // Vehicle brands/models
     Route::get('/vehicle-brands', fn() => response()->json(\App\Models\VehicleBrand::where('is_active', true)->with('models')->orderBy('name')->get()));
     Route::get('/property-types', fn() => response()->json(\App\Models\PropertyType::where('is_active', true)->orderBy('name')->get()));
+
+    // Public blog + FAQ
+    Route::get('/blog', [\App\Http\Controllers\Api\ContentController::class, 'posts']);
+    Route::get('/blog/categories', [\App\Http\Controllers\Api\ContentController::class, 'categories']);
+    Route::get('/blog/{slug}', [\App\Http\Controllers\Api\ContentController::class, 'post']);
+    Route::get('/faqs', [\App\Http\Controllers\Api\ContentController::class, 'faqs']);
     Route::get('/subscription-plans', fn() => response()->json(\App\Models\SubscriptionPlan::where('is_active', true)->orderBy('sort_order')->get()));
 
     // AI chat assistant — public, throttled (grounded in real DB search, see ChatService)
@@ -135,6 +141,12 @@ Route::prefix('v1')->group(function () {
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
         Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
 
+        // Support tickets (customer side)
+        Route::get('/support-tickets', [\App\Http\Controllers\Api\SupportTicketController::class, 'index']);
+        Route::post('/support-tickets', [\App\Http\Controllers\Api\SupportTicketController::class, 'store'])->middleware('throttle:5,60');
+        Route::get('/support-tickets/{id}', [\App\Http\Controllers\Api\SupportTicketController::class, 'show']);
+        Route::post('/support-tickets/{id}/reply', [\App\Http\Controllers\Api\SupportTicketController::class, 'reply'])->middleware('throttle:30,60');
+
         // KYC verification
         Route::get('/kyc', [KycController::class, 'show']);
         Route::post('/kyc', [KycController::class, 'store']);
@@ -217,10 +229,26 @@ Route::prefix('v1')->group(function () {
 
         // Fraud report
         Route::post('/listings/{id}/report', function (Request $req, string $id) {
-            $req->validate(['reason' => 'required|string', 'description' => 'nullable|string']);
-            $report = \App\Models\FraudReport::create(['listing_id' => $id, 'reported_by' => $req->user()->id, 'reason' => $req->reason, 'description' => $req->description]);
+            $req->validate(['reason' => 'required|string|max:100', 'description' => 'nullable|string|max:2000']);
+            $listing = \App\Models\Listing::findOrFail($id);
+
+            abort_if($listing->user_id === $req->user()->id, 422, 'You cannot report your own listing.');
+
+            $existing = \App\Models\FraudReport::where('listing_id', $id)->where('reported_by', $req->user()->id)
+                ->whereIn('status', ['pending', 'investigating'])->first();
+            if ($existing) {
+                return response()->json(['message' => 'You already reported this listing — our team is looking at it.', 'report' => $existing]);
+            }
+
+            $risk = app(\App\Services\FraudSignals::class)->assess($listing);
+            $report = \App\Models\FraudReport::create([
+                'listing_id' => $id, 'reported_by' => $req->user()->id, 'reason' => $req->reason,
+                'description' => $req->description, 'status' => 'pending',
+                // Snapshot why the listing looked risky at report time.
+                'risk_score' => $risk['score'], 'ai_analysis' => ['signals' => $risk['signals']],
+            ]);
             return response()->json(['message' => 'Report submitted.', 'report' => $report], 201);
-        });
+        })->middleware('throttle:10,60');
 
         // Create listing with brand/model name resolution
         Route::post('/listings/create', function (Request $req) {
@@ -780,6 +808,49 @@ Route::prefix('v1')->group(function () {
             \App\Models\Advertisement::findOrFail($id)->delete();
             return response()->json(['message'=>'Deleted.']);
         });
+
+        // Finance
+        Route::get('/financial/overview', [\App\Http\Controllers\Admin\FinanceController::class, 'overview']);
+        Route::get('/financial/payments', [\App\Http\Controllers\Admin\FinanceController::class, 'payments']);
+
+        // Market analytics & live activity
+        Route::get('/market/overview', [\App\Http\Controllers\Admin\MarketAnalyticsController::class, 'overview']);
+        Route::get('/live/snapshot', [\App\Http\Controllers\Admin\LiveAnalyticsController::class, 'snapshot']);
+
+        // Fraud
+        Route::get('/fraud/overview', [\App\Http\Controllers\Admin\FraudController::class, 'overview']);
+        Route::get('/fraud/reports', [\App\Http\Controllers\Admin\FraudController::class, 'reports']);
+        Route::put('/fraud/reports/{id}', [\App\Http\Controllers\Admin\FraudController::class, 'update']);
+
+        // Support tickets
+        Route::get('/support/tickets', [\App\Http\Controllers\Admin\SupportController::class, 'index']);
+        Route::get('/support/agents', [\App\Http\Controllers\Admin\SupportController::class, 'agents']);
+        Route::get('/support/tickets/{id}', [\App\Http\Controllers\Admin\SupportController::class, 'show']);
+        Route::put('/support/tickets/{id}', [\App\Http\Controllers\Admin\SupportController::class, 'update']);
+        Route::post('/support/tickets/{id}/reply', [\App\Http\Controllers\Admin\SupportController::class, 'reply']);
+
+        // CSV exports
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index']);
+        Route::get('/reports/{report}/export', [\App\Http\Controllers\Admin\ReportController::class, 'export']);
+
+        // Content: blog + FAQ
+        Route::get('/content/posts', [\App\Http\Controllers\Admin\ContentController::class, 'posts']);
+        Route::post('/content/posts', [\App\Http\Controllers\Admin\ContentController::class, 'storePost']);
+        Route::get('/content/posts/{id}', [\App\Http\Controllers\Admin\ContentController::class, 'showPost']);
+        Route::put('/content/posts/{id}', [\App\Http\Controllers\Admin\ContentController::class, 'updatePost']);
+        Route::delete('/content/posts/{id}', [\App\Http\Controllers\Admin\ContentController::class, 'destroyPost']);
+        Route::get('/content/categories', [\App\Http\Controllers\Admin\ContentController::class, 'categories']);
+        Route::post('/content/categories', [\App\Http\Controllers\Admin\ContentController::class, 'storeCategory']);
+        Route::delete('/content/categories/{id}', [\App\Http\Controllers\Admin\ContentController::class, 'destroyCategory']);
+        Route::get('/content/faqs', [\App\Http\Controllers\Admin\ContentController::class, 'faqs']);
+        Route::post('/content/faqs', [\App\Http\Controllers\Admin\ContentController::class, 'storeFaq']);
+        Route::put('/content/faqs/{id}', [\App\Http\Controllers\Admin\ContentController::class, 'updateFaq']);
+        Route::delete('/content/faqs/{id}', [\App\Http\Controllers\Admin\ContentController::class, 'destroyFaq']);
+
+        // Announcements (the admin "Notifications" page)
+        Route::get('/announcements', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index']);
+        Route::get('/announcements/audience-size', [\App\Http\Controllers\Admin\AnnouncementController::class, 'audienceSize']);
+        Route::post('/announcements', [\App\Http\Controllers\Admin\AnnouncementController::class, 'store']);
 
         // Homepage sections management
         Route::get('/homepage-sections', fn() => response()->json(\App\Models\HomepageSection::orderBy('sort_order')->get()));
