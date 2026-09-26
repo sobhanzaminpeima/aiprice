@@ -1,19 +1,19 @@
 <template>
-  <div class="bg-slate-900 rounded-xl p-4 border border-slate-800">
+  <div class="bg-[var(--bg-surface)] rounded-xl p-4 border border-[var(--border-subtle)]">
     <div class="flex items-center justify-between mb-3">
       <span class="ai-badge">AI Price Battery™</span>
-      <span class="text-xs text-slate-400">{{ confidence }}% confidence</span>
+      <span class="text-xs text-[var(--text-muted)]">{{ confidence }}% confidence</span>
     </div>
 
     <!-- Battery visual -->
     <div class="flex items-center gap-3 mb-4">
-      <div class="relative flex-1 h-8 bg-slate-800 rounded-full overflow-hidden">
+      <div class="relative flex-1 h-8 bg-[var(--surface-overlay)] rounded-full overflow-hidden">
         <div
           class="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
           :class="batteryClass"
           :style="{ width: `${percent}%` }"
         />
-        <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
+        <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-[var(--text-primary)]">
           {{ percent }}%
         </span>
       </div>
@@ -34,26 +34,26 @@
     </div>
 
     <!-- Market range -->
-    <div v-if="minPrice && maxPrice" class="border-t border-slate-800 pt-3">
-      <p class="text-xs text-slate-500 mb-2">Market Range</p>
+    <div v-if="minPrice && maxPrice" class="border-t border-[var(--border-subtle)] pt-3">
+      <p class="text-xs text-[var(--text-muted)] mb-2">Market Range</p>
       <div class="flex items-center justify-between">
-        <span class="text-sm text-slate-300">{{ formatPrice(minPrice) }}</span>
-        <div class="flex-1 mx-3 h-1 bg-slate-700 rounded relative">
+        <span class="text-sm text-[var(--text-secondary)]">{{ formatPrice(minPrice) }}</span>
+        <div class="flex-1 mx-3 h-1 bg-[var(--border-strong)] rounded relative">
           <div
             class="absolute top-0 h-full rounded"
             :class="batteryClass"
             :style="{ left: '0%', width: `${markerPosition}%` }"
           />
           <div
-            class="absolute -top-1.5 w-4 h-4 rounded-full border-2 border-slate-900 shadow"
+            class="absolute -top-1.5 w-4 h-4 rounded-full border-2 border-[var(--border-subtle)] shadow"
             :class="markerColorClass"
             :style="{ left: `calc(${markerPosition}% - 8px)` }"
           />
         </div>
-        <span class="text-sm text-slate-300">{{ formatPrice(maxPrice) }}</span>
+        <span class="text-sm text-[var(--text-secondary)]">{{ formatPrice(maxPrice) }}</span>
       </div>
-      <p class="text-xs text-slate-500 mt-2 text-center">
-        Market avg: <span class="text-white font-medium">{{ formatPrice(avgPrice) }}</span>
+      <p class="text-xs text-[var(--text-muted)] mt-2 text-center">
+        Market avg: <span class="text-[var(--text-primary)] font-medium">{{ formatPrice(avgPrice) }}</span>
       </p>
     </div>
   </div>
@@ -127,7 +127,7 @@ const priceDiffText = computed(() => {
 })
 
 const priceDiffClass = computed(() => {
-  if (!priceDiff.value) return 'text-slate-400'
+  if (!priceDiff.value) return 'text-[var(--text-muted)]'
   return priceDiff.value > 5 ? 'text-red-400' : priceDiff.value < -5 ? 'text-emerald-400' : 'text-amber-400'
 })
 

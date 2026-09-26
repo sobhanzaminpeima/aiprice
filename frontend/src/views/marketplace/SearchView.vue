@@ -34,6 +34,8 @@
   </MainLayout>
 </template>
 <script setup lang="ts">
+import { usePageMeta } from '@/composables/usePageMeta'
+usePageMeta(() => ({ title: 'Search listings', description: 'Search cars and property across North Cyprus.' }))
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'

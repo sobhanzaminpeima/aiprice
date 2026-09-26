@@ -60,7 +60,7 @@
           class="rounded-2xl p-6 text-left transition-all"
           :style="form.type === t.value ? 'background:rgba(111,255,210,0.08);border:2px solid rgba(111,255,210,0.4)' : 'background:var(--bg-surface);border:2px solid var(--border-subtle)'">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" :style="'background:rgba('+t.rgb+',0.1)'">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="rgb({{t.rgb}})" stroke-width="1.5" v-html="t.iconPath"></svg>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" :stroke="`rgb(${t.rgb})`" stroke-width="1.5" v-html="t.iconPath"></svg>
           </div>
           <h3 class="font-bold mb-1" :style="{color: form.type === t.value ? 'rgb('+t.rgb+')' : 'var(--text-primary)'}">{{ t.label }}</h3>
           <p class="text-xs" style="color:var(--text-muted)">{{ t.desc }}</p>

@@ -12,17 +12,17 @@
       </div>
       <div class="rounded-2xl p-8" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <form @submit.prevent="handleLogin" class="space-y-5">
-          <div v-if="error" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+          <div v-if="error" role="alert" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
           <div>
-            <label class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">EMAIL ADDRESS</label>
-            <input v-model="form.email" type="email" required placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
+            <label for="login-email" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">EMAIL ADDRESS</label>
+            <input id="login-email" v-model="form.email" type="email" autocomplete="email" required placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
           </div>
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-semibold" style="color:var(--text-muted)">PASSWORD</label>
+              <label for="login-pass" class="text-xs font-semibold" style="color:var(--text-muted)">PASSWORD</label>
               <RouterLink to="/forgot-password" class="text-xs" style="color:var(--accent-teal)">Forgot?</RouterLink>
             </div>
-            <input v-model="form.password" type="password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
+            <input id="login-pass" v-model="form.password" type="password" autocomplete="current-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
           </div>
           <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
             {{ loading ? "Signing in..." : "Sign In" }}
@@ -37,6 +37,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { usePageMeta } from '@/composables/usePageMeta'
+usePageMeta(() => ({ title: 'Sign in', noindex: true }))
 import { ref } from "vue"
 import { RouterLink, useRouter, useRoute } from "vue-router"
 import { useAuthStore } from "@/stores/auth"

@@ -56,6 +56,11 @@ return [
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 
+    // "*" behind Cloudflare/a load balancer, a comma list of IPs, or empty
+    // when the server faces the internet directly (so X-Forwarded-For can't
+    // be spoofed to dodge per-IP rate limits).
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

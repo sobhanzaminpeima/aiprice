@@ -15,7 +15,25 @@ class SupportTicket extends Model
     public const STATUSES = ['open', 'in_progress', 'waiting', 'resolved', 'closed'];
     public const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
 
-    protected $fillable = ['user_id', 'assigned_to', 'ticket_number', 'subject', 'description', 'category', 'priority', 'status'];
+    protected $fillable = [
+        'user_id', 'guest_name', 'guest_email', 'source', 'assigned_to', 'ticket_number',
+        'subject', 'description', 'category', 'priority', 'status',
+    ];
+
+    /**
+     * Who to notify about this ticket: the account holder, or — for a guest
+     * contact-form ticket — an on-demand mail route to the address they gave.
+     */
+    public function requester(): ?object
+    {
+        if ($this->user) {
+            return $this->user;
+        }
+
+        return $this->guest_email
+            ? \Illuminate\Support\Facades\Notification::route('mail', [$this->guest_email => $this->guest_name])
+            : null;
+    }
 
     protected static function booted(): void
     {

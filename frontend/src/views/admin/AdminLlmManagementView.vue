@@ -213,7 +213,7 @@
             </div>
             <div class="flex items-center justify-between">
               <span class="text-xs" style="color:var(--text-muted)">Auto-analyze on publish</span>
-              <button @click="autoAnalyze = !autoAnalyze"
+              <button @click="autoAnalyze = !autoAnalyze" role="switch" :aria-checked="autoAnalyze" aria-label="Auto-analyze on publish"
                 class="w-9 h-5 rounded-full transition-colors relative"
                 :style="autoAnalyze ? 'background:#6fffd2' : 'background:var(--border-strong)'">
                 <div class="absolute top-0.5 w-4 h-4 rounded-full transition-all" style="background:white"

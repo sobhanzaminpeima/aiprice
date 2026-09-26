@@ -56,6 +56,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/billing/status', [\App\Http\Controllers\Api\BillingController::class, 'status']);
     Route::post('/webhooks/payments', \App\Http\Controllers\Api\PaymentWebhookController::class)->middleware('throttle:120,1');
 
+    // Public contact form → guest support ticket
+    Route::post('/contact', [\App\Http\Controllers\Api\SupportTicketController::class, 'contact'])->middleware('throttle:5,60');
+
     // Public blog + FAQ
     Route::get('/blog', [\App\Http\Controllers\Api\ContentController::class, 'posts']);
     Route::get('/blog/categories', [\App\Http\Controllers\Api\ContentController::class, 'categories']);
@@ -80,8 +83,23 @@ Route::prefix('v1')->group(function () {
             'property_listings' => \App\Models\Listing::where('type', 'property')->where('status', 'active')->count(),
             'rental_listings' => \App\Models\Listing::where('type', 'rental')->where('status', 'active')->count(),
             'ai_analyses_today' => \App\Models\Listing::whereDate('ai_scored_at', today())->count(),
+            'ai_scored_listings' => \App\Models\Listing::where('status', 'active')->whereNotNull('ai_scored_at')->count(),
+            // Public, aggregate-only market indexes — same maths as the admin view.
+            'indexes' => \App\Models\Listing::where('status', 'active')
+                ->selectRaw('type, COUNT(*) as listings, AVG(ai_trust_score) as trust, AVG(ai_demand_score) as demand, AVG(ai_deal_score) as deal')
+                ->groupBy('type')->get()
+                ->map(function ($r) {
+                    $parts = array_values(array_filter([$r->trust, $r->demand, $r->deal], fn ($v) => $v !== null));
+                    return [
+                        'type' => $r->type, 'listings' => (int) $r->listings,
+                        'index' => $parts ? (int) round(array_sum($parts) / count($parts)) : null,
+                        'trust' => $r->trust !== null ? (int) round($r->trust) : null,
+                    ];
+                }),
+            'price_verdicts' => \App\Models\Listing::where('status', 'active')->whereNotNull('ai_price_status')
+                ->selectRaw('ai_price_status, COUNT(*) as n')->groupBy('ai_price_status')->pluck('n', 'ai_price_status'),
         ]);
-    });
+    })->middleware('throttle:60,1');
 
     // Authenticated user routes
     Route::middleware(['auth:sanctum', 'password.fresh'])->group(function () {

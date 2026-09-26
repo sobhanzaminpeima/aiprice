@@ -24,7 +24,7 @@
             <span class="text-[10px] px-2 py-0.5 rounded-full uppercase font-bold" :style="priorityStyle(t.priority)">{{ t.priority }}</span>
           </div>
           <p class="text-sm font-semibold truncate" style="color:var(--text-primary)">{{ t.subject }}</p>
-          <p class="text-xs truncate" style="color:var(--text-secondary)">{{ t.user?.name }} · {{ t.replies_count }} replies · {{ ago(t.updated_at) }}</p>
+          <p class="text-xs truncate" style="color:var(--text-secondary)">{{ t.user?.name || t.guest_name }}<span v-if="!t.user_id"> (guest)</span> · {{ t.replies_count }} replies · {{ ago(t.updated_at) }}</p>
           <span class="inline-block mt-1 text-[10px] capitalize px-2 py-0.5 rounded" style="background:var(--surface-overlay);color:var(--text-muted)">{{ t.status.replace('_', ' ') }}</span>
         </button>
       </div>
@@ -37,7 +37,7 @@
             <div>
               <p class="text-xs font-mono" style="color:var(--text-muted)">{{ selected.ticket_number }} · {{ selected.category || 'general' }}</p>
               <h2 class="text-lg font-bold" style="color:var(--text-primary)">{{ selected.subject }}</h2>
-              <p class="text-xs" style="color:var(--text-secondary)">{{ selected.user?.name }} · {{ selected.user?.email }} · {{ selected.user?.role }}</p>
+              <p class="text-xs" style="color:var(--text-secondary)">{{ selected.user?.name || selected.guest_name }} · {{ selected.user?.email || selected.guest_email }} · {{ selected.user?.role || 'guest via contact form — replies go by email' }}</p>
             </div>
             <div class="flex flex-wrap gap-2">
               <select :value="selected.status" @change="patch({ status: ($event.target as HTMLSelectElement).value })" class="px-2 py-1.5 rounded-lg text-xs" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)">
@@ -55,7 +55,7 @@
 
           <div class="space-y-3 max-h-[420px] overflow-y-auto mb-4 pr-1">
             <div class="p-3 rounded-xl" style="background:var(--surface-overlay-soft)">
-              <p class="text-xs font-semibold mb-1" style="color:var(--text-primary)">{{ selected.user?.name }} <span class="font-normal" style="color:var(--text-muted)">· {{ ago(selected.created_at) }}</span></p>
+              <p class="text-xs font-semibold mb-1" style="color:var(--text-primary)">{{ selected.user?.name || selected.guest_name }} <span class="font-normal" style="color:var(--text-muted)">· {{ ago(selected.created_at) }}</span></p>
               <p class="text-sm whitespace-pre-wrap" style="color:var(--text-secondary)">{{ selected.description }}</p>
             </div>
             <div v-for="r in selected.replies" :key="r.id" class="p-3 rounded-xl" :style="r.is_staff ? 'background:rgba(111,255,210,0.06);margin-left:2rem' : 'background:var(--surface-overlay-soft);margin-right:2rem'">

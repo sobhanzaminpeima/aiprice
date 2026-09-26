@@ -67,7 +67,7 @@
               </button>
               <input v-if="intent.budgetMax === 'custom'" v-model="intent.budgetCustom" type="number" placeholder="Max amount"
                 class="px-3 py-1.5 rounded-lg text-xs w-32 outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
-              <select v-model="intent.city" class="px-3 py-1.5 rounded-lg text-xs outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-muted)">
+              <select v-model="intent.city" aria-label="City" class="px-3 py-1.5 rounded-lg text-xs outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-muted)">
                 <option value="">Any City</option>
                 <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
               </select>
@@ -281,6 +281,8 @@
   </MainLayout>
 </template>
 <script setup lang="ts">
+import { usePageMeta } from '@/composables/usePageMeta'
+usePageMeta(() => ({ title: undefined, description: 'Every car and property listing in North Cyprus checked against the market by AI. See the fair price before you buy or sell.' }))
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'

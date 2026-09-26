@@ -37,6 +37,8 @@
 </template>
 
 <script setup lang="ts">
+import { usePageMeta } from '@/composables/usePageMeta'
+usePageMeta(() => ({ title: 'Blog', description: 'Market analysis and guides for buying and selling cars and property in North Cyprus.' }))
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'

@@ -55,7 +55,7 @@ class SupportController extends Controller
             'assigned_to' => $ticket->assigned_to ?? $request->user()->id,
         ]);
 
-        $ticket->user?->notify(new SupportTicketUpdated($ticket, 'staff_reply'));
+        $ticket->requester()?->notify(new SupportTicketUpdated($ticket, 'staff_reply'));
 
         return response()->json($reply->load('user:id,name'), 201);
     }
@@ -78,7 +78,7 @@ class SupportController extends Controller
         $ticket->update($v);
 
         if ($statusChanged && in_array($ticket->status, ['resolved', 'closed'], true)) {
-            $ticket->user?->notify(new SupportTicketUpdated($ticket, 'status'));
+            $ticket->requester()?->notify(new SupportTicketUpdated($ticket, 'status'));
         }
 
         return response()->json($ticket->fresh(['user:id,name,email', 'assignee:id,name']));

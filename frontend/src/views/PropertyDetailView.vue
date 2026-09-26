@@ -23,8 +23,8 @@
 
       <!-- Thumbnails -->
       <div v-if="images.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        <button v-for="(img, i) in images" :key="i" @click="setImg(img)" class="w-16 h-11 rounded-xl overflow-hidden border-2 transition" :style="activeImage === img ? 'border-color:var(--accent-teal)' : 'border-color:rgba(255,255,255,0.2)'">
-          <img :src="img" class="w-full h-full object-cover" />
+        <button v-for="(img, i) in images" :key="i" @click="setImg(img)" :aria-label="`Show photo ${Number(i) + 1}`" class="w-16 h-11 rounded-xl overflow-hidden border-2 transition" :style="activeImage === img ? 'border-color:var(--accent-teal)' : 'border-color:rgba(255,255,255,0.2)'">
+          <img :src="img" :alt="`${listing.title} — photo ${Number(i) + 1}`" loading="lazy" class="w-full h-full object-cover" />
         </button>
       </div>
 
@@ -218,6 +218,8 @@
 </template>
 
 <script setup lang="ts">
+import SpecItem from '@/components/listings/SpecItem.vue'
+import ScoreGauge from '@/components/listings/ScoreGauge.vue'
 import { apiErrorMessage } from '@/api/errors'
 import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
@@ -225,8 +227,6 @@ import { useListingsStore } from '@/stores/listings'
 import AiExplainability from '@/components/listings/AiExplainability.vue'
 import type { Listing, Property } from '@/types'
 
-const SpecItem = { props: ['icon', 'label', 'value'], template: `<div class="flex flex-col gap-1"><span class="text-xs" style="color:var(--text-muted)">{{ icon }} {{ label }}</span><span class="text-sm font-semibold" style="color:var(--text-primary)">{{ value }}</span></div>` }
-const ScoreGauge = { props: ['label', 'value', 'color'], template: `<div class="text-center p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)"><div class="text-2xl font-black mb-1" :style="{color}">{{ value }}</div><div class="text-xs" style="color:var(--text-muted)">{{ label }}</div><div class="mt-2 h-1 rounded-full" style="background:var(--border-subtle)"><div class="h-1 rounded-full" :style="{width: value + '%', background: color}"></div></div></div>` }
 
 const route = useRoute()
 const store = useListingsStore()

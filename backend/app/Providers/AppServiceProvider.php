@@ -6,6 +6,7 @@ use App\Services\Payments\PaymentGateway;
 use App\Services\Payments\StripeGateway;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
@@ -37,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(fn ($user) => method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin() ? true : null);
 
         $this->configureRateLimiting();
+
+        if ($proxies = config('app.trusted_proxies')) {
+            TrustProxies::at($proxies === '*' ? '*' : array_map('trim', explode(',', $proxies)));
+        }
     }
 
     private function configureRateLimiting(): void

@@ -6,19 +6,19 @@
         v-model="filters.search"
         @input="debouncedFetch"
         placeholder="Search..."
-        class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2 text-sm outline-none focus:border-sky-500 transition w-64"
+        class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none focus:border-[var(--accent-teal)] transition w-64"
       />
       <input
         v-model="filters.city"
         @input="debouncedFetch"
         placeholder="City..."
-        class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2 text-sm outline-none focus:border-sky-500 transition w-40"
+        class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none focus:border-[var(--accent-teal)] transition w-40"
       />
       <input v-model="filters.min_price" @input="debouncedFetch" type="number" placeholder="Min price"
-        class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2 text-sm outline-none w-32" />
+        class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none w-32" />
       <input v-model="filters.max_price" @input="debouncedFetch" type="number" placeholder="Max price"
-        class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2 text-sm outline-none w-32" />
-      <select v-model="filters.sort" @change="fetchListings" class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2 text-sm outline-none">
+        class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none w-32" />
+      <select v-model="filters.sort" aria-label="Sort by" @change="fetchListings" class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none">
         <option value="newest">Newest First</option>
         <option value="price_asc">Price: Low to High</option>
         <option value="price_desc">Price: High to Low</option>
@@ -29,17 +29,17 @@
 
     <!-- Results count -->
     <div class="flex items-center justify-between mb-6">
-      <p class="text-slate-400 text-sm">
+      <p class="text-[var(--text-muted)] text-sm">
         {{ listingsStore.pagination.total }} listings found
       </p>
     </div>
 
     <!-- Grid -->
     <div v-if="listingsStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div v-for="i in 8" :key="i" class="bg-slate-900 rounded-2xl h-80 animate-pulse" />
+      <div v-for="i in 8" :key="i" class="bg-[var(--bg-surface)] rounded-2xl h-80 animate-pulse" />
     </div>
 
-    <div v-else-if="listingsStore.listings.length === 0" class="text-center py-20 text-slate-500">
+    <div v-else-if="listingsStore.listings.length === 0" class="text-center py-20 text-[var(--text-muted)]">
       <p class="text-5xl mb-4">🔍</p>
       <p class="text-xl font-semibold mb-2">No listings found</p>
       <p class="text-sm">Try adjusting your search filters.</p>
@@ -56,9 +56,7 @@
         :key="p"
         @click="goToPage(p)"
         class="w-10 h-10 rounded-lg text-sm font-medium transition"
-        :class="p === listingsStore.pagination.current_page
-          ? 'bg-sky-500 text-white'
-          : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'"
+        :class="p === listingsStore.pagination.current_page ? 'bg-[#6fffd2] text-[var(--on-accent)]' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'"
       >
         {{ p }}
       </button>

@@ -84,8 +84,17 @@ class ListingController extends Controller
         // admin, who relays contact manually. See POST /listings/{id}/inquire.
         $listing = Listing::with(['listable', 'documents'])
             ->where('slug', $slug)->where('status', 'active')->firstOrFail();
-        $listing->increment('view_count');
-        ListingView::create(['listing_id' => $listing->id, 'user_id' => $request->user()?->id, 'ip_address' => $request->ip()]);
+        // One view per visitor per listing per 30 minutes, so refreshes and the
+        // SPA's double fetch don't inflate counts sellers and ranking rely on.
+        $viewer = $request->user()?->id;
+        $alreadyCounted = ListingView::where('listing_id', $listing->id)
+            ->where('created_at', '>=', now()->subMinutes(30))
+            ->where(fn ($q) => $viewer ? $q->where('user_id', $viewer) : $q->whereNull('user_id')->where('ip_address', $request->ip()))
+            ->exists();
+        if (!$alreadyCounted) {
+            $listing->increment('view_count');
+            ListingView::create(['listing_id' => $listing->id, 'user_id' => $viewer, 'ip_address' => $request->ip(), 'user_agent' => substr((string) $request->userAgent(), 0, 255)]);
+        }
         // Price-band filter: ±40% of current listing price so similar class is shown
         $price = $listing->price;
         $comparableQuery = Listing::where('type', $listing->type)

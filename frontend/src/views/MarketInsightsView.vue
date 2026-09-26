@@ -1,65 +1,118 @@
 <template>
   <MainLayout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-      <div class="text-center mb-16">
-        <span class="ai-badge mb-4 inline-block">Market Pulse Engine™</span>
-        <h1 class="text-5xl font-black text-white mb-4">Market <span class="gradient-text">Intelligence</span></h1>
-        <p class="text-slate-400 text-xl">Real-time AI-powered market analytics and trends</p>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
+      <div class="text-center mb-14">
+        <span class="ai-badge mb-4 inline-block">Live from our listings</span>
+        <h1 class="text-4xl md:text-5xl font-black mb-4" style="color:var(--text-primary)">Market <span class="gradient-text">Intelligence</span></h1>
+        <p class="text-lg max-w-2xl mx-auto" style="color:var(--text-muted)">Aggregated from every active listing on AIPrice.app and its AI scores. Updated continuously.</p>
       </div>
-      <div v-if="stats" class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-        <div v-for="s in statsCards" :key="s.label" class="glass rounded-2xl p-6 text-center">
-          <div class="text-3xl font-black mb-1" :class="s.color">{{ s.value }}</div>
-          <div class="text-sm text-slate-400">{{ s.label }}</div>
+
+      <div v-if="loading" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div v-for="i in 4" :key="i" class="h-28 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
+      </div>
+      <p v-else-if="error" class="text-center text-sm" style="color:#ef4444">{{ error }}</p>
+
+      <template v-else-if="stats">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div v-for="s in statCards" :key="s.label" class="rounded-2xl p-6 text-center" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+            <div class="text-3xl font-black mb-1" :style="{ color: s.color }">{{ s.value }}</div>
+            <div class="text-sm" style="color:var(--text-muted)">{{ s.label }}</div>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-          <h3 class="font-bold text-white mb-4">Market Trust Index™</h3>
-          <div class="space-y-4">
-            <div v-for="m in marketTrust" :key="m.label" class="flex items-center gap-3">
-              <span class="text-sm text-slate-400 w-32">{{ m.label }}</span>
-              <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all" :class="m.color" :style="{ width: m.value + '%' }"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+          <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold mb-1" style="color:var(--text-primary)">Market index</h2>
+            <p class="text-xs mb-5" style="color:var(--text-muted)">Average of trust, demand and deal scores across active listings (0–100).</p>
+            <div class="space-y-4">
+              <div v-for="t in segments" :key="t.key" class="flex items-center gap-3">
+                <span class="text-sm w-24 shrink-0" style="color:var(--text-secondary)">{{ t.label }}</span>
+                <div class="flex-1 h-2 rounded-full overflow-hidden" style="background:var(--surface-overlay)">
+                  <div class="h-full rounded-full" :style="{ width: (indexFor(t.key)?.index ?? 0) + '%', background: t.color }"></div>
+                </div>
+                <span class="text-sm font-semibold w-12 text-right" style="color:var(--text-primary)">{{ indexFor(t.key)?.index ?? '—' }}</span>
               </div>
-              <span class="text-sm font-semibold text-white w-10 text-right">{{ m.value }}%</span>
+            </div>
+            <p v-if="!stats.indexes.some((i: any) => i.index !== null)" class="text-xs mt-4" style="color:var(--text-muted)">Scores appear once listings have been analysed.</p>
+          </div>
+
+          <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+            <h2 class="font-bold mb-1" style="color:var(--text-primary)">How asking prices compare</h2>
+            <p class="text-xs mb-5" style="color:var(--text-muted)">AI verdict on each active listing against similar ones in the same city.</p>
+            <p v-if="!verdictTotal" class="text-sm" style="color:var(--text-muted)">No verdicts yet.</p>
+            <div v-else class="space-y-3">
+              <div v-for="(n, key) in stats.price_verdicts" :key="key">
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="capitalize" style="color:var(--text-secondary)">{{ String(key).replace(/_/g, ' ') }}</span>
+                  <span style="color:var(--text-primary)">{{ Math.round((Number(n) / verdictTotal) * 100) }}%</span>
+                </div>
+                <div class="h-2 rounded-full overflow-hidden" style="background:var(--surface-overlay)">
+                  <div class="h-full rounded-full" :style="{ width: (Number(n) / verdictTotal) * 100 + '%', background: verdictColor(String(key)) }"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-          <h3 class="font-bold text-white mb-4">AI Competitor Intelligence</h3>
-          <div class="space-y-3">
-            <div v-for="source in competitorSources" :key="source.name" class="flex items-center justify-between p-3 bg-slate-800 rounded-xl">
-              <div>
-                <p class="text-sm font-medium text-white">{{ source.name }}</p>
-                <p class="text-xs text-slate-500">{{ source.type }}</p>
-              </div>
-              <span class="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">Active</span>
-            </div>
+
+        <div class="rounded-2xl p-8 text-center" style="background:linear-gradient(135deg,rgba(111,255,210,0.08),rgba(86,216,255,0.06));border:1px solid rgba(111,255,210,0.2)">
+          <p class="text-xl font-black mb-2" style="color:var(--text-primary)">See the verdict on a specific listing</p>
+          <p class="text-sm mb-6" style="color:var(--text-muted)">Every car and property page shows its fair-price analysis.</p>
+          <div class="flex flex-wrap gap-3 justify-center">
+            <RouterLink to="/cars" class="px-6 py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Browse cars</RouterLink>
+            <RouterLink to="/properties" class="px-6 py-3 rounded-xl text-sm font-semibold" style="color:var(--text-primary);border:1px solid var(--border-strong)">Browse properties</RouterLink>
           </div>
         </div>
-      </div>
+      </template>
     </div>
   </MainLayout>
 </template>
+
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'; import MainLayout from '@/layouts/MainLayout.vue'; import { useMarketStore } from '@/stores/market'; import client from '@/api/client'
-const marketStore = useMarketStore(); const stats = ref<any>(null)
-onMounted(async () => { await marketStore.fetchStats(); stats.value = marketStore.stats })
-const statsCards = computed(() => stats.value ? [
-  { label: 'Vehicle Listings', value: stats.value.vehicle_listings?.toLocaleString(), color: 'text-sky-400' },
-  { label: 'Property Listings', value: stats.value.property_listings?.toLocaleString(), color: 'text-violet-400' },
-  { label: 'Rental Listings', value: stats.value.rental_listings?.toLocaleString(), color: 'text-emerald-400' },
-  { label: 'AI Analyses', value: stats.value.total_listings?.toLocaleString(), color: 'text-amber-400' },
-] : [])
-const marketTrust = [
-  { label: 'Cars Market', value: 87, color: 'bg-sky-500' },
-  { label: 'Properties', value: 92, color: 'bg-violet-500' },
-  { label: 'Rentals', value: 78, color: 'bg-emerald-500' },
-  { label: 'Overall Trust', value: 85, color: 'bg-amber-500' },
+import { ref, computed, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
+import MainLayout from '@/layouts/MainLayout.vue'
+import client from '@/api/client'
+import { apiErrorMessage } from '@/api/errors'
+import { usePageMeta } from '@/composables/usePageMeta'
+
+const stats = ref<any>(null)
+const loading = ref(true)
+const error = ref('')
+
+usePageMeta(() => ({
+  title: 'Market intelligence',
+  description: 'Live market indexes and price verdicts for cars and property in North Cyprus, computed from every active AIPrice.app listing.',
+}))
+
+const segments = [
+  { key: 'vehicle', label: 'Cars', color: '#6fffd2' },
+  { key: 'property', label: 'Property', color: '#56d8ff' },
+  { key: 'rental', label: 'Rentals', color: '#a78bfa' },
 ]
-const competitorSources = [
-  { name: 'KKT Carabam', type: 'Vehicle Market' },
-  { name: 'Hangiev', type: 'Property Market' },
-  { name: 'Noyanlar Invest', type: 'Investment Market' },
-]
+
+const indexFor = (type: string) => stats.value?.indexes?.find((i: any) => i.type === type)
+const verdictTotal = computed(() => Object.values(stats.value?.price_verdicts ?? {}).reduce((s: number, n: any) => s + Number(n), 0))
+const statCards = computed(() => [
+  { label: 'Cars for sale', value: (stats.value?.vehicle_listings ?? 0).toLocaleString(), color: '#6fffd2' },
+  { label: 'Properties', value: (stats.value?.property_listings ?? 0).toLocaleString(), color: '#56d8ff' },
+  { label: 'Rentals', value: (stats.value?.rental_listings ?? 0).toLocaleString(), color: '#a78bfa' },
+  { label: 'AI-scored listings', value: (stats.value?.ai_scored_listings ?? 0).toLocaleString(), color: '#fbbf24' },
+])
+
+function verdictColor(s: string) {
+  if (s.includes('under') || s.includes('deal')) return '#6fffd2'
+  if (s === 'fair') return '#56d8ff'
+  if (s.includes('slightly')) return '#fbbf24'
+  return '#ef4444'
+}
+
+onMounted(async () => {
+  try {
+    stats.value = (await client.get('/market/stats')).data
+  } catch (e) {
+    error.value = apiErrorMessage(e, 'Could not load market data.')
+  } finally {
+    loading.value = false
+  }
+})
 </script>

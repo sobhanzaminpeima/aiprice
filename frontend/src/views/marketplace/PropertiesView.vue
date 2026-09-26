@@ -6,7 +6,7 @@
         <h1 class="text-4xl font-black mb-2" style="color:var(--text-primary)">Properties <span class="gradient-text-violet">Marketplace</span></h1>
         <p class="text-sm" style="color:var(--text-muted)">{{ total }} verified properties with AI investment scoring</p>
       </div>
-      <div class="flex items-center gap-2 mb-4">
+      <div class="flex flex-wrap items-center gap-2 mb-4">
         <span class="text-xs font-semibold mr-1" style="color:var(--text-muted)">What are you looking for?</span>
         <button v-for="m in rankingModes" :key="m.value" @click="setMode(m.value)"
           class="px-4 py-1.5 rounded-full text-xs font-bold transition"
@@ -18,15 +18,15 @@
       </div>
       <div class="rounded-2xl p-4 mb-8 flex flex-wrap items-center gap-3" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
         <input v-model="filters.search" type="text" placeholder="Search by title or location..." class="input-dark flex-1 min-w-[160px]" @input="debouncedFetch" />
-        <select v-model="filters.city" class="input-dark w-36" @change="doFetch()">
+        <select v-model="filters.city" aria-label="City" class="input-dark w-36" @change="doFetch()">
           <option value="">All Cities</option>
           <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
         </select>
-        <select v-model="filters.beds" class="input-dark w-28" @change="doFetch()">
+        <select v-model="filters.beds" aria-label="Bedrooms" class="input-dark w-28" @change="doFetch()">
           <option value="">Bedrooms</option>
           <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
         </select>
-        <select v-model="filters.sort" class="input-dark w-40" @change="doFetch()">
+        <select v-model="filters.sort" aria-label="Sort by" class="input-dark w-40" @change="doFetch()">
           <option value="newest">Newest First</option>
           <option value="price_asc">Price: Low → High</option>
           <option value="price_desc">Price: High → Low</option>
@@ -51,6 +51,8 @@
   </MainLayout>
 </template>
 <script setup lang="ts">
+import { usePageMeta } from '@/composables/usePageMeta'
+usePageMeta(() => ({ title: 'Property for sale in North Cyprus', description: 'Apartments, villas and land for sale in North Cyprus with AI price verdicts against comparable listings.' }))
 import { ref, computed, onMounted } from "vue"
 import MainLayout from "@/layouts/MainLayout.vue"
 import ListingCard from "@/components/listings/ListingCard.vue"

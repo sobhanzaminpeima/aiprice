@@ -129,7 +129,7 @@
               </RouterLink>
             </template>
             <!-- Mobile hamburger -->
-            <button @click="mobileOpen=!mobileOpen" class="md:hidden" style="padding:8px;border-radius:8px;background:var(--border-subtle);border:1px solid var(--border-strong);cursor:pointer">
+            <button @click="mobileOpen=!mobileOpen" class="md:hidden" :aria-label="mobileOpen ? 'Close menu' : 'Open menu'" :aria-expanded="mobileOpen" style="padding:8px;border-radius:8px;background:var(--border-subtle);border:1px solid var(--border-strong);cursor:pointer">
               <svg v-if="!mobileOpen" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--text-primary)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
               <svg v-else width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--text-primary)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
@@ -173,8 +173,9 @@
     <!-- Footer -->
     <footer class="pb-16 md:pb-0" style="position:relative;z-index:10;border-top:1px solid var(--border-subtle);margin-top:80px">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:32px;margin-bottom:48px" class="grid-cols-1 md:grid-cols-5">
-          <div>
+        <!-- Inline grid-template-columns used to override the responsive classes and forced 5 columns on phones. -->
+        <div class="footer-grid grid grid-cols-2 gap-8 mb-12">
+          <div class="col-span-2 md:col-span-1">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
               <BrandLogo :size="28" />
             </div>
@@ -208,6 +209,7 @@
               <RouterLink to="/about" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">About</RouterLink>
               <RouterLink to="/blog" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Blog</RouterLink>
               <RouterLink to="/contact" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Contact</RouterLink>
+              <RouterLink to="/faq" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">FAQ</RouterLink>
               <RouterLink to="/pricing" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Pricing</RouterLink>
             </div>
           </div>
@@ -283,4 +285,5 @@ async function handleLogout() {
 .mega-item:hover { background:var(--surface-overlay) }
 .brand-chip:hover { background:var(--border-subtle);color:var(--text-primary);border-color:var(--border-strong) }
 .footer-link:hover { color:var(--text-primary) }
+@media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr 1fr; } }
 </style>

@@ -17,7 +17,7 @@
       </span>
     </div>
     <div>
-      <p class="text-xs text-slate-500">AI Trust Score™</p>
+      <p class="text-xs text-[var(--text-muted)]">AI Trust Score™</p>
       <p class="text-sm font-semibold" :style="{ color: strokeColor }">{{ label }}</p>
     </div>
   </div>

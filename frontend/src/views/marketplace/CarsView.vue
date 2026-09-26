@@ -10,7 +10,7 @@
       </div>
 
       <!-- Ranking mode: FIND / DEAL / INVEST -->
-      <div class="flex items-center gap-2 mb-4">
+      <div class="flex flex-wrap items-center gap-2 mb-4">
         <span class="text-xs font-semibold mr-1" style="color:var(--text-muted)">What are you looking for?</span>
         <button v-for="m in rankingModes" :key="m.value" @click="setMode(m.value)"
           class="px-4 py-1.5 rounded-full text-xs font-bold transition"
@@ -24,23 +24,23 @@
       <!-- Filter bar -->
       <div class="rounded-2xl p-4 mb-8 flex flex-wrap items-center gap-3" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
         <input v-model="filters.search" type="text" placeholder="Search make, model..." class="input-dark flex-1 min-w-[160px]" @input="debouncedFetch" />
-        <select v-model="filters.city" class="input-dark w-36" @change="fetchListings">
+        <select v-model="filters.city" aria-label="City" class="input-dark w-36" @change="fetchListings">
           <option value="">All Cities</option>
           <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
         </select>
-        <select v-model="filters.fuel" class="input-dark w-32" @change="fetchListings">
+        <select v-model="filters.fuel" aria-label="Fuel type" class="input-dark w-32" @change="fetchListings">
           <option value="">Fuel Type</option>
           <option value="petrol">Petrol</option>
           <option value="diesel">Diesel</option>
           <option value="hybrid">Hybrid</option>
           <option value="electric">Electric</option>
         </select>
-        <select v-model="filters.transmission" class="input-dark w-32" @change="fetchListings">
+        <select v-model="filters.transmission" aria-label="Transmission" class="input-dark w-32" @change="fetchListings">
           <option value="">Transmission</option>
           <option value="automatic">Automatic</option>
           <option value="manual">Manual</option>
         </select>
-        <select v-model="filters.sort" class="input-dark w-40" @change="fetchListings">
+        <select v-model="filters.sort" aria-label="Sort by" class="input-dark w-40" @change="fetchListings">
           <option value="newest">Newest First</option>
           <option value="price_asc">Price: Low → High</option>
           <option value="price_desc">Price: High → Low</option>
@@ -75,6 +75,8 @@
 </template>
 
 <script setup lang="ts">
+import { usePageMeta } from '@/composables/usePageMeta'
+usePageMeta(() => ({ title: 'Cars for sale in North Cyprus', description: 'Used and new cars for sale in Girne, Lefkoşa, Gazimağusa and across North Cyprus — each with an AI fair-price check.' }))
 import { ref, computed, onMounted } from 'vue'
 import MainLayout from '@/layouts/MainLayout.vue'
 import ListingCard from '@/components/listings/ListingCard.vue'

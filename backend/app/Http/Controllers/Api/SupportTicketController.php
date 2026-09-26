@@ -69,6 +69,39 @@ class SupportTicketController extends Controller
         return response()->json($reply->load('user:id,name'), 201);
     }
 
+    /**
+     * Public contact form. A hidden "website" field catches bots (humans never
+     * see it); a signed-in visitor's message is attached to their account.
+     */
+    public function contact(Request $request): JsonResponse
+    {
+        $v = $request->validate([
+            'name' => 'required|string|max:120',
+            'email' => 'required|email|max:190',
+            'subject' => 'nullable|string|max:200',
+            'message' => 'required|string|min:10|max:5000',
+            'website' => 'nullable|max:0',
+        ], ['website.max' => 'Message rejected.']);
+
+        $user = auth('sanctum')->user();
+
+        $ticket = SupportTicket::create([
+            'user_id' => $user?->id,
+            'guest_name' => $user ? null : $v['name'],
+            'guest_email' => $user ? null : $v['email'],
+            'source' => 'contact_form',
+            'subject' => ($v['subject'] ?? null) ?: 'Contact form message',
+            'description' => $v['message'],
+            'category' => 'other',
+            'status' => 'open',
+            'priority' => 'medium',
+        ]);
+
+        Notification::send(self::supportStaff(), new SupportTicketUpdated($ticket, 'opened', forStaff: true));
+
+        return response()->json(['message' => 'Thanks — we received your message and will reply by email.', 'reference' => $ticket->ticket_number], 201);
+    }
+
     public static function supportStaff()
     {
         return User::permission('manage_support')->where('is_active', true)->get();
