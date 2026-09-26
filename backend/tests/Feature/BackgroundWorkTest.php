@@ -198,6 +198,17 @@ class BackgroundWorkTest extends TestCase
         $this->assertSame('active', $running->fresh()->status);
     }
 
+    public function test_inline_scheduler_runs_due_tasks_in_process(): void
+    {
+        // On the hour, the hourly listings:expire task is due.
+        $this->travelTo(now()->startOfHour());
+        $stale = $this->listing(['status' => 'active', 'expires_at' => now()->subDay()]);
+
+        $this->artisan('schedule:run-inline')->assertSuccessful();
+
+        $this->assertSame('expired', $stale->fresh()->status);
+    }
+
     public function test_cancelling_keeps_access_until_period_end(): void
     {
         $plan = SubscriptionPlan::first();

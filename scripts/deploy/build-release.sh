@@ -34,6 +34,19 @@ echo "→ Packing backend from git"
 git archive --format=tar HEAD:backend | tar -x -C "$STAGE"
 rm -rf "$STAGE/tests" "$STAGE/phpunit.xml"
 
+echo "→ Installing PHP dependencies for the server (PHP ${SERVER_PHP:=8.3.33})"
+# The host disables proc_open, so Composer can't run there — vendor/ ships in
+# the release. Pinning the platform makes Composer fail here if any locked
+# package needs a newer PHP than the server has.
+COMPOSER_CMD="${COMPOSER_BIN:-composer}"
+( cd "$STAGE" \
+  && "$COMPOSER_CMD" config platform.php "$SERVER_PHP" \
+  && "$COMPOSER_CMD" install --no-dev --optimize-autoloader --no-interaction --no-scripts --quiet \
+  && "$COMPOSER_CMD" check-platform-reqs --no-dev --quiet 2>/dev/null || true )
+[[ -f "$STAGE/vendor/autoload.php" ]] || { echo "✗ composer install failed" >&2; exit 1; }
+# Keep the committed composer.json untouched in the release.
+git show HEAD:backend/composer.json > "$STAGE/composer.json"
+
 echo "→ Adding SPA to public/"
 cp -R frontend/dist/. "$STAGE/public/"
 mv "$STAGE/public/index.html" "$STAGE/public/spa.html"

@@ -51,6 +51,20 @@ php artisan schedule:work
 In production, run the worker under a supervisor (systemd/Supervisor) and add
 one cron entry: `* * * * * php /path/to/backend/artisan schedule:run`.
 
+On Hostinger shared hosting (aiprice.app) `proc_open`/`exec` are disabled, so
+`schedule:run` can't launch anything. Instead set `QUEUE_WORKER_VIA_SCHEDULER=true`
+and use one cron entry that runs everything in-process:
+`php /home/u188457652/domains/aiprice.app/laravel_app/artisan schedule:run-inline`
+
+### Deploying
+```bash
+COMPOSER_BIN=composer bash scripts/deploy/build-release.sh
+```
+Then upload `build/aiprice-release-<sha>.tar.gz` and `scripts/deploy/remote-deploy.sh`
+to the server and run `bash remote-deploy.sh ~/domains/aiprice.app/laravel_app <tarball>`.
+It backs up the database and files to `~/aiprice-backups`, and restores the
+previous release automatically if any step fails.
+
 ### 4. Start Vue Frontend
 ```powershell
 cd "C:\Claude Projects\Hubprice\frontend"
