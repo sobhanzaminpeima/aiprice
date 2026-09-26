@@ -80,7 +80,12 @@
         </div>
 
         <!-- Stats bar -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+        <div v-if="activeCount === 0" class="max-w-2xl mx-auto rounded-2xl p-5 text-center" style="background:var(--bg-card-translucent);border:1px solid rgba(111,255,210,0.25)">
+          <p class="font-bold mb-1" style="color:var(--text-primary)">We're just launching in North Cyprus</p>
+          <p class="text-sm mb-4" style="color:var(--text-muted)">List your car or property free and get an instant AI price check — early listings get the most visibility.</p>
+          <RouterLink :to="sellLink" class="inline-block px-6 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">List for free</RouterLink>
+        </div>
+        <div v-else-if="activeCount !== null" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
           <div v-for="s in stats" :key="s.label" class="text-center p-4 rounded-2xl" style="background:var(--bg-card-translucent);border:1px solid var(--border-subtle)">
             <p class="text-2xl font-black mb-1" :style="{color:s.color}">{{ s.value }}</p>
             <p class="text-xs" style="color:var(--text-muted)">{{ s.label }}</p>
@@ -90,7 +95,7 @@
     </section>
 
     <!-- AI MARKETPLACE MAP -->
-    <section class="px-4 pb-20 max-w-7xl mx-auto">
+    <section v-if="activeCount" class="px-4 pb-20 max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(86,216,255,0.1);border:1px solid rgba(86,216,255,0.2)">
@@ -158,7 +163,9 @@
         <div v-for="i in 4" :key="i" class="h-64 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
       </div>
       <div v-else-if="bestVehicles.length===0" class="text-center py-16 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <p style="color:var(--text-muted)">No vehicle listings available yet.</p>
+        <p class="font-semibold mb-1" style="color:var(--text-primary)">No cars listed yet</p>
+        <p class="text-sm mb-5" style="color:var(--text-muted)">Be the first — your listing gets an instant AI price check.</p>
+        <RouterLink :to="sellLink" class="inline-block px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">List your car free</RouterLink>
       </div>
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <ListingCard v-for="l in bestVehicles" :key="l.id" :listing="l" />
@@ -166,7 +173,7 @@
     </section>
 
     <!-- NEWEST VEHICLES -->
-    <section class="px-4 pb-20 max-w-7xl mx-auto">
+    <section v-if="loadingVehicles || newestVehicles.length" class="px-4 pb-20 max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(86,216,255,0.1);border:1px solid rgba(86,216,255,0.2)">
@@ -205,7 +212,9 @@
         <div v-for="i in 4" :key="i" class="h-64 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
       </div>
       <div v-else-if="bestProperties.length===0" class="text-center py-16 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <p style="color:var(--text-muted)">No property listings available yet.</p>
+        <p class="font-semibold mb-1" style="color:var(--text-primary)">No properties listed yet</p>
+        <p class="text-sm mb-5" style="color:var(--text-muted)">Be the first — your listing gets an instant AI price check.</p>
+        <RouterLink :to="sellLink" class="inline-block px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">List your property free</RouterLink>
       </div>
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <ListingCard v-for="l in bestProperties" :key="l.id" :listing="l" />
@@ -213,7 +222,7 @@
     </section>
 
     <!-- NEWEST PROPERTIES -->
-    <section class="px-4 pb-20 max-w-7xl mx-auto">
+    <section v-if="loadingProperties || newestProperties.length" class="px-4 pb-20 max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(86,216,255,0.1);border:1px solid rgba(86,216,255,0.2)">
@@ -249,7 +258,7 @@
             <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.3)">Most Popular</span>
           </div>
           <h3 class="font-black text-lg mb-1" style="color:var(--text-primary)">{{ plan.name }}</h3>
-          <p class="text-xs mb-4" style="color:var(--text-muted)">{{ plan.description || 'Perfect for individual sellers' }}</p>
+          <p class="text-xs mb-4" style="color:var(--text-muted)">{{ plan.description || planTagline(plan) }}</p>
           <div class="mb-4">
             <span class="text-3xl font-black" :style="{color: i===1?'#6fffd2':'var(--text-primary)'}">£{{ plan.price_monthly }}</span>
             <span class="text-sm" style="color:var(--text-muted)">/month</span>
@@ -283,7 +292,7 @@
 <script setup lang="ts">
 import { usePageMeta } from '@/composables/usePageMeta'
 usePageMeta(() => ({ title: undefined, description: 'Every car and property listing in North Cyprus checked against the market by AI. See the fair price before you buy or sell.' }))
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'
 import ListingCard from '@/components/listings/ListingCard.vue'
@@ -396,6 +405,15 @@ const loadingVehicles = ref(true)
 const loadingProperties = ref(true)
 const loadingPlans = ref(true)
 
+const activeCount = ref<number | null>(null)
+const sellLink = computed(() => (auth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }))
+function planTagline(plan: any) {
+  const limit = Number(plan.max_listings)
+  if (Number(plan.price_monthly) <= 0) return 'Try it free — no card needed'
+  if (limit >= 999) return 'For dealers and agencies at scale'
+  if (limit >= 50) return 'For active sellers and small dealers'
+  return 'For private sellers'
+}
 const stats = ref([
   { label: 'Active Listings', value: '...', color: '#6fffd2' },
   { label: 'Verified Cars', value: '...', color: '#56d8ff' },
@@ -423,11 +441,12 @@ onMounted(async () => {
 
   if (statsRes.status === 'fulfilled' && statsRes.value) {
     const s = statsRes.value.data
+    activeCount.value = s.active_listings ?? 0
     stats.value = [
       { label: 'Active Listings', value: (s.active_listings || 0).toLocaleString(), color: '#6fffd2' },
       { label: 'Verified Cars', value: (s.vehicle_listings || 0).toLocaleString(), color: '#56d8ff' },
       { label: 'Properties', value: (s.property_listings || 0).toLocaleString(), color: '#a78bfa' },
-      { label: 'AI Analyses', value: (s.ai_analyses_today || 0).toLocaleString(), color: '#fbbf24' },
+      { label: 'AI-scored', value: (s.ai_scored_listings || 0).toLocaleString(), color: '#fbbf24' },
     ]
   }
 

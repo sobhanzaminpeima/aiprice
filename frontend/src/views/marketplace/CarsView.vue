@@ -60,8 +60,15 @@
 
       <div v-else class="text-center py-24">
         <p class="text-5xl mb-4">🔍</p>
-        <p class="font-bold text-lg mb-2" style="color:var(--text-primary)">No cars found</p>
-        <p class="text-sm" style="color:var(--text-muted)">Try adjusting your filters</p>
+        <template v-if="hasFilters">
+          <p class="font-bold text-lg mb-2" style="color:var(--text-primary)">No cars match these filters</p>
+          <p class="text-sm" style="color:var(--text-muted)">Try widening your search.</p>
+        </template>
+        <template v-else>
+          <p class="font-bold text-lg mb-2" style="color:var(--text-primary)">No cars listed yet</p>
+          <p class="text-sm mb-5" style="color:var(--text-muted)">Be the first — every listing gets an instant AI price check.</p>
+          <RouterLink :to="sellLink" class="inline-block px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">List your car free</RouterLink>
+        </template>
       </div>
 
       <!-- Pagination -->
@@ -75,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore as useSellAuth } from '@/stores/auth'
 import { usePageMeta } from '@/composables/usePageMeta'
 usePageMeta(() => ({ title: 'Cars for sale in North Cyprus', description: 'Used and new cars for sale in Girne, Lefkoşa, Gazimağusa and across North Cyprus — each with an AI fair-price check.' }))
 import { ref, computed, onMounted } from 'vue'
@@ -92,6 +100,9 @@ let debounceTimer: ReturnType<typeof setTimeout>
 
 const cities = ['Girne', 'Lefkosa', 'Gazimağusa', 'Iskele', 'Guzelyurt']
 const filters = ref({ search: '', city: '', fuel: '', transmission: '', sort: 'newest' })
+const sellAuth = useSellAuth()
+const sellLink = computed(() => (sellAuth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }))
+const hasFilters = computed(() => !!(filters.value.search || filters.value.city || filters.value.fuel || filters.value.transmission))
 
 const rankingModes = [
   { value: '', label: 'Browse All' },

@@ -41,8 +41,15 @@
       </div>
       <div v-else class="text-center py-24">
         <p class="text-5xl mb-4">🏠</p>
-        <p class="font-bold text-lg mb-2" style="color:var(--text-primary)">No properties found</p>
-        <p class="text-sm" style="color:var(--text-muted)">Try adjusting your filters</p>
+        <template v-if="hasFilters">
+          <p class="font-bold text-lg mb-2" style="color:var(--text-primary)">No properties match these filters</p>
+          <p class="text-sm" style="color:var(--text-muted)">Try widening your search.</p>
+        </template>
+        <template v-else>
+          <p class="font-bold text-lg mb-2" style="color:var(--text-primary)">No properties listed yet</p>
+          <p class="text-sm mb-5" style="color:var(--text-muted)">Be the first — every listing gets an instant AI price check.</p>
+          <RouterLink :to="sellLink" class="inline-block px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">List your property free</RouterLink>
+        </template>
       </div>
       <div v-if="lastPage > 1" class="flex justify-center gap-2 mt-10">
         <button v-for="p in pages" :key="p" @click="goPage(p)" class="w-9 h-9 rounded-xl text-sm font-semibold transition" :style="p === currentPage ? 'background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)' : typeof p === 'string' ? 'cursor:default;color:var(--text-muted)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)'">{{ p }}</button>
@@ -51,6 +58,7 @@
   </MainLayout>
 </template>
 <script setup lang="ts">
+import { useAuthStore as useSellAuth } from '@/stores/auth'
 import { usePageMeta } from '@/composables/usePageMeta'
 usePageMeta(() => ({ title: 'Property for sale in North Cyprus', description: 'Apartments, villas and land for sale in North Cyprus with AI price verdicts against comparable listings.' }))
 import { ref, computed, onMounted } from "vue"
@@ -62,6 +70,9 @@ const listings = ref<Listing[]>([]); const loading = ref(true); const total = re
 let debounceTimer: ReturnType<typeof setTimeout>
 const cities = ["Girne","Lefkosa","Gazimağusa","Iskele","Guzelyurt"]
 const filters = ref({ search: "", city: "", beds: "", sort: "newest" })
+const sellAuth = useSellAuth()
+const sellLink = computed(() => (sellAuth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }))
+const hasFilters = computed(() => !!(filters.value.search || filters.value.city || filters.value.beds))
 const rankingModes = [
   { value: "", label: "Browse All" },
   { value: "find", label: "FIND — best fit for me" },
