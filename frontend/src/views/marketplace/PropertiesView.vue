@@ -2,7 +2,7 @@
   <MainLayout>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div class="mb-8">
-        <div class="ai-badge mb-3">🏠 North Cyprus Real Estate</div>
+        <div class="ai-badge mb-3 flex items-center gap-1.5"><AppIcon name="home" :size="14" /> North Cyprus Real Estate</div>
         <h1 class="text-4xl font-black mb-2" style="color:var(--text-primary)">Properties <span class="gradient-text-violet">Marketplace</span></h1>
         <p class="text-sm" style="color:var(--text-muted)">{{ total }} verified properties with AI investment scoring</p>
       </div>
@@ -40,7 +40,7 @@
         <ListingCard v-for="l in listings" :key="l.id" :listing="l" />
       </div>
       <div v-else class="text-center py-24">
-        <p class="text-5xl mb-4">🏠</p>
+        <AppIcon name="home" :size="48" class="mx-auto mb-4" />
         <template v-if="hasFilters">
           <p class="font-bold text-lg mb-2" style="color:var(--text-primary)">No properties match these filters</p>
           <p class="text-sm" style="color:var(--text-muted)">Try widening your search.</p>
@@ -58,6 +58,7 @@
   </MainLayout>
 </template>
 <script setup lang="ts">
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { useAuthStore as useSellAuth } from '@/stores/auth'
 import { usePageMeta } from '@/composables/usePageMeta'
 usePageMeta(() => ({ title: 'Property for sale in North Cyprus', description: 'Apartments, villas and land for sale in North Cyprus with AI price verdicts against comparable listings.' }))

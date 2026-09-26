@@ -16,7 +16,7 @@
       <!-- Stats grid -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div v-for="s in stats" :key="s.label" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-          <div class="text-2xl mb-1">{{ s.icon }}</div>
+          <AppIcon :name="s.icon" :size="24" class="mb-1" />
           <div class="text-3xl font-black mb-0.5" :style="{color: s.color}">{{ s.value?.toLocaleString() || 0 }}</div>
           <div class="text-xs" style="color:var(--text-muted)">{{ s.label }}</div>
         </div>
@@ -33,7 +33,7 @@
           <div class="space-y-3">
             <div v-for="l in data?.recent_listings?.slice(0,6)" :key="l.id" class="flex items-center justify-between p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--surface-overlay)">
               <div class="flex items-center gap-3">
-                <span class="text-xl">{{ {vehicle:"🚗",property:"🏠",rental:"🔑"}[l.type] || "📋" }}</span>
+                <AppIcon :name="listingTypeIcon(l.type)" :size="20" />
                 <div>
                   <p class="text-xs font-medium truncate max-w-[160px]" style="color:var(--text-primary)">{{ l.title }}</p>
                   <p class="text-xs" style="color:var(--text-muted)">{{ l.user?.name }}</p>
@@ -69,19 +69,24 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue"; import { RouterLink } from "vue-router"; import client from "@/api/client"
+import AppIcon from '@/components/ui/AppIcon.vue'
 const loading = ref(true); const data = ref<any>(null)
 onMounted(async () => { const r = await client.get("/admin/dashboard"); data.value = r.data; loading.value = false })
 const stats = computed(() => data.value ? [
-  { icon: "👥", label: "Total Users", value: data.value.stats.total_users, color: "#56d8ff" },
-  { icon: "📋", label: "Active Listings", value: data.value.stats.active_listings, color: "#6fffd2" },
-  { icon: "⏳", label: "Pending Review", value: data.value.stats.pending_listings, color: "#fbbf24" },
-  { icon: "🚗", label: "Vehicles", value: data.value.stats.vehicle_listings, color: "#6fffd2" },
-  { icon: "🏠", label: "Properties", value: data.value.stats.property_listings, color: "#56d8ff" },
-  { icon: "🔑", label: "Rentals", value: data.value.stats.rental_listings, color: "#a78bfa" },
-  { icon: "🏢", label: "Dealers", value: data.value.stats.dealers, color: "#fbbf24" },
-  { icon: "🛡", label: "KYC Verified", value: 0, color: "#6fffd2" },
+  { icon: "users", label: "Total Users", value: data.value.stats.total_users, color: "#56d8ff" },
+  { icon: "clipboard", label: "Active Listings", value: data.value.stats.active_listings, color: "#6fffd2" },
+  { icon: "alert", label: "Pending Review", value: data.value.stats.pending_listings, color: "#fbbf24" },
+  { icon: "car", label: "Vehicles", value: data.value.stats.vehicle_listings, color: "#6fffd2" },
+  { icon: "home", label: "Properties", value: data.value.stats.property_listings, color: "#56d8ff" },
+  { icon: "key", label: "Rentals", value: data.value.stats.rental_listings, color: "#a78bfa" },
+  { icon: "building", label: "Dealers", value: data.value.stats.dealers, color: "#fbbf24" },
+  { icon: "shield", label: "KYC Verified", value: 0, color: "#6fffd2" },
 ] : [])
 function statusClass(s: string) {
   return { active: "badge-teal", pending: "badge-amber", rejected: "badge-red" }[s] || "badge-cyan"
+}
+function listingTypeIcon(type: string) {
+  const icons: Record<string, string> = { vehicle: "car", property: "home", rental: "key" }
+  return icons[type] ?? "clipboard"
 }
 </script>

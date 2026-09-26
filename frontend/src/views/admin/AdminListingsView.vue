@@ -182,12 +182,10 @@ import { ref, onMounted, computed } from 'vue'
 import client from '@/api/client'
 const listings = ref<any[]>([])
 const loading = ref(true)
-const saving = ref(false)
 const currentPage = ref(1)
 const lastPage = ref(1)
 const total = ref(0)
 const filters = ref({ status: '', type: '', search: '' })
-const editing = ref<any>(null)
 let debounceTimer: any
 
 onMounted(() => fetchListings(1))
@@ -207,27 +205,6 @@ async function fetchListings(page = 1) {
 function debounce() {
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => fetchListings(1), 400)
-}
-
-async function openEdit(l: any) {
-  editing.value = { ...l }
-  try {
-    const r = await client.get('/admin/listings/' + l.id)
-    const full = r.data
-    editing.value = { ...full, ...(full.listable || {}) }
-  } catch { /* fall back to list row data already set */ }
-}
-
-async function saveEdit() {
-  if (!editing.value) return
-  saving.value = true
-  try {
-    await client.put('/admin/listings/' + editing.value.id, editing.value)
-    editing.value = null
-    fetchListings(currentPage.value)
-  } catch (e: any) {
-    alert(e?.response?.data?.message || 'Save failed')
-  } finally { saving.value = false }
 }
 
 // Add Listing (on behalf of a user)
@@ -312,5 +289,4 @@ function statusStyle(s: string) {
   return m[s] || m.expired
 }
 function fmt(v: number, c = 'GBP') { return new Intl.NumberFormat('en-GB', { style:'currency', currency:c||'GBP', maximumFractionDigits:0 }).format(v) }
-function typeIcon(_t: string) { return '' }
 </script>

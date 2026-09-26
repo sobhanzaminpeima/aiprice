@@ -84,24 +84,24 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach((to) => {
   const auth = useAuthStore()
-  if (to.meta.requiresAuth && !auth.isAuthenticated) return next({ name: "login", query: { redirect: to.fullPath } })
+  if (to.meta.requiresAuth && !auth.isAuthenticated) return { name: "login", query: { redirect: to.fullPath } }
   if (auth.isAuthenticated && auth.user?.force_password_change && to.name !== "change-password") {
-    return next({ name: "change-password" })
+    return { name: "change-password" }
   }
-  if (to.meta.requiresStaff && !auth.isStaff) return next({ name: "dashboard-overview" })
+  if (to.meta.requiresStaff && !auth.isStaff) return { name: "dashboard-overview" }
 
   const leaf = to.matched[to.matched.length - 1]?.path ?? ""
   const permission = leaf.startsWith("/admin/") ? adminPermissionFor[leaf.slice("/admin/".length)] : undefined
   if (permission && !auth.can(permission)) {
     // Send staff to the first admin page they may open instead of a dead end.
     const fallback = adminNav.flatMap((s) => s.items).find((i) => auth.can(i.permission))
-    return next(fallback && `/admin/${fallback.path}` !== to.path ? `/admin/${fallback.path}` : { name: "dashboard-overview" })
+    return fallback && `/admin/${fallback.path}` !== to.path ? `/admin/${fallback.path}` : { name: "dashboard-overview" }
   }
 
-  if (to.meta.guest && auth.isAuthenticated) return next(auth.homeRoute)
-  next()
+  if (to.meta.guest && auth.isAuthenticated) return auth.homeRoute
+  return true
 })
 
 export default router

@@ -8,7 +8,7 @@
 
   <div v-else-if="!listing" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
-      <p class="text-6xl mb-4">🚗</p>
+      <AppIcon name="car" :size="64" class="mx-auto mb-4" />
       <h2 class="text-xl font-bold mb-2" style="color:var(--text-primary)">Listing Not Found</h2>
       <RouterLink to="/cars" class="btn-primary mt-4 inline-block">Browse Cars</RouterLink>
     </div>
@@ -18,7 +18,7 @@
     <!-- Hero image gallery -->
     <div class="relative" style="height:480px;background:var(--bg-surface)">
       <img v-if="activeImage" :src="activeImage" :alt="listing.title" class="w-full h-full object-cover" @error="activeImageError = true" />
-      <div v-else class="w-full h-full flex items-center justify-center text-9xl opacity-20">🚗</div>
+      <div v-else class="w-full h-full flex items-center justify-center opacity-20"><AppIcon name="car" :size="112" /></div>
       <!-- Gradient overlay -->
       <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(5,7,11,0.2) 0%,transparent 40%,rgba(5,7,11,0.8) 100%)"></div>
 
@@ -35,7 +35,7 @@
       </RouterLink>
 
       <!-- Featured badge -->
-      <div v-if="listing.is_featured" class="absolute top-5 right-5 ai-badge">⭐ Featured</div>
+      <div v-if="listing.is_featured" class="absolute top-5 right-5 ai-badge flex items-center gap-1"><AppIcon name="star" :size="14" /> Featured</div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -51,11 +51,11 @@
               <span v-if="listing.ai_price_status" class="px-3 py-1 rounded-full text-sm font-bold mt-1" :style="aiStatusStyle">{{ aiStatusLabel }}</span>
             </div>
             <div class="flex flex-wrap items-center gap-3 text-sm" style="color:var(--text-muted)">
-              <span class="flex items-center gap-1">📍 {{ listing.city }}, North Cyprus</span>
+              <span class="flex items-center gap-1"><AppIcon name="mapPin" :size="14" /> {{ listing.city }}, North Cyprus</span>
               <span>·</span>
               <span>Listed {{ listedAgo }}</span>
               <span>·</span>
-              <span>👁 {{ listing.view_count || 0 }} views</span>
+              <span class="flex items-center gap-1"><AppIcon name="eye" :size="14" /> {{ listing.view_count || 0 }} views</span>
               <span v-if="listing.listing_number" class="ml-auto text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-overlay);color:var(--text-muted)">{{ listing.listing_number }}</span>
             </div>
           </div>
@@ -63,18 +63,18 @@
           <!-- Vehicle specs grid -->
           <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
             <h2 class="font-bold text-lg mb-5 flex items-center gap-2" style="color:var(--text-primary)">
-              <span style="color:var(--accent-teal)">🚗</span> Vehicle Specifications
+              <AppIcon name="car" :size="20" style="color:var(--accent-teal)" /> Vehicle Specifications
             </h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <SpecItem v-if="vehicle?.year" icon="📅" label="Year" :value="String(vehicle.year)" />
-              <SpecItem v-if="vehicle?.mileage" icon="🛣" label="Mileage" :value="Number(vehicle.mileage).toLocaleString() + ' km'" />
-              <SpecItem v-if="vehicle?.fuel_type" icon="⛽" label="Fuel" :value="capitalize(vehicle.fuel_type)" />
-              <SpecItem v-if="vehicle?.transmission" icon="⚙️" label="Transmission" :value="capitalize(vehicle.transmission)" />
-              <SpecItem v-if="vehicle?.body_type" icon="🚙" label="Body Type" :value="capitalize(vehicle.body_type)" />
-              <SpecItem v-if="vehicle?.color" icon="🎨" label="Color" :value="vehicle.color" />
-              <SpecItem v-if="vehicle?.engine_size" icon="🔧" label="Engine" :value="vehicle.engine_size + 'L'" />
-              <SpecItem v-if="vehicle?.condition" icon="✅" label="Condition" :value="capitalize(vehicle.condition)" />
-              <SpecItem icon="🌍" label="Location" :value="listing.city" />
+              <SpecItem v-if="vehicle?.year" icon="calendar" label="Year" :value="String(vehicle.year)" />
+              <SpecItem v-if="vehicle?.mileage" icon="gauge" label="Mileage" :value="Number(vehicle.mileage).toLocaleString() + ' km'" />
+              <SpecItem v-if="vehicle?.fuel_type" icon="fuel" label="Fuel" :value="capitalize(vehicle.fuel_type)" />
+              <SpecItem v-if="vehicle?.transmission" icon="settings" label="Transmission" :value="capitalize(vehicle.transmission)" />
+              <SpecItem v-if="vehicle?.body_type" icon="car" label="Body Type" :value="capitalize(vehicle.body_type)" />
+              <SpecItem v-if="vehicle?.color" icon="palette" label="Color" :value="vehicle.color" />
+              <SpecItem v-if="vehicle?.engine_size" icon="wrench" label="Engine" :value="vehicle.engine_size + 'L'" />
+              <SpecItem v-if="vehicle?.condition" icon="check" label="Condition" :value="capitalize(vehicle.condition)" />
+              <SpecItem icon="globe" label="Location" :value="listing.city" />
             </div>
 
             <!-- Features -->
@@ -134,7 +134,7 @@
             <h2 class="font-bold text-lg mb-5" style="color:var(--text-primary)">Similar Vehicles</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(111,255,210,0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='var(--border-subtle)'">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0" style="background:var(--surface-overlay)">🚗</div>
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:var(--surface-overlay)"><AppIcon name="car" :size="20" /></div>
                 <div class="flex-1 min-w-0">
                   <p class="text-xs font-medium truncate" style="color:var(--text-primary)">{{ c.title }}</p>
                   <p class="text-xs font-bold" style="color:var(--accent-teal)">{{ formatPrice(c.price, c.currency) }}</p>
@@ -168,7 +168,7 @@
             <!-- Seller info: identity is never shown — all contact goes through AIPrice -->
             <div class="flex items-center gap-3 mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
               <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="background:linear-gradient(135deg,rgba(111,255,210,0.2),rgba(86,216,255,0.2));color:var(--accent-teal)">
-                🛡️
+                <AppIcon name="shield" :size="20" />
               </div>
               <div>
                 <p class="text-sm font-semibold" style="color:var(--text-primary)">Verified Listing</p>
@@ -178,11 +178,11 @@
 
             <!-- CTA buttons -->
             <div class="space-y-3">
-              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm transition-all" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
-                📩 Send Inquiry
+              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+                <AppIcon name="mail" :size="18" /> Send Inquiry
               </button>
-              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm transition-all" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
-                {{ isFavorited ? '❤️ Saved' : '♡ Save Listing' }}
+              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
+                <AppIcon name="heart" :size="18" :fill="isFavorited ? 'currentColor' : 'none'" /> {{ isFavorited ? 'Saved' : 'Save Listing' }}
               </button>
             </div>
 
@@ -201,7 +201,7 @@
 
           <!-- Safety tips -->
           <div class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
-            <h3 class="text-sm font-bold mb-3" style="color:var(--text-primary)">🛡 Safety Tips</h3>
+            <h3 class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--text-primary)"><AppIcon name="shield" :size="18" /> Safety Tips</h3>
             <ul class="space-y-2">
               <li v-for="tip in safetyTips" :key="tip" class="text-xs" style="color:var(--text-muted)">• {{ tip }}</li>
             </ul>
@@ -214,6 +214,7 @@
 
 <script setup lang="ts">
 import SpecItem from '@/components/listings/SpecItem.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import ScoreGauge from '@/components/listings/ScoreGauge.vue'
 import { apiErrorMessage } from '@/api/errors'
 import { ref, computed, onMounted, watch } from 'vue'

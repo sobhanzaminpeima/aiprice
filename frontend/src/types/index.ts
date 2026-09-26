@@ -87,6 +87,8 @@ export interface Vehicle {
   body_type: string | null
   color: string | null
   mileage: number | null
+  engine_size?: string | number | null
+  features?: string[] | null
   condition: string
   brand?: VehicleBrand
   model?: VehicleModel
@@ -116,6 +118,10 @@ export interface Property {
   bedrooms: number | null
   bathrooms: number | null
   area_sqm: number | null
+  area_sqft?: number | null
+  condition?: string | null
+  floor_number?: number | null
+  build_year?: number | null
   furnishing: string | null
   has_parking: boolean
   has_pool: boolean

@@ -147,7 +147,7 @@ async function load() {
     const r = await client.get('/admin/listings/' + id)
     listing.value = r.data
     images.value = Array.isArray(listing.value.images) ? listing.value.images : []
-    form.value = { ...listing.value, ...(listing.value.listable || {}) }
+    form.value = { ...listing.value, ...listing.value.listable }
   } catch {
     error.value = 'Failed to load listing.'
   } finally {

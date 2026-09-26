@@ -140,7 +140,7 @@ const property = computed((): Property | null =>
 const primaryImage = computed((): string | null => {
   if (imgError.value) return null
   const imgs = props.listing.images
-  if (imgs && imgs.length > 0) return imgs[0]
+  if (imgs && imgs.length > 0) return imgs[0] ?? null
   return props.listing.thumbnail ?? null
 })
 
@@ -161,13 +161,6 @@ const batteryColor = computed((): string => {
 const batteryFillWidth = computed((): number => {
   const b = battery.value ?? 50
   return Math.round((b / 100) * 14)
-})
-
-const batteryBg = computed((): string => {
-  const b = battery.value ?? 50
-  if (b >= 80) return 'background:rgba(111,255,210,0.1);border:1px solid rgba(111,255,210,0.2)'
-  if (b >= 60) return 'background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2)'
-  return 'background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2)'
 })
 
 // Trust score — integer

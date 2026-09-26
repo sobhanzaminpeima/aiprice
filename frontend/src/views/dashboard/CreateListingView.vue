@@ -336,7 +336,7 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import client from '@/api/client'
 
 interface PhotoFile { file: File; preview: string }
@@ -386,7 +386,6 @@ interface ListingForm {
   video_url: string
 }
 
-const router = useRouter()
 const step = ref(0)
 const aiLoading = ref(false)
 const submitting = ref(false)
@@ -577,7 +576,9 @@ function addFiles(files: File[]) {
 }
 
 function removePhoto(i: number) {
-  URL.revokeObjectURL(photoFiles.value[i].preview)
+  const photo = photoFiles.value[i]
+  if (!photo) return
+  URL.revokeObjectURL(photo.preview)
   photoFiles.value.splice(i, 1)
 }
 

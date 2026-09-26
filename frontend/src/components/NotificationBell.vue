@@ -14,7 +14,7 @@
         <p v-if="loading" class="px-4 py-6 text-xs text-center" style="color:var(--text-muted)">Loading…</p>
         <p v-else-if="items.length === 0" class="px-4 py-6 text-xs text-center" style="color:var(--text-muted)">You're all caught up.</p>
         <button v-for="n in items" :key="n.id" @click="openItem(n)" class="w-full text-left px-4 py-3 flex gap-3" :style="n.read_at ? '' : 'background:rgba(111,255,210,0.04)'" style="border-bottom:1px solid var(--border-subtle)">
-          <span class="text-lg leading-none">{{ describe(n).icon }}</span>
+          <AppIcon :name="describe(n).icon" :size="18" class="shrink-0" />
           <span class="flex-1 min-w-0">
             <span class="block text-xs font-semibold" style="color:var(--text-primary)">{{ describe(n).title }}</span>
             <span v-if="describe(n).body" class="block text-xs truncate" style="color:var(--text-secondary)">{{ describe(n).body }}</span>
@@ -31,6 +31,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import client from '@/api/client'
+import AppIcon from '@/components/ui/AppIcon.vue'
 
 const props = withDefaults(defineProps<{ align?: 'left' | 'right' | 'up' }>(), { align: 'right' })
 
@@ -51,18 +52,18 @@ let timer: number | undefined
 interface Described { icon: string; title: string; body?: string; to?: string }
 
 const kinds: Record<string, (d: any) => Described> = {
-  listing_approved: (d) => ({ icon: '✅', title: 'Listing approved', body: d.title, to: '/dashboard/listings' }),
-  listing_rejected: (d) => ({ icon: '⚠️', title: 'Listing needs changes', body: d.reason || d.title, to: '/dashboard/listings' }),
-  kyc_approved: () => ({ icon: '🪪', title: 'Identity verified', to: '/dashboard/kyc' }),
-  kyc_rejected: (d) => ({ icon: '🪪', title: 'Identity check failed', body: d.reason, to: '/dashboard/kyc' }),
-  new_inquiry: (d) => ({ icon: '💬', title: 'New buyer inquiry', body: d.listing_title, to: '/admin/inquiries' }),
-  payment_succeeded: (d) => ({ icon: '💳', title: 'Payment received', body: d.plan, to: '/dashboard/subscription' }),
-  payment_failed: (d) => ({ icon: '💳', title: 'Payment failed', body: d.plan, to: '/dashboard/subscription' }),
+  listing_approved: (d) => ({ icon: 'check', title: 'Listing approved', body: d.title, to: '/dashboard/listings' }),
+  listing_rejected: (d) => ({ icon: 'alert', title: 'Listing needs changes', body: d.reason || d.title, to: '/dashboard/listings' }),
+  kyc_approved: () => ({ icon: 'shield', title: 'Identity verified', to: '/dashboard/kyc' }),
+  kyc_rejected: (d) => ({ icon: 'shield', title: 'Identity check failed', body: d.reason, to: '/dashboard/kyc' }),
+  new_inquiry: (d) => ({ icon: 'message', title: 'New buyer inquiry', body: d.listing_title, to: '/admin/inquiries' }),
+  payment_succeeded: (d) => ({ icon: 'creditCard', title: 'Payment received', body: d.plan, to: '/dashboard/subscription' }),
+  payment_failed: (d) => ({ icon: 'creditCard', title: 'Payment failed', body: d.plan, to: '/dashboard/subscription' }),
 }
 
 function describe(n: any): Described {
   const d = n.data ?? {}
-  return kinds[d.kind]?.(d) ?? { icon: '🔔', title: d.title ?? 'Notification' }
+  return kinds[d.kind]?.(d) ?? { icon: 'bell', title: d.title ?? 'Notification' }
 }
 
 function ago(iso: string) {

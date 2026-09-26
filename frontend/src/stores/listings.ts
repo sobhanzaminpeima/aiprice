@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import client from '@/api/client'
-import type { Listing, PaginatedResponse } from '@/types'
+import type { Listing } from '@/types'
 
 export const useListingsStore = defineStore('listings', () => {
   const listings = ref<Listing[]>([])

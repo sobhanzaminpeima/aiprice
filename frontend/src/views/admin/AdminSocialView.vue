@@ -112,7 +112,7 @@ async function load() {
   try {
     const { data } = await client.get('/admin/social/posts', { params: status.value ? { status: status.value } : {} })
     posts.value = (data.data || data).map((p: Post) => ({ ...p, hashtags: p.hashtags || [] }))
-  } catch (e) { /* handled globally */ } finally { loading.value = false }
+  } catch { /* handled globally */ } finally { loading.value = false }
 }
 
 async function generateBatch() {

@@ -9,7 +9,7 @@
       ? 'background:rgba(111,255,210,0.08);border:1px solid rgba(111,255,210,0.15)'
       : 'border:1px solid transparent'"
   >
-    <span class="text-base w-5 text-center shrink-0">{{ iconEmoji }}</span>
+    <AppIcon :name="iconName" :size="18" class="w-5 shrink-0" />
     <slot />
   </RouterLink>
 </template>
@@ -17,15 +17,16 @@
 <script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router'
 import { computed } from 'vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 
 const props = defineProps<{ to: string; icon: string }>()
 const route = useRoute()
 const isActive = computed(() => route.path === props.to || (props.to !== '/dashboard' && props.to !== '/admin' && route.path.startsWith(props.to + '/')))
 
 const iconMap: Record<string, string> = {
-  grid: '⊞', list: '≡', plus: '+', message: '✉', chart: '◉', heart: '♡',
-  star: '★', shield: '🛡', user: '◎', users: '◎◎', car: '🚗', cpu: '⬡',
-  globe: '◈', 'credit-card': '▣', help: '?', settings: '⚙', 'bar-chart': '▦',
+  grid: 'clipboard', list: 'list', plus: 'plus', message: 'message', chart: 'chart', heart: 'heart',
+  star: 'star', shield: 'shield', user: 'user', users: 'users', car: 'car', cpu: 'cpu',
+  globe: 'globe', 'credit-card': 'creditCard', help: 'help', settings: 'settings', 'bar-chart': 'chart',
 }
-const iconEmoji = computed(() => iconMap[props.icon] || '·')
+const iconName = computed(() => iconMap[props.icon] || 'help')
 </script>

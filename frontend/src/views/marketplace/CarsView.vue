@@ -4,7 +4,7 @@
 
       <!-- Page header -->
       <div class="mb-8">
-        <div class="ai-badge mb-3">🚗 North Cyprus Auto Market</div>
+        <div class="ai-badge mb-3 flex items-center gap-1.5"><AppIcon name="car" :size="14" /> North Cyprus Auto Market</div>
         <h1 class="text-4xl font-black mb-2" style="color:var(--text-primary)">Cars <span class="gradient-text">Marketplace</span></h1>
         <p class="text-sm" style="color:var(--text-muted)">{{ total }} verified listings with AI price analysis</p>
       </div>
@@ -24,23 +24,23 @@
       <!-- Filter bar -->
       <div class="rounded-2xl p-4 mb-8 flex flex-wrap items-center gap-3" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
         <input v-model="filters.search" type="text" placeholder="Search make, model..." class="input-dark flex-1 min-w-[160px]" @input="debouncedFetch" />
-        <select v-model="filters.city" aria-label="City" class="input-dark w-36" @change="fetchListings">
+        <select v-model="filters.city" aria-label="City" class="input-dark w-36" @change="fetchListings()">
           <option value="">All Cities</option>
           <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
         </select>
-        <select v-model="filters.fuel" aria-label="Fuel type" class="input-dark w-32" @change="fetchListings">
+        <select v-model="filters.fuel" aria-label="Fuel type" class="input-dark w-32" @change="fetchListings()">
           <option value="">Fuel Type</option>
           <option value="petrol">Petrol</option>
           <option value="diesel">Diesel</option>
           <option value="hybrid">Hybrid</option>
           <option value="electric">Electric</option>
         </select>
-        <select v-model="filters.transmission" aria-label="Transmission" class="input-dark w-32" @change="fetchListings">
+        <select v-model="filters.transmission" aria-label="Transmission" class="input-dark w-32" @change="fetchListings()">
           <option value="">Transmission</option>
           <option value="automatic">Automatic</option>
           <option value="manual">Manual</option>
         </select>
-        <select v-model="filters.sort" aria-label="Sort by" class="input-dark w-40" @change="fetchListings">
+        <select v-model="filters.sort" aria-label="Sort by" class="input-dark w-40" @change="fetchListings()">
           <option value="newest">Newest First</option>
           <option value="price_asc">Price: Low → High</option>
           <option value="price_desc">Price: High → Low</option>
@@ -59,7 +59,7 @@
       </div>
 
       <div v-else class="text-center py-24">
-        <p class="text-5xl mb-4">🔍</p>
+        <AppIcon name="search" :size="48" class="mx-auto mb-4" />
         <template v-if="hasFilters">
           <p class="font-bold text-lg mb-2" style="color:var(--text-primary)">No cars match these filters</p>
           <p class="text-sm" style="color:var(--text-muted)">Try widening your search.</p>
@@ -82,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { useAuthStore as useSellAuth } from '@/stores/auth'
 import { usePageMeta } from '@/composables/usePageMeta'
 usePageMeta(() => ({ title: 'Cars for sale in North Cyprus', description: 'Used and new cars for sale in Girne, Lefkoşa, Gazimağusa and across North Cyprus — each with an AI fair-price check.' }))

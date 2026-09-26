@@ -55,12 +55,12 @@
     <div class="flex flex-wrap gap-3 mb-6 p-4 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
       <input v-model="search" @input="debouncedFetch" placeholder="Search by name or email..."
         class="px-4 py-2 rounded-xl text-sm flex-1 min-w-56" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
-      <select v-model="roleFilter" @change="fetchUsers"
+      <select v-model="roleFilter" @change="fetchUsers()"
         class="px-4 py-2 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
         <option value="">All Roles</option>
         <option v-for="r in roles" :key="r" :value="r" class="capitalize">{{ r }}</option>
       </select>
-      <select v-model="kycFilter" @change="fetchUsers"
+      <select v-model="kycFilter" @change="fetchUsers()"
         class="px-4 py-2 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
         <option value="">KYC: All</option>
         <option value="1">KYC Verified</option>
@@ -123,7 +123,7 @@
               style="background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)">
               Approve KYC
             </button>
-            <button @click="toggleActive(u.id, u.is_active)"
+            <button @click="toggleActive(u.id)"
               class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
               :style="u.is_active !== false ? 'background:rgba(251,191,36,0.08);color:#fbbf24;border:1px solid rgba(251,191,36,0.2)' : 'background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)'">
               {{ u.is_active !== false ? 'Suspend' : 'Activate' }}
@@ -260,7 +260,7 @@ async function approveKyc(id: string) {
   fetchUsers(currentPage.value)
 }
 
-async function toggleActive(id: string, currentlyActive: boolean) {
+async function toggleActive(id: string) {
   await client.post(`/admin/users/${id}/toggle-active`)
   fetchUsers(currentPage.value)
 }

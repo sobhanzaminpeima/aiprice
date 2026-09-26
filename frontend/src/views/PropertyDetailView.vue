@@ -8,7 +8,7 @@
 
   <div v-else-if="!listing" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
-      <p class="text-6xl mb-4">🏠</p>
+      <AppIcon name="home" :size="64" class="mx-auto mb-4" />
       <h2 class="text-xl font-bold mb-2" style="color:var(--text-primary)">Property Not Found</h2>
       <RouterLink to="/properties" class="btn-primary mt-4 inline-block">Browse Properties</RouterLink>
     </div>
@@ -18,7 +18,7 @@
     <!-- Hero gallery -->
     <div class="relative" style="height:500px;background:var(--bg-surface)">
       <img v-if="activeImage && !imgErr" :src="activeImage" :alt="listing.title" class="w-full h-full object-cover" @error="imgErr = true" />
-      <div v-else class="w-full h-full flex items-center justify-center text-9xl opacity-20">🏠</div>
+      <div v-else class="w-full h-full flex items-center justify-center opacity-20"><AppIcon name="home" :size="112" /></div>
       <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(5,7,11,0.15) 0%,transparent 35%,rgba(5,7,11,0.85) 100%)"></div>
 
       <!-- Thumbnails -->
@@ -36,7 +36,7 @@
       <div class="absolute bottom-8 left-8">
         <h1 class="text-3xl font-black mb-2 drop-shadow-xl" style="color:#fff">{{ listing.title }}</h1>
         <div class="flex items-center gap-3 text-sm" style="color:rgba(255,255,255,0.8)">
-          <span>📍 {{ listing.city }}, North Cyprus</span>
+          <span class="flex items-center gap-1"><AppIcon name="mapPin" :size="14" /> {{ listing.city }}, North Cyprus</span>
           <span v-if="property?.bedrooms">· {{ property.bedrooms }} bed</span>
           <span v-if="property?.bathrooms">· {{ property.bathrooms }} bath</span>
           <span v-if="property?.area_sqm">· {{ property.area_sqm }}m²</span>
@@ -53,7 +53,7 @@
           <!-- Key facts ribbon -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div v-for="f in keyFacts" :key="f.label" class="rounded-xl p-4 text-center" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
-              <div class="text-2xl mb-1">{{ f.icon }}</div>
+              <AppIcon :name="f.icon" :size="24" class="mx-auto mb-1" />
               <div class="text-base font-black" style="color:var(--text-primary)">{{ f.value }}</div>
               <div class="text-xs mt-0.5" style="color:var(--text-muted)">{{ f.label }}</div>
             </div>
@@ -62,18 +62,18 @@
           <!-- Property details -->
           <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
             <h2 class="font-bold text-lg mb-5 flex items-center gap-2" style="color:var(--text-primary)">
-              <span style="color:var(--accent-cyan)">🏠</span> Property Details
+              <AppIcon name="home" :size="20" style="color:var(--accent-cyan)" /> Property Details
             </h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-5">
-              <SpecItem v-if="property?.bedrooms" icon="🛏" label="Bedrooms" :value="String(property.bedrooms)" />
-              <SpecItem v-if="property?.bathrooms" icon="🚿" label="Bathrooms" :value="String(property.bathrooms)" />
-              <SpecItem v-if="property?.area_sqm" icon="📐" label="Area (m²)" :value="String(property.area_sqm) + ' m²'" />
-              <SpecItem v-if="property?.area_sqft" icon="📏" label="Area (ft²)" :value="String(property.area_sqft) + ' ft²'" />
-              <SpecItem v-if="property?.furnishing" icon="🛋" label="Furnishing" :value="capitalize(property.furnishing)" />
-              <SpecItem v-if="property?.condition" icon="✨" label="Condition" :value="capitalize(property.condition)" />
-              <SpecItem v-if="property?.floor_number != null" icon="🏢" label="Floor" :value="property.floor_number === 0 ? 'Ground' : String(property.floor_number)" />
-              <SpecItem v-if="property?.build_year" icon="📅" label="Built" :value="String(property.build_year)" />
-              <SpecItem icon="📍" label="Location" :value="listing.city" />
+              <SpecItem v-if="property?.bedrooms" icon="bed" label="Bedrooms" :value="String(property.bedrooms)" />
+              <SpecItem v-if="property?.bathrooms" icon="bath" label="Bathrooms" :value="String(property.bathrooms)" />
+              <SpecItem v-if="property?.area_sqm" icon="ruler" label="Area (m²)" :value="String(property.area_sqm) + ' m²'" />
+              <SpecItem v-if="property?.area_sqft" icon="ruler" label="Area (ft²)" :value="String(property.area_sqft) + ' ft²'" />
+              <SpecItem v-if="property?.furnishing" icon="home" label="Furnishing" :value="capitalize(property.furnishing)" />
+              <SpecItem v-if="property?.condition" icon="sparkles" label="Condition" :value="capitalize(property.condition)" />
+              <SpecItem v-if="property?.floor_number != null" icon="building" label="Floor" :value="property.floor_number === 0 ? 'Ground' : String(property.floor_number)" />
+              <SpecItem v-if="property?.build_year" icon="calendar" label="Built" :value="String(property.build_year)" />
+              <SpecItem icon="mapPin" label="Location" :value="listing.city" />
             </div>
 
             <!-- Amenities -->
@@ -95,10 +95,10 @@
 
           <!-- Location info -->
           <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
-            <h2 class="font-bold text-lg mb-4" style="color:var(--text-primary)">📍 Location</h2>
+            <h2 class="font-bold text-lg mb-4 flex items-center gap-2" style="color:var(--text-primary)"><AppIcon name="mapPin" :size="20" /> Location</h2>
             <div class="grid grid-cols-3 gap-4">
               <div v-for="loc in nearbyLocations" :key="loc.label" class="rounded-xl p-3 text-center" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
-                <div class="text-lg mb-1">{{ loc.icon }}</div>
+                <AppIcon :name="loc.icon" :size="20" class="mx-auto mb-1" />
                 <div class="text-sm font-bold" style="color:var(--text-primary)">{{ loc.dist }}</div>
                 <div class="text-xs" style="color:var(--text-muted)">{{ loc.label }}</div>
               </div>
@@ -142,7 +142,7 @@
             <h2 class="font-bold text-lg mb-5" style="color:var(--text-primary)">Similar Properties</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(86,216,255,0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='var(--border-subtle)'">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0" style="background:var(--surface-overlay)">🏠</div>
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:var(--surface-overlay)"><AppIcon name="home" :size="20" /></div>
                 <div class="flex-1 min-w-0">
                   <p class="text-xs font-medium truncate" style="color:var(--text-primary)">{{ c.title }}</p>
                   <p class="text-xs font-bold" style="color:var(--accent-cyan)">{{ formatPrice(c.price, c.currency) }}</p>
@@ -173,7 +173,7 @@
             <!-- Seller: identity is never shown — all contact goes through AIPrice -->
             <div class="flex items-center gap-3 mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
               <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="background:linear-gradient(135deg,rgba(86,216,255,0.2),rgba(167,139,250,0.2));color:var(--accent-cyan)">
-                🛡️
+                <AppIcon name="shield" :size="20" />
               </div>
               <div>
                 <p class="text-sm font-semibold" style="color:var(--text-primary)">Verified Listing</p>
@@ -182,11 +182,11 @@
             </div>
 
             <div class="space-y-3">
-              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)">
-                📩 Request Viewing
+              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)">
+                <AppIcon name="mail" :size="18" /> Request Viewing
               </button>
-              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
-                {{ isFavorited ? '❤️ Saved' : '♡ Save Property' }}
+              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
+                <AppIcon name="heart" :size="18" :fill="isFavorited ? 'currentColor' : 'none'" /> {{ isFavorited ? 'Saved' : 'Save Property' }}
               </button>
             </div>
 
@@ -204,7 +204,7 @@
 
           <!-- Why buy in NC -->
           <div class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
-            <h3 class="text-sm font-bold mb-3" style="color:var(--text-primary)">🌟 Why North Cyprus?</h3>
+            <h3 class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--text-primary)"><AppIcon name="star" :size="18" /> Why North Cyprus?</h3>
             <ul class="space-y-2">
               <li v-for="r in whyNC" :key="r" class="text-xs flex items-start gap-2" style="color:var(--text-muted)">
                 <span style="color:var(--accent-cyan);flex-shrink:0">✓</span> {{ r }}
@@ -219,6 +219,7 @@
 
 <script setup lang="ts">
 import SpecItem from '@/components/listings/SpecItem.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import ScoreGauge from '@/components/listings/ScoreGauge.vue'
 import { apiErrorMessage } from '@/api/errors'
 import { ref, computed, onMounted, watch } from 'vue'
@@ -250,10 +251,10 @@ const keyFacts = computed(() => {
   const l = listing.value
   if (!p || !l) return []
   return [
-    { icon: '🛏', label: 'Bedrooms', value: String(p.bedrooms ?? '—') },
-    { icon: '🚿', label: 'Bathrooms', value: String(p.bathrooms ?? '—') },
-    { icon: '📐', label: 'Size', value: p.area_sqm ? p.area_sqm + ' m²' : '—' },
-    { icon: '🛋', label: 'Furnished', value: p.furnishing ? capitalize(p.furnishing) : '—' },
+    { icon: 'bed', label: 'Bedrooms', value: String(p.bedrooms ?? '—') },
+    { icon: 'bath', label: 'Bathrooms', value: String(p.bathrooms ?? '—') },
+    { icon: 'ruler', label: 'Size', value: p.area_sqm ? p.area_sqm + ' m²' : '—' },
+    { icon: 'home', label: 'Furnished', value: p.furnishing ? capitalize(p.furnishing) : '—' },
   ]
 })
 
@@ -272,9 +273,9 @@ const amenitiesList = computed(() => {
 const nearbyLocations = computed(() => {
   const nearby = (property.value as any)?.nearby_locations ?? {}
   return [
-    { icon: '✈', label: 'Airport', dist: nearby.airport ?? '~30km' },
-    { icon: '🏖', label: 'Beach', dist: nearby.beach ?? '~5km' },
-    { icon: '🏙', label: 'City Centre', dist: nearby.city_centre ?? '~3km' },
+    { icon: 'plane', label: 'Airport', dist: nearby.airport ?? '~30km' },
+    { icon: 'mapPin', label: 'Beach', dist: nearby.beach ?? '~5km' },
+    { icon: 'building', label: 'City Centre', dist: nearby.city_centre ?? '~3km' },
   ]
 })
 
@@ -286,11 +287,6 @@ const pricePosition = computed(() => {
   return Math.max(2, Math.min(98, ((l.price - l.market_min_price) / range) * 100))
 })
 
-const aiStatusLabel = computed(() => {
-  const map: Record<string, string> = { fair: 'strong value', slightly_overpriced: 'slightly above market', overpriced: 'above market' }
-  return map[listing.value?.ai_price_status ?? 'fair'] ?? 'fair value'
-})
-const aiColor = computed(() => listing.value?.ai_price_status === 'fair' ? '#6fffd2' : '#fbbf24')
 const batteryColor = computed(() => { const p = listing.value?.price_battery_percent ?? 0; return p >= 85 ? '#6fffd2' : p >= 70 ? '#56d8ff' : '#fbbf24' })
 
 function setImg(url: string) { activeImage.value = url; imgErr.value = false }

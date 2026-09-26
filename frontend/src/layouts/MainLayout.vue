@@ -234,7 +234,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import BottomTabBar from '@/components/BottomTabBar.vue'
 import { useAuthStore } from '@/stores/auth'
 import AnimatedBackground from '@/components/AnimatedBackground.vue'
@@ -244,7 +244,6 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
-const route = useRoute()
 
 const showCars = ref(false)
 const showProps = ref(false)

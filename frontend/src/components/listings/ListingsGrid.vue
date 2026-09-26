@@ -40,7 +40,7 @@
     </div>
 
     <div v-else-if="listingsStore.listings.length === 0" class="text-center py-20 text-[var(--text-muted)]">
-      <p class="text-5xl mb-4">🔍</p>
+      <AppIcon name="search" :size="48" class="mx-auto mb-4" />
       <p class="text-xl font-semibold mb-2">No listings found</p>
       <p class="text-sm">Try adjusting your search filters.</p>
     </div>
@@ -65,6 +65,7 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import ListingCard from './ListingCard.vue'
 import { useListingsStore } from '@/stores/listings'
