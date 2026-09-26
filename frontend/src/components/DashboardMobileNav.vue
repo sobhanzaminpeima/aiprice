@@ -42,7 +42,7 @@
   </Transition>
 
   <!-- Bottom tab bar: the everyday dashboard actions -->
-  <nav class="md:hidden bottom-tab-bar" role="navigation" aria-label="Dashboard">
+  <nav class="flex md:hidden bottom-tab-bar" role="navigation" aria-label="Dashboard">
     <RouterLink v-for="tab in tabs" :key="tab.to" :to="tab.to" class="tab" :class="{ active: $route.path === tab.to }">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="tab.icon"></svg>
       <span>{{ tab.label }}</span>
@@ -90,7 +90,6 @@ async function logout() { open.value = false; await auth.logout(); router.push('
   position: fixed;
   left: 0; right: 0; bottom: 0;
   z-index: 40;
-  display: flex;
   background: var(--nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);

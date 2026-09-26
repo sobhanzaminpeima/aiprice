@@ -1,5 +1,5 @@
 <template>
-  <nav class="bottom-tab-bar md:hidden" role="navigation" aria-label="Primary">
+  <nav class="bottom-tab-bar flex md:hidden" role="navigation" aria-label="Primary">
     <RouterLink v-for="tab in tabs" :key="tab.to" :to="tab.to" class="tab" :class="{ active: isActive(tab) }">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="tab.icon"></svg>
       <span>{{ tab.label }}</span>
@@ -37,7 +37,6 @@ function isActive(tab: { match: (p: string) => boolean }) {
   right: 0;
   bottom: 0;
   z-index: 40;
-  display: flex;
   align-items: stretch;
   justify-content: space-around;
   background: var(--nav-bg);
