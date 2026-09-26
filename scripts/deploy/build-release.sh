@@ -24,7 +24,9 @@ STAGE="$OUT/release-$SHA"
 rm -rf "$STAGE" && mkdir -p "$STAGE"
 
 echo "→ Building frontend ($SHA)"
-( cd frontend && npm ci --no-audit --no-fund --silent && npx vite build --logLevel warn )
+# Reuse an existing install: `npm ci` deletes node_modules first, which fails
+# half-way on Windows while a dev server holds files open.
+( cd frontend && { [[ -x node_modules/.bin/vite ]] || npm ci --no-audit --no-fund; } && npx vite build --logLevel warn )
 cp -R frontend/dist/. "$STAGE/"
 cp scripts/deploy/htaccess.root "$STAGE/.htaccess"
 
