@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-# Builds a deployable release tarball from the COMMITTED state of the repo.
+# Builds a deployable release tarball from the COMMITTED state of the repo,
+# laid out like the server's Laravel app directory:
 #
-#   scripts/deploy/build-release.sh            → build/aiprice-release-<sha>.tar.gz
+#   laravel_app/            ← tarball root = backend/ from git
+#   laravel_app/public/     ← Laravel front controller + the Vue build;
+#                             the SPA's index.html ships as public/spa.html,
+#                             which routes/web.php serves for every non-API path.
 #
-# Contents (extracted into the web root, e.g. ~/domains/aiprice.app/public_html):
-#   index.html, assets/ …   the Vue SPA build
-#   .htaccess                routing + security headers (scripts/deploy/htaccess.root)
-#   backend/                 Laravel source via `git archive` — never .env,
-#                            vendor/ or storage contents, so no secrets ship.
+# Never includes .env, vendor/ or storage contents, so no secrets ship.
+#
+#   scripts/deploy/build-release.sh   → build/aiprice-release-<sha>.tar.gz
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -27,13 +29,15 @@ echo "→ Building frontend ($SHA)"
 # Reuse an existing install: `npm ci` deletes node_modules first, which fails
 # half-way on Windows while a dev server holds files open.
 ( cd frontend && { [[ -x node_modules/.bin/vite ]] || npm ci --no-audit --no-fund; } && npx vite build --logLevel warn )
-cp -R frontend/dist/. "$STAGE/"
-cp scripts/deploy/htaccess.root "$STAGE/.htaccess"
 
 echo "→ Packing backend from git"
-git archive --format=tar HEAD backend | tar -x -C "$STAGE"
-rm -rf "$STAGE/backend/tests" "$STAGE/backend/phpunit.xml"
-echo "$SHA" > "$STAGE/backend/RELEASE"
+git archive --format=tar HEAD:backend | tar -x -C "$STAGE"
+rm -rf "$STAGE/tests" "$STAGE/phpunit.xml"
+
+echo "→ Adding SPA to public/"
+cp -R frontend/dist/. "$STAGE/public/"
+mv "$STAGE/public/index.html" "$STAGE/public/spa.html"
+echo "$SHA" > "$STAGE/RELEASE"
 
 TARBALL="$OUT/aiprice-release-$SHA.tar.gz"
 tar -czf "$TARBALL" -C "$STAGE" .
