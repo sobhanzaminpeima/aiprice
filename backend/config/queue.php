@@ -15,6 +15,10 @@ return [
 
     'default' => env('QUEUE_CONNECTION', 'database'),
 
+    // Run the worker from the scheduler (see routes/console.php) on hosts
+    // without a process supervisor, e.g. shared hosting.
+    'worker_via_scheduler' => (bool) env('QUEUE_WORKER_VIA_SCHEDULER', false),
+
     /*
     |--------------------------------------------------------------------------
     | Queue Connections

@@ -56,6 +56,16 @@ Schedule::command('subscriptions:expire')->hourly()->withoutOverlapping();
 Schedule::command('listings:score-unscored')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('competitors:crawl-due')->hourly()->withoutOverlapping();
 
+// Shared hosting (Hostinger) has no process supervisor for a long-running
+// `queue:work`. With QUEUE_WORKER_VIA_SCHEDULER=true the single
+// `schedule:run` cron drains the queue every minute instead.
+if (config('queue.worker_via_scheduler')) {
+    Schedule::command('queue:work --queue=default,ai,crawl --stop-when-empty --max-time=55 --tries=3')
+        ->everyMinute()
+        ->withoutOverlapping(5)
+        ->runInBackground();
+}
+
 Schedule::command('sanctum:prune-expired --hours=24')->daily();
 Schedule::command('queue:prune-failed --hours=168')->daily();
 Schedule::command('auth:clear-resets')->everyFifteenMinutes();

@@ -1,0 +1,54 @@
+# AIPrice.app — web root (public_html) routing for shared Apache/LiteSpeed hosting.
+# Layout: SPA build at the root, Laravel in ./backend (never served directly).
+
+Options -MultiViews -Indexes
+RewriteEngine On
+
+# Pass the bearer token through to PHP.
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Force HTTPS (the CDN terminates TLS and sets X-Forwarded-Proto).
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Canonical host: www → apex.
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+# Never serve dotfiles (.env, .git …) anywhere.
+RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
+# API, sitemap and the health check go to Laravel (before the backend block).
+RewriteCond %{REQUEST_URI} ^/(api/|sitemap\.xml$|up$)
+RewriteRule ^ backend/public/index.php [L,QSA]
+
+# Laravel source is not web-accessible.
+RewriteRule ^backend/ - [F,L]
+
+# SPA fallback for every other route.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Hashed build assets never change: cache for a year. index.html must
+    # always be revalidated or users keep loading an old release.
+    <FilesMatch "\.(js|css|woff2?|png|jpe?g|svg|webp|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "^index\.html$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml application/xml
+</IfModule>
