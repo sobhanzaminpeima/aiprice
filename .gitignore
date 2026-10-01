@@ -51,3 +51,5 @@ create_final_zip.mjs
 # Claude
 .claude/launch.json
 /build/
+/output/
+/tmp/

@@ -1,175 +1,173 @@
-# AIPrice.app — North Cyprus AI Marketplace
+# AIPrice.app
 
-> AI-powered price intelligence for cars & properties in North Cyprus.  
-> Every listing is scored, analyzed, and verified by OpenAI GPT-4o Mini.
+AI-powered vehicle and property marketplace for North Cyprus. AIPrice combines marketplace search, seller workflows, price intelligence, trust scoring, subscriptions, billing, and a permission-aware administration suite in one Laravel + Vue application.
 
----
+**Production:** [https://aiprice.app](https://aiprice.app)<br>
+**Admin:** [https://aiprice.app/admin](https://aiprice.app/admin)
 
-## Tech Stack
+> The repository does not contain production credentials. Seeded accounts are intended for local development only and must be changed before any public deployment.
+
+## Highlights
+
+- Vehicle, property, and rental listings with search, filters, maps, favorites, inquiries, and responsive detail pages
+- AI price estimate, deal score, trust score, demand score, investment score, ranking, alternatives, and market insights
+- Seller dashboard for listing management, analytics, messages, KYC, support, invoices, and subscriptions
+- Role- and permission-aware admin suite covering users, listings, KYC, finance, fraud, support, content, reports, advertisements, analytics, LLMs, competitors, and social publishing
+- Secure authentication with Sanctum, rate limits, email verification, password reset, forced password changes, and token revocation
+- Queue-backed AI analysis, email and in-app notifications, competitor crawling, and scheduled maintenance
+- Stripe-ready billing abstraction, invoice history, subscription plans, and webhook processing
+- SEO foundations including canonical metadata, Open Graph, JSON-LD, `robots.txt`, and dynamic sitemap
+- Mobile-only bottom navigation and Lucide icon system; the desktop layout does not render the bottom bar
+
+## Technology
 
 | Layer | Technology |
 |---|---|
-| Backend | Laravel 12 · PHP 8.2 · MySQL |
-| Frontend | Vue 3 · TypeScript · Pinia · TailwindCSS v4 |
-| AI | OpenAI GPT-4o Mini (price analysis) |
-| Auth | Laravel Sanctum (Bearer token) |
-| Roles | Spatie Permissions |
+| Backend | Laravel 12, PHP 8.2+, MySQL 8 |
+| Frontend | Vue 3, TypeScript 6, Vite 8, Pinia, Tailwind CSS 4 |
+| Authentication | Laravel Sanctum |
+| Authorization | Spatie Laravel Permission plus endpoint permission middleware |
+| AI | OpenAI-compatible services; production default is configurable |
+| Billing | Payment gateway abstraction with Stripe Checkout support |
+| Background work | Laravel queues and scheduler |
+| Maps | Leaflet |
 
----
+## Repository layout
 
-## Features
+```text
+.
+├── backend/                    Laravel API and production SPA host
+│   ├── app/                    Controllers, models, jobs, services, notifications
+│   ├── database/               21 migrations, factories, and seeders
+│   ├── routes/                 API, web fallback, and scheduled commands
+│   └── tests/                  Feature and unit tests
+├── frontend/                   Vue single-page application
+│   └── src/
+│       ├── views/              Public, dashboard, auth, and 25 admin views
+│       ├── components/         Navigation, listings, UI, metadata, notifications
+│       ├── stores/             Pinia application state
+│       └── router/             Route guards and permission-aware admin navigation
+├── scripts/deploy/             Reproducible release and remote deployment scripts
+├── docs/                       Deployment and security documentation
+├── DEVELOPMENT.md              Local development and architecture guide
+├── CHANGELOG.md                Release history
+└── SECURITY.md                 Vulnerability reporting and secure operation
+```
 
-- **AI Battery Score** — every listing gets a 0-100 price score vs market comparables
-- **AI Trust Score** — confidence score based on data quality and market depth  
-- **AI Investment Score** — ROI potential for properties and vehicles
-- **Top 10 Sponsored** — paid advertisement slots with click tracking
-- **Mega Navigation** — Cars & Properties dropdown with body types, brands, cities
-- **Seller Dashboard** — multi-photo upload, AI price estimate before listing
-- **Admin Panel** — 18 sections: listings, users, AI insights, LLM management, fraud, analytics, subscriptions, advertisements
-- **LLM Management** — switch models (GPT-4o / GPT-4o Mini / GPT-3.5), test connection, batch re-analyze
-- **Subscription Plans** — Free / Starter / Pro / Agency tiers
+## Local setup
 
----
+### Requirements
 
-## Quick Start
+- PHP 8.2 or newer and Composer 2
+- Node.js `^22.18.0` or `>=24.12.0`
+- MySQL 8
 
-### Backend (Laravel)
+### Backend
 
 ```bash
 cd backend
 composer install
 cp .env.example .env
-# Set DB_DATABASE, DB_USERNAME, DB_PASSWORD in .env
-# Set OPENAI_API_KEY in .env
 php artisan key:generate
 php artisan migrate --seed
-php artisan serve --port=8000
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-### Frontend (Vue)
+Set database, mail, frontend URL, AI provider, and optional payment credentials in `backend/.env`. Never commit a filled `.env` file.
+
+### Frontend
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
-# Runs on http://localhost:5173
-# Proxies /api → http://localhost:8000
 ```
 
----
+Vite serves the app at `http://localhost:3000` and proxies `/api` to `http://localhost:8000`.
 
-## Environment Variables
+### Workers and scheduled jobs
 
-### Backend `.env`
+```bash
+cd backend
+php artisan queue:work --queue=default,ai,crawl
+php artisan schedule:work
+```
+
+Without a worker, queued AI analysis, crawls, emails, and notifications remain pending.
+
+## Environment variables
+
+Start with [`backend/.env.example`](backend/.env.example). Important production values include:
 
 ```env
-APP_NAME="AIPrice.app"
-APP_URL=http://localhost:8000
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://aiprice.app
+FRONTEND_URL=https://aiprice.app
 
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=aiprice
-DB_USERNAME=root
-DB_PASSWORD=
+QUEUE_CONNECTION=database
+SESSION_DRIVER=database
+CACHE_STORE=database
 
-OPENAI_API_KEY=sk-proj-...
-OPENAI_MODEL=gpt-4o-mini
+MAIL_MAILER=smtp
+OPENAI_API_KEY=
+PAYMENT_GATEWAY=stripe
+STRIPE_SECRET=
+STRIPE_WEBHOOK_SECRET=
 ```
 
----
+The deploy-ready template is in [`scripts/deploy/production.env.example`](scripts/deploy/production.env.example).
 
-## Project Structure
+## Quality checks
 
-```
-AIPrice/
-├── backend/                  # Laravel 12 API
-│   ├── app/
-│   │   ├── Http/Controllers/
-│   │   │   ├── Api/          # Public API (listings, auth, market stats)
-│   │   │   └── Admin/        # Admin management controllers
-│   │   ├── Models/           # Listing, Vehicle, Property, Advertisement, ...
-│   │   └── Services/
-│   │       └── AiPriceService.php   # OpenAI integration
-│   ├── database/
-│   │   ├── migrations/       # Full schema
-│   │   └── seeders/          # Demo data (32 listings)
-│   └── routes/api.php        # All API routes
-│
-└── frontend/                 # Vue 3 + TypeScript
-    └── src/
-        ├── views/
-        │   ├── HomeView.vue             # Hero, AI sections, subscriptions
-        │   ├── marketplace/             # Cars, Properties, Search, Detail
-        │   ├── dashboard/               # Seller dashboard
-        │   └── admin/                   # 18 admin views
-        ├── components/
-        │   └── listings/ListingCard.vue # AI battery, trust bar, specs
-        ├── layouts/
-        │   ├── MainLayout.vue           # Mega-nav header
-        │   └── AdminLayout.vue          # Admin sidebar
-        ├── stores/auth.ts               # Pinia auth store
-        ├── api/client.ts                # Axios with Sanctum
-        └── types/index.ts               # TypeScript interfaces
+```bash
+# Backend
+cd backend
+php artisan test
+
+# Frontend
+cd frontend
+npm run type-check
+npm run lint
+npm run build
 ```
 
----
+The current backend suite contains 60 tests with 279 assertions. Run the checks again whenever dependencies or application code change.
 
-## Admin Panel Sections
+## API overview
 
-| Section | Path |
+All JSON endpoints use the `/api/v1` prefix.
+
+| Area | Examples |
 |---|---|
-| Overview | `/admin/overview` |
-| Live Analytics | `/admin/live-analytics` |
-| AI Insights | `/admin/ai-insights` |
-| LLM Management | `/admin/llm-management` |
-| All Listings | `/admin/listings` |
-| Users | `/admin/users` |
-| Advertisements | `/admin/advertisements` |
-| Subscriptions | `/admin/subscriptions` |
-| Market Analytics | `/admin/market-analytics` |
-| Financial | `/admin/financial` |
-| Fraud Detection | `/admin/fraud` |
-| Settings | `/admin/settings` |
+| Authentication | `POST /auth/register`, `POST /auth/login`, `POST /auth/forgot-password` |
+| Marketplace | `GET /listings`, `GET /listings/{slug}`, `GET /listings-map` |
+| Seller | `POST /listings`, `GET /my-listings`, `POST /listings/{id}/ai-analyze` |
+| Account | `/profile`, `/favorites`, `/notifications`, `/support-tickets`, `/kyc` |
+| Billing | `/billing/status`, `/billing/checkout`, `/billing/invoices` |
+| Administration | `/admin/*`, protected by Sanctum, password freshness, role, and permission checks |
 
----
+For architecture details, local seeded data, role behavior, and troubleshooting, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
-## API Overview
+## Deployment
 
-```
-POST /api/v1/auth/register
-POST /api/v1/auth/login
-GET  /api/v1/listings?type=vehicle&city=Girne&sort=price_asc
-GET  /api/v1/listings/{slug}
-GET  /api/v1/subscription-plans
-GET  /api/v1/advertisements?slot=top10
-GET  /api/v1/market/stats
+Production releases are assembled with the tracked deployment scripts:
 
-POST /api/v1/listings/create          (auth)
-POST /api/v1/listings/{id}/upload-images  (auth)
-POST /api/v1/listings/{id}/ai-analyze (auth)
-
-GET  /api/v1/admin/listings           (admin)
-POST /api/v1/admin/llm/test           (admin)
-POST /api/v1/admin/listings/batch-analyze (admin)
+```bash
+COMPOSER_BIN=composer bash scripts/deploy/build-release.sh
 ```
 
----
+The remote script performs preflight checks, database and file backups, maintenance mode, code replacement, migrations, cache rebuilds, queue restart, and rollback on failure. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) before deploying.
 
-## Design System
+## Documentation
 
-```
-Background:   #05070b
-Cards:        #0d1117
-Teal:         #6fffd2
-Cyan:         #56d8ff
-Violet:       #a78bfa
-Text Primary: #f0f6fc
-Text Muted:   #6e7f96
-```
-
----
+- [Developer setup and architecture](DEVELOPMENT.md)
+- [Deployment and rollback](docs/DEPLOYMENT.md)
+- [Security policy and production checklist](SECURITY.md)
+- [Release history](CHANGELOG.md)
+- [Backend entry point](backend/README.md)
 
 ## License
 
-MIT — built for North Cyprus market by InexpoAI.
+Proprietary project. All rights reserved by the project owner unless a separate written license is provided.

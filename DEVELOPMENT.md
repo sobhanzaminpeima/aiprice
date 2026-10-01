@@ -89,6 +89,7 @@ php vendor/bin/phpunit
 
 ## Admin Login
 
+- Local seeded account only; never reuse this password in production.
 - URL: `http://localhost:3000/admin`
 - Email: `admin@aiprice.app`
 - Password: `Admin@123456`
@@ -203,7 +204,7 @@ frontend/src/
 ### New API Endpoint
 ```php
 // backend/routes/api.php
-Route::middleware(['auth:sanctum', 'role:admin|super_admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'password.fresh', 'admin.permission'])->prefix('admin')->group(function () {
     Route::get('/my-endpoint', [Admin\MyController::class, 'index']);
 });
 ```
@@ -232,13 +233,25 @@ php artisan migrate
 ## User Roles (Spatie Permissions)
 
 ```
-super_admin → full access
-admin       → admin dashboard
-moderator   → listing moderation
-dealer      → premium listings
-agency      → bulk listings
-seller      → individual listings
-buyer       → browse + inquire
+super_admin    → full access and privileged role management
+admin          → general administration
+moderator      → listing moderation
+support        → inquiries and support tickets
+finance_manager→ billing, subscriptions, and financial analytics
+ai_analyst     → AI models, usage, and reports
+dealer         → premium vehicle listings
+agency         → bulk property listings
+seller         → individual listings
+buyer          → browse, favorite, and inquire
 ```
 
 Check role: `php artisan tinker --execute="echo App\Models\User::find('uuid')->role;"`
+
+---
+
+## Additional documentation
+
+- [Project overview](README.md)
+- [Deployment and rollback](docs/DEPLOYMENT.md)
+- [Security policy](SECURITY.md)
+- [Release history](CHANGELOG.md)
