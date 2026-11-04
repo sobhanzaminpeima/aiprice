@@ -2,6 +2,30 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-11-05: Admin inbox, languages, light redesign, real data only
+
+### Added
+- Admin **Requests inbox** (`/admin/inbox`): every user request arrives with the full text and the sender's name, email and phone: messages to sellers, contact form, support tickets and replies, new listings, identity checks and new accounts. Staff also get each one by email (`StaffAlert`).
+- Turkish and Persian (right-to-left) interface with a language switcher in the header, mobile menu and footer. Fonts are self-hosted: Inter (Latin and Turkish) and Vazirmatn (Persian).
+- AI fallback for the price check: when there are fewer than 3 comparable listings and an OpenAI key is set, an AI model gives a typical range. It is labelled "AI rough estimate", confidence is fixed at 30, and absurd answers are rejected.
+- Privacy notice (`/privacy`) and terms of use (`/terms`), linked from the footer and the sign-up form.
+
+### Changed
+- Light theme redesign: navy brand hero, white cards with depth, navy footer, readable map controls.
+- Admin sidebar grouped by task (Dashboard, Listings & catalog, Users & sellers, Messages & support, Pricing & AI, Money, Safety & content), collapsible, with page search, unread badge and a mobile drawer.
+- Map: price-pill markers coloured by type, overlapping pins fanned out, empty state, and town names in Turkish, English or Greek form now map to coordinates (the real Famagusta listing had no pin).
+- The SPA shell is served with `Cache-Control: no-cache`, so visitors see a new release straight away.
+- The saved theme key changed, so every visitor starts on the new light theme once.
+
+### Fixed
+- Listing cards showed "Slightly high" for listings with no estimate; they now say "Not enough data".
+- The rule-based AI summary called listings without data "priced above comparable listings".
+- Property pages always listed "Air Con" and "Security" and invented distances to the airport and beach; only facts the seller gave are shown now.
+- Engine size showed "1400L"; it now shows "1,400 cc".
+
+### Removed
+- The 32 sample listings with stock photos and invented prices (migration `2026_11_05_000001_remove_demo_listings`). Real listings are kept.
+
 ## 2026-11-04: Launch readiness
 
 ### Added

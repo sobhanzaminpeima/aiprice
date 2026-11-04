@@ -133,7 +133,7 @@ npm run lint
 npm run build
 ```
 
-The current backend suite contains 83 tests with 400 assertions. Run the checks again whenever dependencies or application code change.
+The current backend suite contains 85 tests with 408 assertions. Run the checks again whenever dependencies or application code change.
 
 ## API overview
 

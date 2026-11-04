@@ -55,6 +55,9 @@ class KycController extends Controller
             'status' => 'pending',
         ]);
 
+        \App\Support\StaffAlerts::send('kyc', "Identity check submitted: {$user->name}", null,
+            \App\Support\StaffAlerts::person($user), '/admin/kyc', ['Document type' => $kyc->document_type ?? null]);
+
         return response()->json(['kyc' => $kyc, 'status' => 'pending'], 201);
     }
 

@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\SupportTicket;
 use App\Models\User;
-use App\Notifications\SupportTicketUpdated;
 use Illuminate\Http\JsonResponse;
+use App\Support\StaffAlerts;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 
 /** Customer side of support: a user sees and replies to only their own tickets. */
 class SupportTicketController extends Controller
@@ -42,7 +41,9 @@ class SupportTicketController extends Controller
 
         $ticket = SupportTicket::create($v + ['user_id' => $request->user()->id, 'status' => 'open', 'priority' => 'medium']);
 
-        Notification::send(self::supportStaff(), new SupportTicketUpdated($ticket, 'opened', forStaff: true));
+        StaffAlerts::send('support', "New support ticket: {$ticket->subject}", $ticket->description,
+            StaffAlerts::person($request->user()), "/admin/support?ticket={$ticket->id}",
+            ['Ticket' => $ticket->ticket_number, 'Category' => $ticket->category]);
 
         return response()->json($ticket, 201);
     }
@@ -63,8 +64,9 @@ class SupportTicketController extends Controller
             $ticket->touch();
         }
 
-        $recipients = $ticket->assignee ? collect([$ticket->assignee]) : self::supportStaff();
-        Notification::send($recipients, new SupportTicketUpdated($ticket, 'customer_reply', forStaff: true));
+        StaffAlerts::send('support_reply', "Customer replied: {$ticket->subject}", $v['body'],
+            StaffAlerts::person($request->user()), "/admin/support?ticket={$ticket->id}",
+            ['Ticket' => $ticket->ticket_number, 'Assigned to' => $ticket->assignee?->name]);
 
         return response()->json($reply->load('user:id,name'), 201);
     }
@@ -97,7 +99,9 @@ class SupportTicketController extends Controller
             'priority' => 'medium',
         ]);
 
-        Notification::send(self::supportStaff(), new SupportTicketUpdated($ticket, 'opened', forStaff: true));
+        StaffAlerts::send('contact', 'Contact form: '.(($v['subject'] ?? null) ?: 'new message'), $v['message'],
+            ['name' => $v['name'], 'email' => $v['email'], 'phone' => $user?->phone], "/admin/support?ticket={$ticket->id}",
+            ['Reference' => $ticket->ticket_number, 'Signed in' => $user ? 'yes' : 'no (guest)']);
 
         return response()->json(['message' => 'Thanks — we received your message and will reply by email.', 'reference' => $ticket->ticket_number], 201);
     }

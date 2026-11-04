@@ -16,7 +16,9 @@ class NotificationController extends Controller
         return response()->json([
             'notifications' => $user->notifications()
                 ->when($request->boolean('unread'), fn ($q) => $q->whereNull('read_at'))
-                ->paginate(20),
+                ->when($request->filled('kind'), fn ($q) => $q->where('data->kind', (string) $request->query('kind')))
+                ->when($request->filled('category'), fn ($q) => $q->where('data->category', (string) $request->query('category')))
+                ->paginate(min(50, max(5, (int) $request->query('per_page', 20)))),
             'unread_count' => $user->unreadNotifications()->count(),
         ]);
     }

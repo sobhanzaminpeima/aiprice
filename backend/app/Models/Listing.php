@@ -123,10 +123,13 @@ class Listing extends Model
             } while (static::withTrashed()->where('listing_number', $number)->exists());
             $listing->listing_number ??= $number;
 
-            // Auto-place on the map from the city name unless coordinates were
-            // explicitly provided (e.g. a precise pin dropped by the seller).
-            if (!$listing->latitude && !$listing->longitude && $listing->city) {
-                $coords = app(\App\Services\GeoService::class)->coordinatesFor($listing->city, $listing->title ?? uniqid());
+        });
+        // Auto-place on the map from the city name unless coordinates were
+        // explicitly provided (e.g. a precise pin dropped by the seller).
+        static::saving(function ($listing) {
+            $cityChanged = $listing->exists && $listing->isDirty('city') && ! $listing->isDirty('latitude');
+            if ($listing->city && ((! $listing->latitude && ! $listing->longitude) || $cityChanged)) {
+                $coords = app(\App\Services\GeoService::class)->coordinatesFor($listing->city, (string) ($listing->id ?: $listing->title ?: uniqid()));
                 if ($coords) {
                     [$listing->latitude, $listing->longitude] = $coords;
                 }

@@ -5,47 +5,47 @@
     <div class="seller-box">
       <div class="seller-avatar" aria-hidden="true"><AppIcon name="user" :size="20" /></div>
       <div class="min-w-0">
-        <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ contact?.display_name || 'Private seller' }}</p>
+        <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ contact?.display_name || $t('Private seller') }}</p>
         <p class="text-xs" style="color:var(--text-muted)">
-          {{ ownerLabel }}<span v-if="contact?.member_since"> · on AIPrice.app since {{ contact.member_since }}</span>
+          {{ $t(ownerLabel) }}<span v-if="contact?.member_since"> · {{ $t('on AIPrice.app since {year}', { year: contact.member_since }) }}</span>
         </p>
       </div>
     </div>
 
-    <div v-if="contact?.has_phone" class="phone-row" :aria-label="revealedPhone ? 'Seller phone number' : 'Seller phone number, partly hidden'">
+    <div v-if="contact?.has_phone" class="phone-row" :aria-label="revealedPhone ? $t('Seller phone number') : $t('Seller phone number, partly hidden')">
       <AppIcon name="phone" :size="18" />
       <span class="phone-number" :class="{ 'phone-masked': !revealedPhone }" dir="ltr">{{ revealedPhone || contact.phone_masked }}</span>
-      <a v-if="revealedPhone" :href="`tel:${revealedPhone.replace(/[^\d+]/g, '')}`" class="phone-action">Call</a>
-      <a v-if="revealedPhone && whatsapp" :href="`https://wa.me/${whatsapp}`" target="_blank" rel="noopener noreferrer" class="phone-action">WhatsApp</a>
+      <a v-if="revealedPhone" :href="`tel:${revealedPhone.replace(/[^\d+]/g, '')}`" class="phone-action">{{ $t('Call') }}</a>
+      <a v-if="revealedPhone && whatsapp" :href="`https://wa.me/${whatsapp}`" target="_blank" rel="noopener noreferrer" class="phone-action">{{ $t('WhatsApp') }}</a>
       <button v-else-if="!revealedPhone" type="button" class="phone-action" :disabled="revealing" @click="revealPhone">
-        {{ auth.isAuthenticated ? (revealing ? 'Loading…' : 'Show number') : 'Sign in to see' }}
+        {{ auth.isAuthenticated ? (revealing ? $t('Loading…') : $t('Show number')) : $t('Sign in to see') }}
       </button>
     </div>
     <p v-if="contact?.has_phone && !auth.isAuthenticated" class="text-xs mt-2" style="color:var(--text-muted)">
-      The full number is shown to signed-in members only. Creating an account is free.
+      {{ $t('The full number is shown to signed-in members only. Creating an account is free.') }}
     </p>
     <p v-if="phoneError" class="text-xs mt-2" role="alert" style="color:var(--danger)">{{ phoneError }}</p>
 
     <div class="space-y-3 mt-4">
       <button type="button" class="btn-cta w-full" :aria-expanded="showForm" @click="openForm">
-        <AppIcon name="send" :size="18" /> {{ sendLabel }}
+        <AppIcon name="send" :size="18" /> {{ $t(sendLabel) }}
       </button>
       <slot name="secondary" />
     </div>
 
     <Transition name="slide-down">
       <form v-if="showForm" class="mt-4 pt-4" style="border-top:1px solid var(--border-subtle)" @submit.prevent="send">
-        <label :for="`msg-${listingId}`" class="block text-xs font-semibold mb-2" style="color:var(--text-secondary)">Your message to the {{ ownerNoun }}</label>
+        <label :for="`msg-${listingId}`" class="block text-xs font-semibold mb-2" style="color:var(--text-secondary)">{{ $t(isProperty ? 'Your message to the owner' : 'Your message to the seller') }}</label>
         <textarea :id="`msg-${listingId}`" v-model="message" rows="4" maxlength="2000" required minlength="5"
-          :placeholder="placeholder" class="w-full rounded-xl p-3 text-sm resize-none outline-none input-field"></textarea>
+          :placeholder="$t(placeholder)" class="w-full rounded-xl p-3 text-sm resize-none outline-none input-field"></textarea>
         <label class="flex items-start gap-2 mt-3 text-xs cursor-pointer" style="color:var(--text-secondary)">
           <input v-model="shareContact" type="checkbox" class="mt-0.5" />
-          <span>Share my name, email and phone with the {{ ownerNoun }} so they can reply directly.</span>
+          <span>{{ $t(isProperty ? 'Share my name, email and phone with the owner so they can reply directly.' : 'Share my name, email and phone with the seller so they can reply directly.') }}</span>
         </label>
         <button type="submit" class="btn-cta w-full mt-3" :disabled="sending">
-          {{ sending ? 'Sending…' : `Send to ${ownerNoun}` }}
+          {{ sending ? $t('Sending…') : $t(sendLabel) }}
         </button>
-        <p v-if="sent" class="text-xs text-center mt-2" role="status" style="color:var(--success)">Message sent. The {{ ownerNoun }} will reply in your inbox or by your shared contact details.</p>
+        <p v-if="sent" class="text-xs text-center mt-2" role="status" style="color:var(--success)">{{ $t('Message sent. You will see the reply in Dashboard → Messages.') }}</p>
         <p v-if="sendError" class="text-xs text-center mt-2" role="alert" style="color:var(--danger)">{{ sendError }}</p>
       </form>
     </Transition>
@@ -75,7 +75,6 @@ const route = useRoute()
 const router = useRouter()
 
 const isProperty = computed(() => props.kind === 'property' || props.kind === 'rental')
-const ownerNoun = computed(() => (isProperty.value ? 'owner' : 'seller'))
 const ownerLabel = computed(() => (isProperty.value ? 'Property owner / agent' : 'Seller'))
 const sendLabel = computed(() => (isProperty.value ? 'Send to owner' : 'Send to seller'))
 const placeholder = computed(() => isProperty.value

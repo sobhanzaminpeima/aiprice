@@ -44,6 +44,7 @@ class ScoringOrchestratorService
 
         $result = [
             'has_estimate' => $price['has_estimate'],
+            'price_source' => $price['source'] ?? 'comparables',
             'battery_score' => $price['has_estimate'] ? $price['battery_score'] : null,
             'battery_label' => $price['battery_label'],
             'price_status' => $price['price_status'],
@@ -59,6 +60,7 @@ class ScoringOrchestratorService
             'insight' => $insightText,
             'reasons' => [
                 'price' => $price['reasons'],
+                'price_source' => $price['source'] ?? 'comparables',
                 'trust' => $trust['reasons'],
                 'demand' => $demand['reasons'],
                 'investment' => $investment['reasons'],

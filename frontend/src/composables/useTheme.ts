@@ -2,7 +2,8 @@ import { ref } from 'vue'
 
 export type Theme = 'dark' | 'light'
 
-const STORAGE_KEY = 'hp_theme'
+// New key with the light redesign: earlier saved choices are reset once.
+const STORAGE_KEY = 'aiprice_theme'
 const theme = ref<Theme>('light')
 
 function apply(t: Theme) {

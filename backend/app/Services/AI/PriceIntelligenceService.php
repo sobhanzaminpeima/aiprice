@@ -39,15 +39,94 @@ class PriceIntelligenceService
         $traits = $this->traits($listing->listable, true);
         $pool = $this->pool($listing->type, (string) $listing->currency, $listing->id);
 
-        return $this->buildResult((float) $listing->price, (string) $listing->currency, $listing->city, $traits, $pool);
+        $result = $this->buildResult((float) $listing->price, (string) $listing->currency, $listing->city, $traits, $pool);
+
+        return $result['has_estimate'] ? $result
+            : ($this->aiFallback($listing->type, (float) $listing->price, (string) $listing->currency, $listing->city, $this->facts($listing)) ?? $result);
     }
 
     /** Pre-listing estimate: no Listing row exists yet. */
     public function estimate(string $type, float $price, ?string $city = null, string $currency = 'GBP', array $traits = []): array
     {
         $pool = $this->pool($type, $currency, null);
+        $result = $this->buildResult($price, $currency, $city, $traits, $pool);
 
-        return $this->buildResult($price, $currency, $city, $traits, $pool);
+        return $result['has_estimate'] ? $result
+            : ($this->aiFallback($type, $price, $currency, $city, $this->factsFromTraits($traits)) ?? $result);
+    }
+
+    /** Human-readable facts about the item, for the AI fallback prompt. */
+    private function facts(Listing $listing): array
+    {
+        $l = $listing->listable;
+        if ($l instanceof Vehicle) {
+            return ['Make' => VehicleBrand::whereKey($l->brand_id)->value('name'), 'Model' => VehicleModel::whereKey($l->model_id)->value('name'),
+                'Year' => $l->year, 'Mileage km' => $l->mileage, 'Fuel' => $l->fuel_type, 'Gearbox' => $l->transmission, 'Title' => $listing->title];
+        }
+        if ($l instanceof Property) {
+            return ['Type' => \App\Models\PropertyType::whereKey($l->property_type_id)->value('name'), 'Bedrooms' => $l->bedrooms,
+                'Bathrooms' => $l->bathrooms, 'Area m2' => $l->area_sqm, 'Title' => $listing->title];
+        }
+
+        return ['Title' => $listing->title];
+    }
+
+    private function factsFromTraits(array $t): array
+    {
+        return [
+            'Make' => ! empty($t['brand_id']) ? VehicleBrand::whereKey($t['brand_id'])->value('name') : null,
+            'Model' => ! empty($t['model_id']) ? VehicleModel::whereKey($t['model_id'])->value('name') : null,
+            'Year' => $t['year'] ?? null,
+            'Type' => ! empty($t['property_type_id']) ? \App\Models\PropertyType::whereKey($t['property_type_id'])->value('name') : null,
+            'Bedrooms' => $t['bedrooms'] ?? null,
+            'Area m2' => $t['area_sqm'] ?? null,
+        ];
+    }
+
+    /**
+     * Too few comparables: ask the AI model for a typical range. Clearly
+     * labelled as an AI estimate, with confidence fixed at 30.
+     */
+    private function aiFallback(string $type, float $price, string $currency, ?string $city, array $facts): ?array
+    {
+        if ($price <= 0) {
+            return null;
+        }
+        $range = app(AiMarketEstimateService::class)->estimate($type, $currency, $city, $facts, $price);
+        if (! $range) {
+            return null;
+        }
+        $typical = $range['typical'];
+        $deviationPct = (($price - $typical) / $typical) * 100;
+        $battery = (int) max(5, min(98, round(100 - max(0, $deviationPct) * 1.5)));
+        $reasons = [
+            "There are not enough similar listings on AIPrice.app yet, so this range comes from an AI model's general knowledge of the North Cyprus market.",
+            sprintf('AI typical asking price: %s %s (usual range %s–%s).', $currency, number_format($typical), number_format($range['low']), number_format($range['high'])),
+            sprintf('This price is %.1f%% %s that figure.', abs($deviationPct), $deviationPct >= 0 ? 'above' : 'below'),
+        ];
+        if ($range['note'] !== '') {
+            $reasons[] = 'AI note: '.$range['note'];
+        }
+        $reasons[] = 'Low confidence: a rough guide only, not a valuation or a guarantee.';
+
+        return [
+            'has_estimate' => true,
+            'source' => 'ai_model',
+            'battery_score' => $battery,
+            'battery_label' => 'AI rough estimate',
+            'price_status' => match (true) {
+                $deviationPct <= 10 => 'fair',
+                $deviationPct <= 25 => 'slightly_overpriced',
+                default => 'overpriced',
+            },
+            'market_avg' => $typical,
+            'market_min' => $range['low'],
+            'market_max' => $range['high'],
+            'comparable_count' => 0,
+            'comparable_ids' => [],
+            'confidence' => 30,
+            'reasons' => $reasons,
+        ];
     }
 
     /** Normalised attributes used for similarity matching. */
@@ -171,6 +250,7 @@ class PriceIntelligenceService
         if ($chosen->count() < self::MIN_COMPARABLES || $price <= 0) {
             return [
                 'has_estimate' => false,
+            'source' => 'none',
                 // Neutral value for downstream composite scores; never shown as a verdict.
                 'battery_score' => 50,
                 'battery_label' => 'Not enough data',
@@ -219,6 +299,7 @@ class PriceIntelligenceService
 
         return [
             'has_estimate' => true,
+            'source' => 'comparables',
             'battery_score' => $battery,
             'battery_label' => $this->batteryLabel($battery, $deviationPct),
             'price_status' => $status,

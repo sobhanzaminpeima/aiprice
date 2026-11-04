@@ -57,6 +57,7 @@ const kinds: Record<string, (d: any) => Described> = {
   kyc_approved: () => ({ icon: 'shield', title: 'Identity verified', to: '/dashboard/kyc' }),
   kyc_rejected: (d) => ({ icon: 'shield', title: 'Identity check failed', body: d.reason, to: '/dashboard/kyc' }),
   new_inquiry: (d) => ({ icon: 'message', title: 'New buyer inquiry', body: d.listing_title, to: '/admin/inquiries' }),
+  staff_alert: (d) => ({ icon: 'message', title: d.title, body: [d.from?.name, d.body].filter(Boolean).join(': '), to: '/admin/inbox' }),
   payment_succeeded: (d) => ({ icon: 'creditCard', title: 'Payment received', body: d.plan, to: '/dashboard/subscription' }),
   payment_failed: (d) => ({ icon: 'creditCard', title: 'Payment failed', body: d.plan, to: '/dashboard/subscription' }),
 }

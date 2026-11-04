@@ -236,6 +236,9 @@ class ListingController extends Controller
                 'city' => $validated['city'] ?? null, 'country' => $validated['country'] ?? null, 'status' => 'pending',
             ]);
             PriceHistory::create(['listing_id' => $listing->id, 'price' => $listing->price, 'currency' => $listing->currency, 'changed_by' => 'seller']);
+            \App\Support\StaffAlerts::send('listing', "New listing to review: {$listing->title}", $listing->description,
+                \App\Support\StaffAlerts::person($request->user()), "/admin/listings/{$listing->id}/edit",
+                ['Type' => $listing->type, 'Price' => number_format((float) $listing->price).' '.$listing->currency, 'City' => $listing->city]);
             return response()->json(['listing' => $listing->fresh(['listable']), 'message' => 'Submitted for review.'], 201);
         });
     }

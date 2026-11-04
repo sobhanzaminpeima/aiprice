@@ -2,15 +2,15 @@
   <div v-if="loading" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
       <div class="w-12 h-12 rounded-full border-2 border-t-[var(--accent-teal)] animate-spin mx-auto mb-4" style="border-color:rgba(var(--accent-teal-rgb),0.2);border-top-color:var(--accent-teal)"></div>
-      <p style="color:var(--text-muted)">Loading listing...</p>
+      <p style="color:var(--text-muted)">{{ $t('Loading listing...') }}</p>
     </div>
   </div>
 
   <div v-else-if="!listing" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
       <AppIcon name="car" :size="64" class="mx-auto mb-4" />
-      <h2 class="text-xl font-bold mb-2" style="color:var(--text-primary)">Listing Not Found</h2>
-      <RouterLink to="/cars" class="btn-primary mt-4 inline-block">Browse Cars</RouterLink>
+      <h2 class="text-xl font-bold mb-2" style="color:var(--text-primary)">{{ $t('Listing Not Found') }}</h2>
+      <RouterLink to="/cars" class="btn-primary mt-4 inline-block">{{ $t('Browse Cars') }}</RouterLink>
     </div>
   </div>
 
@@ -31,11 +31,11 @@
 
       <!-- Back -->
       <RouterLink to="/cars" class="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition" style="background:rgba(0,0,0,0.5);color:var(--text-primary);backdrop-filter:blur(8px)">
-        ← Back to Cars
+        {{ $t('← Back to Cars') }}
       </RouterLink>
 
       <!-- Featured badge -->
-      <div v-if="listing.is_featured" class="absolute top-5 right-5 ai-badge flex items-center gap-1"><AppIcon name="star" :size="14" /> Featured</div>
+      <div v-if="listing.is_featured" class="absolute top-5 right-5 ai-badge flex items-center gap-1"><AppIcon name="star" :size="14" /> {{ $t('Featured') }}</div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -48,14 +48,14 @@
           <div>
             <div class="flex flex-wrap items-start gap-3 mb-3">
               <h1 class="text-3xl font-black" style="color:var(--text-primary)">{{ listing.title }}</h1>
-              <span v-if="listing.ai_price_status" class="px-3 py-1 rounded-full text-sm font-bold mt-1" :style="aiStatusStyle">{{ aiStatusLabel }}</span>
+              <span v-if="listing.ai_price_status" class="px-3 py-1 rounded-full text-sm font-bold mt-1" :style="aiStatusStyle">{{ $t(aiStatusLabel) }}</span>
             </div>
             <div class="flex flex-wrap items-center gap-3 text-sm" style="color:var(--text-muted)">
               <span class="flex items-center gap-1"><AppIcon name="mapPin" :size="14" /> {{ listing.city }}, North Cyprus</span>
               <span>·</span>
-              <span>Listed {{ listedAgo }}</span>
+              <span>{{ $t('Listed {when}', { when: listedAgo }) }}</span>
               <span>·</span>
-              <span class="flex items-center gap-1"><AppIcon name="eye" :size="14" /> {{ listing.view_count || 0 }} views</span>
+              <span class="flex items-center gap-1"><AppIcon name="eye" :size="14" /> {{ listing.view_count || 0 }} {{ $t('views') }}</span>
               <span v-if="listing.listing_number" class="ml-auto text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-overlay);color:var(--text-muted)">{{ listing.listing_number }}</span>
             </div>
           </div>
@@ -63,23 +63,23 @@
           <!-- Vehicle specs grid -->
           <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
             <h2 class="font-bold text-lg mb-5 flex items-center gap-2" style="color:var(--text-primary)">
-              <AppIcon name="car" :size="20" style="color:var(--accent-teal)" /> Vehicle Specifications
+              <AppIcon name="car" :size="20" style="color:var(--accent-teal)" /> {{ $t('Vehicle Specifications') }}
             </h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <SpecItem v-if="vehicle?.year" icon="calendar" label="Year" :value="String(vehicle.year)" />
-              <SpecItem v-if="vehicle?.mileage" icon="gauge" label="Mileage" :value="Number(vehicle.mileage).toLocaleString() + ' km'" />
-              <SpecItem v-if="vehicle?.fuel_type" icon="fuel" label="Fuel" :value="capitalize(vehicle.fuel_type)" />
-              <SpecItem v-if="vehicle?.transmission" icon="settings" label="Transmission" :value="capitalize(vehicle.transmission)" />
-              <SpecItem v-if="vehicle?.body_type" icon="car" label="Body Type" :value="capitalize(vehicle.body_type)" />
-              <SpecItem v-if="vehicle?.color" icon="palette" label="Color" :value="vehicle.color" />
-              <SpecItem v-if="vehicle?.engine_size" icon="wrench" label="Engine" :value="vehicle.engine_size + 'L'" />
-              <SpecItem v-if="vehicle?.condition" icon="check" label="Condition" :value="capitalize(vehicle.condition)" />
-              <SpecItem icon="globe" label="Location" :value="listing.city" />
+              <SpecItem v-if="vehicle?.year" icon="calendar" :label="$t('Year')" :value="String(vehicle.year)" />
+              <SpecItem v-if="vehicle?.mileage" icon="gauge" :label="$t('Mileage')" :value="Number(vehicle.mileage).toLocaleString() + ' km'" />
+              <SpecItem v-if="vehicle?.fuel_type" icon="fuel" :label="$t('Fuel')" :value="$t(capitalize(vehicle.fuel_type))" />
+              <SpecItem v-if="vehicle?.transmission" icon="settings" :label="$t('Transmission')" :value="$t(capitalize(vehicle.transmission))" />
+              <SpecItem v-if="vehicle?.body_type" icon="car" :label="$t('Body Type')" :value="$t(capitalize(vehicle.body_type))" />
+              <SpecItem v-if="vehicle?.color" icon="palette" :label="$t('Color')" :value="vehicle.color" />
+              <SpecItem v-if="vehicle?.engine_size" icon="wrench" :label="$t('Engine')" :value="Number(vehicle.engine_size) > 20 ? Number(vehicle.engine_size).toLocaleString() + ' cc' : vehicle.engine_size + ' L'" />
+              <SpecItem v-if="vehicle?.condition" icon="check" :label="$t('Condition')" :value="capitalize(vehicle.condition)" />
+              <SpecItem icon="globe" :label="$t('Location')" :value="listing.city" />
             </div>
 
             <!-- Features -->
             <div v-if="vehicleFeatures.length" class="mt-6 pt-5" style="border-top:1px solid var(--border-subtle)">
-              <h3 class="text-sm font-semibold mb-3" style="color:var(--text-secondary)">Features & Equipment</h3>
+              <h3 class="text-sm font-semibold mb-3" style="color:var(--text-secondary)">{{ $t('Features & Equipment') }}</h3>
               <div class="flex flex-wrap gap-2">
                 <span v-for="f in vehicleFeatures" :key="f" class="px-2.5 py-1 rounded-lg text-xs font-medium" style="background:rgba(var(--accent-teal-rgb),0.07);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.15)">
                   ✓ {{ formatFeature(f) }}
@@ -90,15 +90,15 @@
 
           <!-- Description -->
           <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
-            <h2 class="font-bold text-lg mb-4" style="color:var(--text-primary)">Description</h2>
+            <h2 class="font-bold text-lg mb-4" style="color:var(--text-primary)">{{ $t('Description') }}</h2>
             <p class="text-sm leading-relaxed whitespace-pre-line" style="color:var(--text-secondary)">{{ listing.description }}</p>
           </div>
 
           <!-- AI Price Analysis -->
           <div class="rounded-2xl p-6" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.04),rgba(var(--accent-cyan-rgb),0.02));border:1px solid rgba(var(--accent-teal-rgb),0.15)">
             <div class="flex items-center gap-3 mb-5">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">AI</div>
-              <h2 class="font-bold text-lg" style="color:var(--text-primary)">AI Price Intelligence</h2>
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('AI') }}</div>
+              <h2 class="font-bold text-lg" style="color:var(--text-primary)">{{ $t('AI Price Intelligence') }}</h2>
             </div>
 
             <!-- Price range bar -->
@@ -113,16 +113,16 @@
                 <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 shadow-lg" style="background:var(--accent-teal);border-color:var(--on-accent);box-shadow:0 0 12px rgba(var(--accent-teal-rgb),0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
               </div>
               <p class="text-xs mt-2 text-center" style="color:var(--text-muted)">
-                This vehicle is priced at <span :style="`color:${aiColor};font-weight:700`">{{ formatPrice(listing.price, listing.currency) }}</span>
-                <template v-if="listing.market_avg_price"> vs typical asking price <span style="color:var(--text-secondary);font-weight:600">{{ formatPrice(listing.market_avg_price, listing.currency) }}</span></template>
+                {{ $t('This vehicle is priced at') }} <span :style="`color:${aiColor};font-weight:700`">{{ formatPrice(listing.price, listing.currency) }}</span>
+                <template v-if="listing.market_avg_price"> {{ $t('vs typical asking price') }} <span style="color:var(--text-secondary);font-weight:600">{{ formatPrice(listing.market_avg_price, listing.currency) }}</span></template>
               </p>
             </div>
 
             <!-- Score grid -->
             <div class="grid grid-cols-3 gap-4">
-              <ScoreGauge v-if="listing.ai_trust_score" label="Trust Score" :value="listing.ai_trust_score" :color="trustColor" />
-              <ScoreGauge v-if="listing.ai_investment_score" label="Investment" :value="listing.ai_investment_score" color="var(--accent-violet)" />
-              <ScoreGauge v-if="listing.ai_confidence_score" label="Confidence" :value="listing.ai_confidence_score" color="var(--accent-cyan)" />
+              <ScoreGauge v-if="listing.ai_trust_score" :label="$t('Trust Score')" :value="listing.ai_trust_score" :color="trustColor" />
+              <ScoreGauge v-if="listing.ai_investment_score" :label="$t('Investment')" :value="listing.ai_investment_score" color="var(--accent-violet)" />
+              <ScoreGauge v-if="listing.ai_confidence_score" :label="$t('Confidence')" :value="listing.ai_confidence_score" color="var(--accent-cyan)" />
             </div>
           </div>
 
@@ -131,7 +131,7 @@
 
           <!-- Comparable listings -->
           <div v-if="comparables.length" class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
-            <h2 class="font-bold text-lg mb-5" style="color:var(--text-primary)">Similar Vehicles</h2>
+            <h2 class="font-bold text-lg mb-5" style="color:var(--text-primary)">{{ $t('Similar Vehicles') }}</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(var(--accent-teal-rgb),0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='var(--border-subtle)'">
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:var(--surface-overlay)"><AppIcon name="car" :size="20" /></div>
@@ -151,13 +151,13 @@
           <div class="rounded-2xl p-6 sticky top-20" style="background:var(--bg-card);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
             <div class="mb-4">
               <p class="text-3xl font-black mb-1" style="color:var(--text-primary)">{{ formatPrice(listing.price, listing.currency) }}</p>
-              <p v-if="listing.price_negotiable" class="text-sm" style="color:var(--accent-teal)">✓ Price is negotiable</p>
+              <p v-if="listing.price_negotiable" class="text-sm" style="color:var(--accent-teal)">{{ $t('✓ Price is negotiable') }}</p>
             </div>
 
             <!-- Battery -->
             <div v-if="listing.price_battery_percent" class="mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
               <div class="flex items-center justify-between text-xs mb-2">
-                <span style="color:var(--text-muted)">Price Fairness Score</span>
+                <span style="color:var(--text-muted)">{{ $t('Price Fairness Score') }}</span>
                 <span :style="`color:${batteryColor};font-weight:700`">{{ listing.price_battery_percent }}%</span>
               </div>
               <div class="h-2 rounded-full" style="background:var(--border-subtle)">
@@ -169,7 +169,7 @@
             <SellerContactCard :listing-id="listing.id" :contact="sellerContact" :kind="listing.type">
               <template #secondary>
                 <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2" :style="isFavorited ? 'background:rgba(var(--danger-rgb),0.12);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
-                  <AppIcon name="heart" :size="18" :fill="isFavorited ? 'currentColor' : 'none'" /> {{ isFavorited ? 'Saved' : 'Save Listing' }}
+                  <AppIcon name="heart" :size="18" :fill="isFavorited ? 'currentColor' : 'none'" /> {{ isFavorited ? $t('Saved') : $t('Save listing') }}
                 </button>
               </template>
             </SellerContactCard>
@@ -177,9 +177,9 @@
 
           <!-- Safety tips -->
           <div class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
-            <h3 class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--text-primary)"><AppIcon name="shield" :size="18" /> Safety Tips</h3>
+            <h3 class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--text-primary)"><AppIcon name="shield" :size="18" /> {{ $t('Safety Tips') }}</h3>
             <ul class="space-y-2">
-              <li v-for="tip in safetyTips" :key="tip" class="text-xs" style="color:var(--text-muted)">• {{ tip }}</li>
+              <li v-for="tip in safetyTips" :key="tip" class="text-xs" style="color:var(--text-muted)">• {{ $t(tip) }}</li>
             </ul>
           </div>
         </div>
@@ -189,6 +189,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale } from '@/i18n'
 import SpecItem from '@/components/listings/SpecItem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import SellerContactCard, { type SellerContact } from '@/components/listings/SellerContactCard.vue'
@@ -239,7 +240,7 @@ const aiStatusStyle = computed(() => {
   return 'background:rgba(var(--warning-rgb),0.12);color:var(--warning);border:1px solid rgba(var(--warning-rgb),0.3)'
 })
 const aiStatusLabel = computed(() => {
-  const map: Record<string, string> = { fair: '✓ Fair price (estimate)', slightly_overpriced: '⚠ Slightly Overpriced', overpriced: '✗ High for this market', insufficient_data: 'Not enough data yet' }
+  const map: Record<string, string> = { fair: '✓ Fair price (estimate)', slightly_overpriced: '⚠ Slightly high', overpriced: '✗ High for this market', insufficient_data: 'Not enough data yet' }
   return map[listing.value?.ai_price_status ?? ''] ?? ''
 })
 const aiColor = computed(() => listing.value?.ai_price_status === 'fair' ? 'var(--accent-teal)' : 'var(--warning)')
@@ -253,10 +254,9 @@ const batteryColor = computed(() => {
 })
 
 const listedAgo = computed(() => {
-  if (!listing.value?.published_at) return 'recently'
-  const diff = Date.now() - new Date(listing.value.published_at).getTime()
-  const days = Math.floor(diff / 86400000)
-  return days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`
+  if (!listing.value?.published_at) return ''
+  const days = Math.floor((Date.now() - new Date(listing.value.published_at).getTime()) / 86400000)
+  return new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto' }).format(-days, 'day')
 })
 
 function setActiveImage(url: string) { activeImage.value = url; activeImageError.value = false }

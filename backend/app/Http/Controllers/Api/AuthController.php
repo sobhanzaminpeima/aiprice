@@ -25,6 +25,8 @@ class AuthController extends Controller
         UserProfile::create(['user_id' => $user->id]);
         $user->assignRole($user->role);
         $user->sendEmailVerificationNotification();
+        \App\Support\StaffAlerts::send('signup', "New account: {$user->name}", null, \App\Support\StaffAlerts::person($user),
+            '/admin/users', ['Account type' => $user->role]);
         return response()->json([
             'user' => $this->withAccess($user),
             'token' => $user->createToken('auth')->plainTextToken,

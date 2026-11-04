@@ -1,5 +1,5 @@
 <template>
-  <nav class="bottom-tab-bar flex md:hidden" role="navigation" aria-label="Primary">
+  <nav class="bottom-tab-bar flex md:hidden" role="navigation" :aria-label="$t('Primary')">
     <RouterLink v-for="tab in tabs" :key="tab.to" :to="tab.to" class="tab" :class="{ active: isActive(tab) }">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="tab.icon"></svg>
       <span>{{ tab.label }}</span>

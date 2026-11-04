@@ -45,7 +45,8 @@ class PublicSiteTest extends TestCase
         $ticket = SupportTicket::where('ticket_number', $ref)->firstOrFail();
         $this->assertNull($ticket->user_id);
         $this->assertSame('contact_form', $ticket->source);
-        Notification::assertSentTo($agent, SupportTicketUpdated::class);
+        Notification::assertSentTo($agent, \App\Notifications\StaffAlert::class,
+            fn ($n) => $n->category === 'contact' && $n->body === 'Is the villa still available?' && $n->from['email'] === 'ayse@example.com');
 
         $this->actingAs($agent, 'sanctum')->postJson("/api/v1/admin/support/tickets/{$ticket->id}/reply", ['body' => 'Yes it is!'])->assertCreated();
 

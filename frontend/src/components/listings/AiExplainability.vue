@@ -5,14 +5,14 @@
       <button @click="whyOpen = !whyOpen" class="w-full flex items-center justify-between text-left">
         <span class="font-bold text-sm flex items-center gap-2" style="color:var(--text-primary)">
           <span class="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">AI</span>
-          Why these scores?
+          {{ $t('Why these scores?') }}
         </span>
         <span style="color:var(--text-muted)">{{ whyOpen ? '−' : '+' }}</span>
       </button>
       <Transition name="expand">
         <div v-if="whyOpen" class="mt-4 space-y-3">
           <div v-for="group in reasonGroups" :key="group.label">
-            <p class="text-xs font-bold mb-1.5" :style="{ color: group.color }">{{ group.label }}</p>
+            <p class="text-xs font-bold mb-1.5" :style="{ color: group.color }">{{ $t(group.label) }}</p>
             <ul class="space-y-1">
               <li v-for="(r, i) in group.reasons" :key="i" class="text-xs flex items-start gap-1.5" style="color:var(--text-secondary)">
                 <span style="color:var(--text-muted)">•</span> {{ r }}
@@ -27,14 +27,14 @@
     <div class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
       <button v-if="!better.length && !betterLoaded" @click="loadBetter" :disabled="loadingBetter"
         class="w-full py-2.5 rounded-xl text-sm font-bold transition" style="background:var(--surface-overlay);border:1px solid rgba(var(--accent-teal-rgb),0.25);color:var(--accent-teal)">
-        {{ loadingBetter ? 'Searching…' : '🔍 Show Me Better' }}
+        {{ loadingBetter ? $t('Searching…') : '🔍 ' + $t('Show me better options') }}
       </button>
       <template v-else-if="betterLoaded">
         <p v-if="!better.length" class="text-xs text-center py-2" style="color:var(--text-muted)">
-          No alternatives beat this listing right now — it's already a strong option.
+          {{ $t('No better alternatives right now.') }}
         </p>
         <template v-else>
-          <p class="text-xs font-bold mb-3" style="color:var(--text-primary)">Found {{ better.length }} better match{{ better.length === 1 ? '' : 'es' }}</p>
+          <p class="text-xs font-bold mb-3" style="color:var(--text-primary)">{{ $t('Better matches found: {n}', { n: better.length }) }}</p>
           <RouterLink v-for="b in better" :key="b.id" :to="`/listings/${b.slug}`" class="block p-3 rounded-xl mb-2 last:mb-0 transition" style="background:var(--surface-overlay-soft);border:1px solid rgba(var(--accent-teal-rgb),0.15)">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-semibold truncate" style="color:var(--text-primary)">{{ b.title }}</span>

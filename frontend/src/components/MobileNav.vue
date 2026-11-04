@@ -16,7 +16,7 @@
     <div v-if="open" class="md:hidden fixed top-0 right-0 bottom-0 z-50 w-72 flex flex-col" style="background:var(--bg-surface);border-left:1px solid rgba(var(--accent-teal-rgb),0.15)">
       <!-- Header -->
       <div class="flex items-center justify-between p-5" style="border-bottom:1px solid var(--border-subtle)">
-        <span class="font-black text-lg" style="color:var(--text-primary)">AI<span class="gradient-text">Price</span><span style="color:var(--accent-teal)">.app</span></span>
+        <span class="font-black text-lg" style="color:var(--text-primary)">{{ $t('AI') }}<span class="gradient-text">Price</span><span style="color:var(--accent-teal)">.app</span></span>
         <button @click="open = false" class="w-8 h-8 rounded-lg flex items-center justify-center text-lg" style="background:var(--surface-overlay);color:var(--text-muted)">×</button>
       </div>
 
@@ -32,12 +32,12 @@
       <!-- Auth buttons -->
       <div class="p-5 space-y-3" style="border-top:1px solid var(--border-subtle)">
         <template v-if="auth.isAuthenticated">
-          <RouterLink :to="auth.homeRoute" @click="open = false" class="block w-full text-center py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Dashboard</RouterLink>
+          <RouterLink :to="auth.homeRoute" @click="open = false" class="block w-full text-center py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('Dashboard') }}</RouterLink>
           <button @click="logout" class="block w-full text-center py-3 rounded-xl text-sm font-medium" style="color:var(--text-muted);border:1px solid var(--border-subtle)">Sign Out</button>
         </template>
         <template v-else>
           <RouterLink to="/register" @click="open = false" class="block w-full text-center py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Get Started Free</RouterLink>
-          <RouterLink to="/login" @click="open = false" class="block w-full text-center py-3 rounded-xl text-sm font-medium" style="color:var(--text-secondary);border:1px solid var(--border-strong)">Sign In</RouterLink>
+          <RouterLink to="/login" @click="open = false" class="block w-full text-center py-3 rounded-xl text-sm font-medium" style="color:var(--text-secondary);border:1px solid var(--border-strong)">{{ $t('Sign In') }}</RouterLink>
         </template>
       </div>
     </div>

@@ -3,7 +3,7 @@
     <AnimatedBackground />
 
     <!-- Navbar -->
-    <nav style="background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid rgba(var(--accent-teal-rgb),0.08);position:sticky;top:0;z-index:50">
+    <nav class="site-nav" style="background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);position:sticky;top:0;z-index:50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div style="display:flex;align-items:center;justify-content:space-between;height:64px">
 
@@ -22,14 +22,14 @@
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 6H5.5A2.5 2.5 0 003 8.5v2A1.5 1.5 0 004.5 12h15a1.5 1.5 0 001.5-1.5v-2A2.5 2.5 0 0018.5 6H16m-8 0l2-3h4l2 3M8 6h8M6 12v5a1 1 0 001 1h1m8-6v5a1 1 0 01-1 1h-1m-6 0h6"/>
                 </svg>
-                Cars
+                {{ $t('Cars') }}
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="transition:.2s" :style="showCars?'transform:rotate(180deg)':''"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
               </button>
               <!-- Cars Dropdown -->
               <div v-show="showCars" :id="'menu-cars'" class="mega-dropdown" style="left:0;width:520px">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
                   <div>
-                    <p style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">By Body Type</p>
+                    <p style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">{{ $t('By Body Type') }}</p>
                     <RouterLink v-for="bt in carBodyTypes" :key="bt.label" :to="bt.to" @click="closeMenu()"
                       style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;text-decoration:none;transition:all .15s;margin-bottom:2px"
                       class="mega-item">
@@ -37,13 +37,13 @@
                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.6" :style="'stroke:rgb('+bt.rgb+')'"><path stroke-linecap="round" stroke-linejoin="round" :d="bt.icon"/></svg>
                       </div>
                       <div>
-                        <p style="font-size:13px;font-weight:600;color:var(--text-primary)">{{ bt.label }}</p>
-                        <p style="font-size:11px;color:var(--text-muted)">{{ bt.sub }}</p>
+                        <p style="font-size:13px;font-weight:600;color:var(--text-primary)">{{ $t(bt.label) }}</p>
+                        <p style="font-size:11px;color:var(--text-muted)">{{ $t(bt.sub) }}</p>
                       </div>
                     </RouterLink>
                   </div>
                   <div>
-                    <p style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">Popular Brands</p>
+                    <p style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">{{ $t('Popular Brands') }}</p>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
                       <RouterLink v-for="b in popularBrands" :key="b" :to="'/cars?brand='+b" @click="closeMenu()"
                         style="padding:8px 12px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text-secondary);text-decoration:none;transition:all .15s;border:1px solid var(--border-subtle)"
@@ -51,7 +51,7 @@
                     </div>
                     <RouterLink to="/cars" @click="closeMenu()" style="display:flex;align-items:center;gap:6px;margin-top:14px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--accent-teal);text-decoration:none;background:rgba(var(--accent-teal-rgb),0.08);border:1px solid rgba(var(--accent-teal-rgb),0.15)">
                       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                      View All Cars →
+                      {{ $t('View All Cars →') }}
                     </RouterLink>
                   </div>
                 </div>
@@ -65,14 +65,14 @@
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
-                Properties
+                {{ $t('Properties') }}
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="transition:.2s" :style="showProps?'transform:rotate(180deg)':''"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
               </button>
               <!-- Properties Dropdown -->
               <div v-show="showProps" :id="'menu-props'" class="mega-dropdown" style="left:0;width:480px">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
                   <div>
-                    <p style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">Property Types</p>
+                    <p style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">{{ $t('Property Types') }}</p>
                     <RouterLink v-for="pt in propTypes" :key="pt.label" :to="pt.to" @click="closeMenu()"
                       style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;text-decoration:none;transition:all .15s;margin-bottom:2px"
                       class="mega-item">
@@ -80,13 +80,13 @@
                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.6" :style="'stroke:rgb('+pt.rgb+')'"><path stroke-linecap="round" stroke-linejoin="round" :d="pt.icon"/></svg>
                       </div>
                       <div>
-                        <p style="font-size:13px;font-weight:600;color:var(--text-primary)">{{ pt.label }}</p>
-                        <p style="font-size:11px;color:var(--text-muted)">{{ pt.sub }}</p>
+                        <p style="font-size:13px;font-weight:600;color:var(--text-primary)">{{ $t(pt.label) }}</p>
+                        <p style="font-size:11px;color:var(--text-muted)">{{ $t(pt.sub) }}</p>
                       </div>
                     </RouterLink>
                   </div>
                   <div>
-                    <p style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">By Location</p>
+                    <p style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">{{ $t('By Location') }}</p>
                     <RouterLink v-for="city in propertyCities" :key="city" :to="'/properties?city='+city" @click="closeMenu()"
                       style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text-secondary);text-decoration:none;transition:all .15s;margin-bottom:4px"
                       class="mega-item">
@@ -95,7 +95,7 @@
                     </RouterLink>
                     <RouterLink to="/properties" @click="closeMenu()" style="display:flex;align-items:center;gap:6px;margin-top:14px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--accent-violet);text-decoration:none;background:rgba(var(--accent-violet-rgb),0.08);border:1px solid rgba(var(--accent-violet-rgb),0.15)">
                       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                      View All Properties →
+                      {{ $t('View All Properties →') }}
                     </RouterLink>
                   </div>
                 </div>
@@ -104,36 +104,37 @@
 
             <!-- Other links -->
             <RouterLink to="/rentals" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s"
-              :style="$route.path.startsWith('/rentals') ? 'color:var(--accent-cyan);background:rgba(var(--accent-cyan-rgb),0.08)' : 'color:var(--text-secondary)'">Rentals</RouterLink>
-            <RouterLink to="/market-insights" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s"
-              :style="$route.path.startsWith('/market') ? 'color:var(--accent-cyan);background:rgba(var(--accent-cyan-rgb),0.08)' : 'color:var(--text-secondary)'">Market</RouterLink>
-            <RouterLink to="/pricing" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s"
-              :style="$route.path.startsWith('/pricing') ? 'color:var(--accent-teal);background:rgba(var(--accent-teal-rgb),0.08)' : 'color:var(--text-secondary)'">Pricing</RouterLink>
+              :style="$route.path.startsWith('/rentals') ? 'color:var(--accent-cyan);background:rgba(var(--accent-cyan-rgb),0.08)' : 'color:var(--text-secondary)'">{{ $t('Rentals') }}</RouterLink>
+            <RouterLink class="hidden lg:inline-block" to="/market-insights" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s"
+              :style="$route.path.startsWith('/market') ? 'color:var(--accent-cyan);background:rgba(var(--accent-cyan-rgb),0.08)' : 'color:var(--text-secondary)'">{{ $t('Market') }}</RouterLink>
+            <RouterLink class="hidden lg:inline-block" to="/pricing" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s"
+              :style="$route.path.startsWith('/pricing') ? 'color:var(--accent-teal);background:rgba(var(--accent-teal-rgb),0.08)' : 'color:var(--text-secondary)'">{{ $t('Pricing') }}</RouterLink>
           </div>
 
           <!-- Auth + Mobile -->
           <div style="display:flex;align-items:center;gap:10px">
-            <RouterLink :to="auth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }" class="hidden md:flex post-ad">
+            <RouterLink :to="auth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }" class="hidden lg:flex post-ad">
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
-              Post an ad
+              {{ $t('Post an ad') }}
             </RouterLink>
+            <LanguageSwitcher class="hidden md:inline-flex" />
             <ThemeToggle :size="36" />
             <template v-if="auth.isAuthenticated">
               <RouterLink :to="auth.homeRoute" class="hidden md:flex" style="align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none;transition:all .2s;background:var(--surface-overlay);border:1px solid var(--border-subtle)">
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                Dashboard
+                {{ $t('Dashboard') }}
               </RouterLink>
-              <button @click="handleLogout" class="hidden md:block" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-muted);background:none;border:none;cursor:pointer">Logout</button>
+              <button @click="handleLogout" class="hidden md:block" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-muted);background:none;border:none;cursor:pointer">{{ $t('Logout') }}</button>
             </template>
             <template v-else>
-              <RouterLink to="/login" class="hidden md:block" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none;transition:all .2s">Sign In</RouterLink>
+              <RouterLink to="/login" class="hidden md:block" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none;transition:all .2s">{{ $t('Sign In') }}</RouterLink>
               <RouterLink to="/register" class="hidden md:flex" style="align-items:center;gap:6px;padding:8px 18px;border-radius:10px;font-size:13px;font-weight:700;background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent);text-decoration:none">
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Get Started
+                {{ $t('Get Started') }}
               </RouterLink>
             </template>
             <!-- Mobile hamburger -->
-            <button @click="mobileOpen=!mobileOpen" class="md:hidden" :aria-label="mobileOpen ? 'Close menu' : 'Open menu'" :aria-expanded="mobileOpen" style="padding:8px;border-radius:8px;background:var(--border-subtle);border:1px solid var(--border-strong);cursor:pointer">
+            <button @click="mobileOpen=!mobileOpen" class="md:hidden" :aria-label="mobileOpen ? $t('Close menu') : $t('Open menu')" :aria-expanded="mobileOpen" style="padding:8px;border-radius:8px;background:var(--border-subtle);border:1px solid var(--border-strong);cursor:pointer">
               <svg v-if="!mobileOpen" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
               <svg v-else width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
@@ -145,26 +146,27 @@
       <div v-show="mobileOpen" style="border-top:1px solid var(--border-subtle);padding:12px 16px;display:flex;flex-direction:column;gap:4px" class="md:hidden">
         <RouterLink to="/cars" @click="mobileOpen=false" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-primary)">
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="teal" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6H5.5A2.5 2.5 0 003 8.5v2A1.5 1.5 0 004.5 12h15a1.5 1.5 0 001.5-1.5v-2A2.5 2.5 0 0018.5 6H16m-8 0l2-3h4l2 3M8 6h8M6 12v5a1 1 0 001 1h1m8-6v5a1 1 0 01-1 1h-1m-6 0h6"/></svg>
-          Cars
+          {{ $t('Cars') }}
         </RouterLink>
         <RouterLink to="/properties" @click="mobileOpen=false" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-primary)">
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="violet" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-          Properties
+          {{ $t('Properties') }}
         </RouterLink>
         <RouterLink to="/rentals" @click="mobileOpen=false" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-primary)">
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="cyan" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-          Rentals
+          {{ $t('Rentals') }}
         </RouterLink>
-        <RouterLink to="/market-insights" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-primary)">Market Insights</RouterLink>
-        <RouterLink to="/pricing" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-primary)">Pricing</RouterLink>
+        <RouterLink to="/market-insights" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-primary)">{{ $t('Market Insights') }}</RouterLink>
+        <RouterLink to="/pricing" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-primary)">{{ $t('Pricing') }}</RouterLink>
+        <div style="padding:8px 12px"><LanguageSwitcher /></div>
         <div style="height:1px;background:var(--border-subtle);margin:8px 0"></div>
         <template v-if="auth.isAuthenticated">
-          <RouterLink :to="auth.homeRoute" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--accent-teal)">Dashboard</RouterLink>
-          <button @click="handleLogout" style="text-align:left;padding:12px;border-radius:10px;font-size:14px;font-weight:600;color:var(--danger);background:none;border:none;cursor:pointer">Logout</button>
+          <RouterLink :to="auth.homeRoute" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--accent-teal)">{{ $t('Dashboard') }}</RouterLink>
+          <button @click="handleLogout" style="text-align:left;padding:12px;border-radius:10px;font-size:14px;font-weight:600;color:var(--danger);background:none;border:none;cursor:pointer">{{ $t('Logout') }}</button>
         </template>
         <template v-else>
-          <RouterLink to="/login" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-secondary)">Sign In</RouterLink>
-          <RouterLink to="/register" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:700;color:var(--on-accent);background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));text-align:center">Get Started</RouterLink>
+          <RouterLink to="/login" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ $t('Sign In') }}</RouterLink>
+          <RouterLink to="/register" @click="mobileOpen=false" style="padding:12px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:700;color:var(--on-accent);background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));text-align:center">{{ $t('Get Started') }}</RouterLink>
         </template>
       </div>
     </nav>
@@ -175,7 +177,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="pb-16 md:pb-0" style="position:relative;z-index:10;border-top:1px solid var(--border-subtle);margin-top:80px">
+    <footer class="site-footer pb-16 md:pb-0" style="position:relative;z-index:10;margin-top:80px">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <!-- Inline grid-template-columns used to override the responsive classes and forced 5 columns on phones. -->
         <div class="footer-grid grid grid-cols-2 gap-8 mb-12">
@@ -183,52 +185,52 @@
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
               <BrandLogo :size="28" />
             </div>
-            <p style="font-size:13px;line-height:1.7;color:var(--text-muted);margin-bottom:20px">AI-powered price intelligence for North Cyprus real estate and automotive markets.</p>
-            <div style="display:flex;gap:8px">
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-teal);display:inline-block;animation:pulse 2s infinite"></span>
-              <span style="font-size:12px;color:var(--text-muted)">Live AI pricing active</span>
+            <p style="font-size:13px;line-height:1.7;margin-bottom:12px">{{ $t('AI price estimates for cars and property in North Cyprus.') }}</p>
+            <p class="footer-tagline">{{ $t('Know the Value. Not Just the Price.') }}</p>
+            <div class="footer-lang"><LanguageSwitcher variant="footer" /></div>
+          </div>
+          <div>
+            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">{{ $t('Vehicles') }}</p>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <RouterLink to="/cars" style="font-size:13px;color:var(--text-muted);text-decoration:none;transition:.15s" class="footer-link">{{ $t('All Cars') }}</RouterLink>
+              <RouterLink to="/cars?body=SUV" style="font-size:13px;color:var(--text-muted);text-decoration:none;transition:.15s" class="footer-link">{{ $t('SUVs') }}</RouterLink>
+              <RouterLink to="/cars?body=Sedan" style="font-size:13px;color:var(--text-muted);text-decoration:none;transition:.15s" class="footer-link">{{ $t('Sedans') }}</RouterLink>
+              <RouterLink to="/cars?fuel=Electric" style="font-size:13px;color:var(--text-muted);text-decoration:none;transition:.15s" class="footer-link">{{ $t('Electric') }}</RouterLink>
             </div>
           </div>
           <div>
-            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">Vehicles</p>
+            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">{{ $t('Properties') }}</p>
             <div style="display:flex;flex-direction:column;gap:8px">
-              <RouterLink to="/cars" style="font-size:13px;color:var(--text-muted);text-decoration:none;transition:.15s" class="footer-link">All Cars</RouterLink>
-              <RouterLink to="/cars?body=SUV" style="font-size:13px;color:var(--text-muted);text-decoration:none;transition:.15s" class="footer-link">SUVs</RouterLink>
-              <RouterLink to="/cars?body=Sedan" style="font-size:13px;color:var(--text-muted);text-decoration:none;transition:.15s" class="footer-link">Sedans</RouterLink>
-              <RouterLink to="/cars?fuel=Electric" style="font-size:13px;color:var(--text-muted);text-decoration:none;transition:.15s" class="footer-link">Electric</RouterLink>
+              <RouterLink to="/properties" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('All Properties') }}</RouterLink>
+              <RouterLink to="/properties?type=Villa" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Villas') }}</RouterLink>
+              <RouterLink to="/properties?type=Apartment" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Apartments') }}</RouterLink>
+              <RouterLink to="/rentals" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('For Rent') }}</RouterLink>
             </div>
           </div>
           <div>
-            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">Properties</p>
+            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">{{ $t('Company') }}</p>
             <div style="display:flex;flex-direction:column;gap:8px">
-              <RouterLink to="/properties" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">All Properties</RouterLink>
-              <RouterLink to="/properties?type=Villa" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Villas</RouterLink>
-              <RouterLink to="/properties?type=Apartment" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Apartments</RouterLink>
-              <RouterLink to="/rentals" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">For Rent</RouterLink>
+              <RouterLink to="/about" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('About') }}</RouterLink>
+              <RouterLink to="/blog" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Blog') }}</RouterLink>
+              <RouterLink to="/contact" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Contact') }}</RouterLink>
+              <RouterLink to="/faq" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('FAQ') }}</RouterLink>
+              <RouterLink to="/privacy" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Privacy') }}</RouterLink>
+              <RouterLink to="/terms" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Terms') }}</RouterLink>
+              <RouterLink to="/pricing" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Pricing') }}</RouterLink>
             </div>
           </div>
           <div>
-            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">Company</p>
+            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">{{ $t('Sell') }}</p>
             <div style="display:flex;flex-direction:column;gap:8px">
-              <RouterLink to="/about" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">About</RouterLink>
-              <RouterLink to="/blog" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Blog</RouterLink>
-              <RouterLink to="/contact" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Contact</RouterLink>
-              <RouterLink to="/faq" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">FAQ</RouterLink>
-              <RouterLink to="/pricing" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Pricing</RouterLink>
-            </div>
-          </div>
-          <div>
-            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">Sell</p>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              <RouterLink to="/register" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Create Account</RouterLink>
-              <RouterLink to="/dashboard/listings/new" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Post an ad</RouterLink>
-              <RouterLink to="/pricing" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">Subscription Plans</RouterLink>
+              <RouterLink to="/register" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Create Account') }}</RouterLink>
+              <RouterLink to="/dashboard/listings/new" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Post an ad') }}</RouterLink>
+              <RouterLink to="/pricing" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Subscription Plans') }}</RouterLink>
             </div>
           </div>
         </div>
         <div style="border-top:1px solid var(--border-subtle);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-          <p style="font-size:12px;color:var(--text-muted)">© 2026 AIPrice.app — North Cyprus AI Marketplace</p>
-          <p style="font-size:12px;color:var(--text-muted)">Powered by AI price intelligence</p>
+          <p style="font-size:12px">{{ $t('© 2026 AIPrice.app · North Cyprus') }}</p>
+          <p style="font-size:12px">{{ $t('Prices shown by AI are estimates, not valuations or guarantees.') }}</p>
         </div>
       </div>
     </footer>
@@ -245,6 +247,7 @@ import AnimatedBackground from '@/components/AnimatedBackground.vue'
 import FloatingAI from '@/components/FloatingAI.vue'
 import BrandLogo from '@/components/BrandLogo.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -343,8 +346,15 @@ async function handleLogout() {
 @keyframes fadeDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
 .mega-item:hover { background:var(--surface-overlay) }
 .brand-chip:hover { background:var(--border-subtle);color:var(--text-primary);border-color:var(--border-strong) }
-.footer-link:hover { color:var(--text-primary) }
-.post-ad { align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;color:var(--accent-cyan);border:1.5px solid var(--accent-cyan) }
+.site-footer { background:#081827;color:#a9bbcf }
+.site-footer :deep(.brand-logo-img) { filter:brightness(0) invert(1) }
+.site-footer p, .site-footer .footer-link { color:#a9bbcf !important }
+.site-footer .footer-grid > div > p:first-child { color:#e6eef7 !important }
+.site-footer .footer-link:hover { color:#fff !important }
+.site-footer > div > div:last-child { border-top-color:rgba(255,255,255,.12) !important }
+.footer-tagline { font-weight:800;font-size:14px;background:linear-gradient(90deg,#4fb8ff,#16C784);-webkit-background-clip:text;background-clip:text;color:transparent !important;margin-bottom:16px }
+:root:not([data-theme="dark"]) .site-nav { box-shadow:0 1px 0 rgba(8,24,39,.04),0 4px 16px rgba(8,24,39,.05) }
+.post-ad { white-space:nowrap;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;color:var(--accent-cyan);border:1.5px solid var(--accent-cyan) }
 .post-ad:hover { background:rgba(var(--accent-cyan-rgb),0.08) }
 @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr 1fr; } }
 </style>

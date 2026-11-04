@@ -113,7 +113,7 @@ class AdminModulesTest extends TestCase
         $ticketId = $this->actingAs($customer, 'sanctum')
             ->postJson('/api/v1/support-tickets', ['subject' => 'Cannot upload', 'description' => 'It fails', 'category' => 'technical'])
             ->assertCreated()->json('id');
-        Notification::assertSentTo($agent, SupportTicketUpdated::class, fn ($n) => $n->event === 'opened');
+        Notification::assertSentTo($agent, \App\Notifications\StaffAlert::class, fn ($n) => $n->category === 'support' && $n->body === 'It fails');
 
         $this->actingAs($agent, 'sanctum')
             ->postJson("/api/v1/admin/support/tickets/{$ticketId}/reply", ['body' => 'Try again now'])

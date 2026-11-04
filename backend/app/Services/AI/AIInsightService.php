@@ -26,7 +26,7 @@ class AIInsightService
 
     public function summarize(Listing $listing, array $price, array $trust, array $demand, array $investment): string
     {
-        if (empty($this->apiKey)) {
+        if (empty($this->apiKey) || empty($price['has_estimate'])) {
             return $this->fallbackSummary($price, $trust, $demand);
         }
 
@@ -77,6 +77,9 @@ PROMPT;
     private function fallbackSummary(array $price, array $trust, array $demand): string
     {
         $parts = [];
+        if (($price['price_status'] ?? null) === 'insufficient_data') {
+            return 'Not enough comparable listings yet for a price estimate.';
+        }
         $parts[] = match ($price['price_status']) {
             'fair' => 'Priced fairly against comparable listings',
             'slightly_overpriced' => 'Priced slightly above comparable listings',

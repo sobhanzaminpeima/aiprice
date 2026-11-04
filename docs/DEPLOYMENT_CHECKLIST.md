@@ -29,6 +29,8 @@ The script runs migrations. This release adds four migrations:
 | `2026_11_04_000002_scrub_third_party_brand_names` | Removes "KKTC Arabam / kktcarabam.com" text and "AI-verified" wording from stored listings and Instagram captions |
 | `2026_11_04_000003_remove_fabricated_competitor_rows` | Deletes invented `gen-*` competitor rows that were skewing prices |
 | `2026_11_04_000004_move_imported_images_to_neutral_path` | Moves `storage/imports/kktcarabam/*` images to `storage/imports/vehicles/` and rewrites the URLs |
+| `2026_11_05_000001_remove_demo_listings` | Deletes sample listings that use stock photos (images.unsplash.com); real listings stay |
+| `2026_11_05_000002_backfill_listing_coordinates` | Places listings on the map whose town name was not recognised before |
 
 ## 3. Right after deploy
 
@@ -37,6 +39,7 @@ The script runs migrations. This release adds four migrations:
 - [ ] Admin → **AI Status** → **Re-score all active**. This is required once: the pricing model changed, and old scores were computed with the previous logic.
 - [ ] Admin → AI Status shows "Jobs waiting" going down within a few minutes (this proves the cron/queue runs).
 - [ ] Admin → AI Status → "Test the OpenAI connection" returns a reply (if a key is set).
+- [ ] Admin → Requests inbox: send a test message from the contact form and check it appears with the full text.
 
 ## 4. Smoke test in the browser (production)
 

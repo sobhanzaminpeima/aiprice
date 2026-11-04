@@ -259,10 +259,14 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
                 $listing->user->notify(new \App\Notifications\NewInquiryForSeller($inquiry->load('listing')));
             }
 
-            $staff = \App\Models\User::permission('manage_support')->where('is_active', true)->get()
-                ->merge(\App\Models\User::role('super_admin')->where('is_active', true)->get())
-                ->unique('id');
-            \Illuminate\Support\Facades\Notification::send($staff, new \App\Notifications\NewInquiryForStaff($inquiry->load('listing')));
+            \App\Support\StaffAlerts::send('inquiry', "Message to seller: {$listing->title}", $inquiry->message,
+                \App\Support\StaffAlerts::person($req->user()), '/admin/inquiries', [
+                    'Listing' => $listing->title,
+                    'Price' => number_format((float) $listing->price).' '.$listing->currency,
+                    'Seller' => trim(($listing->user?->name ?? '').' '.($listing->user?->email ?? '')),
+                    'Buyer shares contact with seller' => $inquiry->share_contact ? 'yes' : 'no',
+                    'Listing link' => rtrim((string) config('app.frontend_url'), '/').'/listings/'.$listing->slug,
+                ]);
 
             return response()->json(['message' => 'Your message was sent to the seller.', 'inquiry' => $inquiry->only(['id', 'status', 'created_at'])], 201);
         })->middleware(['verified', 'throttle:10,60']);

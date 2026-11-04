@@ -25,6 +25,8 @@ class SitemapController extends Controller
         ['/blog', 'daily', '0.6'],
         ['/faq', 'weekly', '0.4'],
         ['/about', 'monthly', '0.3'],
+        ['/privacy', 'yearly', '0.2'],
+        ['/terms', 'yearly', '0.2'],
         ['/contact', 'monthly', '0.3'],
     ];
 

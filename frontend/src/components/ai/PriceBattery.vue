@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -94,7 +95,7 @@ const statusClass = computed(() => {
 })
 
 const statusLabel = computed(() => {
-  if (props.status === 'insufficient_data' || !props.status) return 'Not enough data yet'
+  if (props.status === 'insufficient_data' || !props.status) return t('Not enough data yet')
   if (props.status === 'fair') return '✓ Fair price (estimate)'
   if (props.status === 'slightly_overpriced') return '~ Slightly Overpriced'
   return '⚠ High for this market'

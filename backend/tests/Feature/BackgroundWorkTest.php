@@ -175,8 +175,9 @@ class BackgroundWorkTest extends TestCase
             ->postJson("/api/v1/listings/{$listing->id}/inquire", ['message' => 'Is it available?'])
             ->assertCreated();
 
-        Notification::assertSentTo($support, \App\Notifications\NewInquiryForStaff::class);
-        Notification::assertNotSentTo($moderator, \App\Notifications\NewInquiryForStaff::class);
+        Notification::assertSentTo($support, \App\Notifications\StaffAlert::class,
+            fn ($n) => $n->category === 'inquiry' && $n->body === 'Is it available?' && $n->from['email'] === $buyer->email);
+        Notification::assertNotSentTo($moderator, \App\Notifications\StaffAlert::class);
     }
 
     public function test_expiry_commands(): void

@@ -12,58 +12,76 @@ export interface AdminNavItem {
 
 export interface AdminNavSection {
   title: string
+  /** lucide icon name used by AdminLayout */
+  icon: string
   items: AdminNavItem[]
 }
 
+/** Grouped by the job the admin is doing, most-used first. */
 export const adminNav: AdminNavSection[] = [
   {
-    title: 'Main',
+    title: 'Dashboard',
+    icon: 'layout',
     items: [
       { path: 'overview', label: 'Overview', permission: 'view_dashboard' },
-      { path: 'live-analytics', label: 'Live Analytics', permission: 'view_analytics' },
-      { path: 'ai-insights', label: 'AI Insights', permission: 'manage_ai' },
+      { path: 'inbox', label: 'Requests inbox', permission: 'manage_support' },
+      { path: 'live-analytics', label: 'Live analytics', permission: 'view_analytics' },
     ],
   },
   {
-    title: 'Marketplace',
+    title: 'Listings & catalog',
+    icon: 'list',
     items: [
-      { path: 'listings', label: 'All Listings', permission: 'manage_listings' },
-      { path: 'vehicles', label: 'Vehicle & Property', permission: 'manage_vehicles' },
+      { path: 'listings', label: 'All listings', permission: 'manage_listings' },
+      { path: 'vehicles', label: 'Brands, models & property types', permission: 'manage_vehicles' },
+    ],
+  },
+  {
+    title: 'Users & sellers',
+    icon: 'users',
+    items: [
       { path: 'users', label: 'Users', permission: 'manage_users' },
-      { path: 'kyc', label: 'KYC Review', permission: 'approve_kyc' },
-      { path: 'inquiries', label: 'Buyer Inquiries', permission: 'manage_support' },
-      { path: 'agencies', label: 'Agencies & Dealers', permission: 'manage_users' },
+      { path: 'agencies', label: 'Agencies & dealers', permission: 'manage_users' },
+      { path: 'kyc', label: 'Identity checks (KYC)', permission: 'approve_kyc' },
     ],
   },
   {
-    title: 'Finance',
+    title: 'Messages & support',
+    icon: 'message',
     items: [
-      { path: 'financial', label: 'Financial', permission: 'manage_payments' },
-      { path: 'market-analytics', label: 'Market Analytics', permission: 'view_analytics' },
-      { path: 'subscriptions', label: 'Subscriptions', permission: 'manage_subscriptions' },
+      { path: 'inquiries', label: 'Buyer messages', permission: 'manage_support' },
+      { path: 'support', label: 'Support tickets', permission: 'manage_support' },
+      { path: 'notifications', label: 'Announcements', permission: 'manage_cms' },
+    ],
+  },
+  {
+    title: 'Pricing & AI',
+    icon: 'sparkles',
+    items: [
+      { path: 'ai-status', label: 'AI price check status', permission: 'manage_ai' },
+      { path: 'ai-insights', label: 'AI insights', permission: 'manage_ai' },
+      { path: 'market-analytics', label: 'Market analytics', permission: 'view_analytics' },
+      { path: 'competitors', label: 'Market data sources', permission: 'manage_competitors' },
+    ],
+  },
+  {
+    title: 'Money',
+    icon: 'wallet',
+    items: [
+      { path: 'financial', label: 'Payments', permission: 'manage_payments' },
+      { path: 'subscriptions', label: 'Subscription plans', permission: 'manage_subscriptions' },
       { path: 'advertisements', label: 'Advertisements', permission: 'manage_advertisements' },
     ],
   },
   {
-    title: 'Safety & Content',
+    title: 'Safety & content',
+    icon: 'shield',
     items: [
-      { path: 'fraud', label: 'Fraud Detection', permission: 'manage_fraud' },
-      { path: 'support', label: 'Support Tickets', permission: 'manage_support' },
+      { path: 'fraud', label: 'Fraud reports', permission: 'manage_fraud' },
       { path: 'reports', label: 'Reports', permission: 'view_analytics' },
-      { path: 'content', label: 'Content', permission: 'manage_cms' },
-      { path: 'notifications', label: 'Announcements', permission: 'manage_cms' },
-      { path: 'competitors', label: 'Competitors', permission: 'manage_competitors' },
+      { path: 'content', label: 'Blog & FAQ', permission: 'manage_cms' },
+      { path: 'social', label: 'Instagram auto-post', permission: 'manage_cms' },
     ],
-  },
-  {
-    title: 'AI',
-    items: [
-      { path: 'ai-status', label: 'AI Status', permission: 'manage_ai' },
-    ],
-  },
-  {
-    title: 'Social',
-    items: [{ path: 'social', label: 'Instagram Auto-Post', permission: 'manage_cms' }],
   },
 ]
 

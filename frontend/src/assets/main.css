@@ -304,3 +304,29 @@ body {
 .badge-amber { background: rgba(var(--warning-rgb),0.12); color: var(--warning); border: 1px solid rgba(var(--warning-rgb),0.25); border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
 .badge-red { background: rgba(var(--danger-rgb),0.12); color: var(--danger); border: 1px solid rgba(var(--danger-rgb),0.25); border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
 .badge-green { background: rgba(var(--success-rgb),0.12); color: var(--success); border: 1px solid rgba(var(--success-rgb),0.25); border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+
+/* ── Typography: self-hosted Inter (Latin + Turkish) and Vazirmatn (Persian) ── */
+body, button, input, select, textarea {
+  font-family: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+html[lang="fa"] body, html[lang="fa"] button, html[lang="fa"] input, html[lang="fa"] select, html[lang="fa"] textarea {
+  font-family: 'Vazirmatn Variable', 'Vazirmatn', 'Inter Variable', Tahoma, sans-serif;
+  letter-spacing: 0 !important;
+}
+html[dir="rtl"] .text-left { text-align: right; }
+html[dir="rtl"] .ml-auto { margin-left: 0; margin-right: auto; }
+html[dir="rtl"] .mr-auto { margin-right: 0; margin-left: auto; }
+
+/* ── Light theme finish: real surfaces with depth instead of washed-out tints ── */
+:root:not([data-theme="dark"]) .animated-bg { display: none; }
+:root:not([data-theme="dark"]) body { background: #f3f6fa; }
+:root:not([data-theme="dark"]) .card,
+:root:not([data-theme="dark"]) .stat-card,
+:root:not([data-theme="dark"]) .glass {
+  box-shadow: 0 1px 2px rgba(8,24,39,0.05), 0 8px 24px rgba(8,24,39,0.06);
+}
+:root:not([data-theme="dark"]) .gradient-text {
+  background: linear-gradient(90deg, #0b74c6, #0a9cbf 55%, #0e8f5f);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+:root:not([data-theme="dark"]) .btn-primary { background: linear-gradient(135deg, #0567b5, #0b74c6); color: #fff; box-shadow: 0 6px 16px rgba(5,103,181,0.25); }

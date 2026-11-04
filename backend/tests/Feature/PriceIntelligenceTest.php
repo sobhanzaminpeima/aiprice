@@ -59,4 +59,37 @@ class PriceIntelligenceTest extends TestCase
         $this->assertSame('slightly_overpriced', $r['price_status']); // +20% over median
         $this->assertStringContainsString('not a valuation or a guarantee', end($r['reasons']));
     }
+    public function test_ai_model_fallback_when_no_comparables_and_key_set(): void
+    {
+        config(['services.openai.key' => 'test-key']);
+        \Illuminate\Support\Facades\Http::fake([
+            'api.openai.com/*' => \Illuminate\Support\Facades\Http::response(['choices' => [['message' => ['content' => '{"low":12000,"typical":14000,"high":16000,"note":"Common family car"}']]]]),
+        ]);
+        $u = User::factory()->create();
+        $brand = VehicleBrand::create(['name' => 'Toyota', 'is_active' => true]);
+        $model = VehicleModel::create(['brand_id' => $brand->id, 'name' => 'Corolla', 'is_active' => true]);
+        $target = $this->car($u, $model, 2020, 15000, 'GBP');
+
+        $r = app(PriceIntelligenceService::class)->analyze($target);
+        $this->assertTrue($r['has_estimate']);
+        $this->assertSame('ai_model', $r['source']);
+        $this->assertSame(30, $r['confidence']);
+        $this->assertEquals(14000, $r['market_avg']);
+        $this->assertStringContainsString('AI model', $r['reasons'][0]);
+    }
+
+    public function test_ai_fallback_rejects_absurd_answers(): void
+    {
+        config(['services.openai.key' => 'test-key']);
+        \Illuminate\Support\Facades\Http::fake([
+            'api.openai.com/*' => \Illuminate\Support\Facades\Http::response(['choices' => [['message' => ['content' => '{"low":1,"typical":2,"high":3}']]]]),
+        ]);
+        $u = User::factory()->create();
+        $brand = VehicleBrand::create(['name' => 'Toyota', 'is_active' => true]);
+        $model = VehicleModel::create(['brand_id' => $brand->id, 'name' => 'Corolla', 'is_active' => true]);
+        $target = $this->car($u, $model, 2020, 15000, 'GBP');
+
+        $r = app(PriceIntelligenceService::class)->analyze($target);
+        $this->assertFalse($r['has_estimate']);
+    }
 }

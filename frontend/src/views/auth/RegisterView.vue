@@ -6,8 +6,8 @@
     <div class="relative w-full max-w-md">
       <div class="text-center mb-8">
         <RouterLink to="/" class="inline-flex items-center gap-2.5"><BrandLogo :size="40" /></RouterLink>
-        <h1 class="mt-4 text-2xl font-black" style="color:var(--text-primary)">Create your account</h1>
-        <p class="mt-1 text-sm" style="color:var(--text-muted)">Free forever. Know the real market price before you buy or sell.</p>
+        <h1 class="mt-4 text-2xl font-black" style="color:var(--text-primary)">{{ $t('Create your account') }}</h1>
+        <p class="mt-1 text-sm" style="color:var(--text-muted)">{{ $t('Free forever. Know the real market price before you buy or sell.') }}</p>
       </div>
 
       <div class="rounded-2xl p-8" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -15,7 +15,7 @@
           <div v-if="error" role="alert" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
           <fieldset>
-            <legend class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">I WANT TO</legend>
+            <legend class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">{{ $t('I WANT TO') }}</legend>
             <div class="grid grid-cols-2 gap-2">
               <button v-for="r in roles" :key="r.value" type="button" @click="form.role = r.value" :aria-pressed="form.role === r.value"
                 class="px-3 py-2.5 rounded-xl text-xs font-semibold text-left"
@@ -26,33 +26,38 @@
           </fieldset>
 
           <div>
-            <label for="reg-name" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">FULL NAME</label>
+            <label for="reg-name" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">{{ $t('FULL NAME') }}</label>
             <input id="reg-name" v-model="form.name" required autocomplete="name" class="field" />
           </div>
           <div>
-            <label for="reg-email" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">EMAIL ADDRESS</label>
+            <label for="reg-email" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">{{ $t('EMAIL ADDRESS') }}</label>
             <input id="reg-email" v-model="form.email" type="email" required autocomplete="email" placeholder="you@example.com" class="field" />
           </div>
           <div>
-            <label for="reg-pass" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">PASSWORD</label>
+            <label for="reg-pass" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">{{ $t('PASSWORD') }}</label>
             <input id="reg-pass" v-model="form.password" type="password" required minlength="8" autocomplete="new-password" aria-describedby="reg-pass-hint" class="field" />
-            <p id="reg-pass-hint" class="text-[11px] mt-1.5" :style="{ color: form.password && form.password.length < 8 ? 'var(--warning)' : 'var(--text-muted)' }">At least 8 characters</p>
+            <p id="reg-pass-hint" class="text-[11px] mt-1.5" :style="{ color: form.password && form.password.length < 8 ? 'var(--warning)' : 'var(--text-muted)' }">{{ $t('At least 8 characters') }}</p>
           </div>
           <div>
-            <label for="reg-pass2" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">CONFIRM PASSWORD</label>
+            <label for="reg-pass2" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">{{ $t('CONFIRM PASSWORD') }}</label>
             <input id="reg-pass2" v-model="form.password_confirmation" type="password" required autocomplete="new-password" class="field" :aria-invalid="mismatch" />
-            <p v-if="mismatch" class="text-[11px] mt-1.5" style="color:var(--warning)">Passwords don't match yet</p>
+            <p v-if="mismatch" class="text-[11px] mt-1.5" style="color:var(--warning)">{{ $t('Passwords don\'t match yet') }}</p>
           </div>
 
           <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
-            {{ loading ? 'Creating account…' : 'Create free account' }}
+            {{ loading ? $t('Creating account…') : $t('Create free account') }}
           </button>
-          <p class="text-[11px] text-center" style="color:var(--text-muted)">We'll email you a link to verify your address.</p>
+          <p class="text-[11px] text-center" style="color:var(--text-muted)">{{ $t('We\'ll email you a link to verify your address.') }}</p>
+          <p class="text-[11px] text-center" style="color:var(--text-muted)">
+            {{ $t('By creating an account you agree to the') }}
+            <RouterLink to="/terms" class="underline">{{ $t('Terms') }}</RouterLink> ·
+            <RouterLink to="/privacy" class="underline">{{ $t('Privacy') }}</RouterLink>
+          </p>
         </form>
 
         <p class="text-center text-sm mt-6" style="color:var(--text-muted)">
-          Already have an account?
-          <RouterLink :to="{ name: 'login', query: route.query.redirect ? { redirect: route.query.redirect } : {} }" class="font-semibold ml-1" style="color:var(--accent-teal)">Sign in</RouterLink>
+          {{ $t('Already have an account?') }}
+          <RouterLink :to="{ name: 'login', query: route.query.redirect ? { redirect: route.query.redirect } : {} }" class="font-semibold ml-1" style="color:var(--accent-teal)">{{ $t('Sign in') }}</RouterLink>
         </p>
       </div>
     </div>
