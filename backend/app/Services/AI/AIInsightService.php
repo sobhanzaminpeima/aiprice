@@ -5,6 +5,7 @@ namespace App\Services\AI;
 use App\Models\Listing;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Support\BrandGuard;
 
 /**
  * Generates the short human-readable insight sentence shown next to a
@@ -48,20 +49,28 @@ class AIInsightService
 
         $text = trim((string) $response->json('choices.0.message.content', ''));
 
+        $text = BrandGuard::scrub($text);
+
         return $text ?: $this->fallbackSummary($price, $trust, $demand);
     }
 
     private function buildPrompt(Listing $listing, array $price, array $trust, array $demand, array $investment): string
     {
+        $rules = BrandGuard::PROMPT_RULES;
+        $title = BrandGuard::scrub($listing->title);
+
         return <<<PROMPT
 Write ONE plain sentence (max 25 words, no markdown) summarizing this listing's market position for a buyer. Be factual, no exclamation marks.
 
-Listing: {$listing->title} — {$listing->currency} {$listing->price}
+Listing: {$title} — {$listing->currency} {$listing->price}
 Price battery: {$price['battery_score']}/100 ({$price['price_status']})
 Market average: {$listing->currency} {$price['market_avg']}
 Trust score: {$trust['score']}/100
 Demand score: {$demand['score']}/100
 Investment score: {$investment['score']}/100
+
+These scores are estimates; describe them as estimates.
+{$rules}
 PROMPT;
     }
 

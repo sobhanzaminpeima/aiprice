@@ -56,7 +56,7 @@
         :key="p"
         @click="goToPage(p)"
         class="w-10 h-10 rounded-lg text-sm font-medium transition"
-        :class="p === listingsStore.pagination.current_page ? 'bg-[#6fffd2] text-[var(--on-accent)]' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'"
+        :class="p === listingsStore.pagination.current_page ? 'bg-[var(--accent-teal)] text-[var(--on-accent)]' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'"
       >
         {{ p }}
       </button>

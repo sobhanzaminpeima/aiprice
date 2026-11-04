@@ -5,10 +5,10 @@
       <p class="text-sm" style="color:var(--text-muted)">Urgent first, then the ticket that has waited longest.</p>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <div class="flex flex-wrap items-center gap-2 mb-5">
-      <button v-for="s in filters" :key="s.key" @click="setFilter(s.key)" class="px-3 py-1.5 rounded-lg text-xs font-semibold" :style="filter === s.key ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : 'background:var(--surface-overlay);color:var(--text-muted)'">
+      <button v-for="s in filters" :key="s.key" @click="setFilter(s.key)" class="px-3 py-1.5 rounded-lg text-xs font-semibold" :style="filter === s.key ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)' : 'background:var(--surface-overlay);color:var(--text-muted)'">
         {{ s.label }}<span v-if="s.count !== undefined" class="ml-1 opacity-70">{{ s.count }}</span>
       </button>
       <label class="ml-2 flex items-center gap-1.5 text-xs" style="color:var(--text-secondary)"><input type="checkbox" v-model="mine" @change="load" /> Assigned to me</label>
@@ -18,7 +18,7 @@
       <!-- List -->
       <div class="lg:col-span-2 space-y-2">
         <p v-if="!tickets.length" class="text-sm py-10 text-center rounded-2xl" style="background:var(--bg-surface);color:var(--text-muted)">No tickets here.</p>
-        <button v-for="t in tickets" :key="t.id" @click="open(t.id)" class="w-full text-left p-4 rounded-xl" :style="selected?.id === t.id ? 'background:rgba(111,255,210,0.06);border:1px solid rgba(111,255,210,0.25)' : 'background:var(--bg-surface);border:1px solid var(--border-subtle)'">
+        <button v-for="t in tickets" :key="t.id" @click="open(t.id)" class="w-full text-left p-4 rounded-xl" :style="selected?.id === t.id ? 'background:rgba(var(--accent-teal-rgb),0.06);border:1px solid rgba(var(--accent-teal-rgb),0.25)' : 'background:var(--bg-surface);border:1px solid var(--border-subtle)'">
           <div class="flex justify-between gap-2 mb-1">
             <span class="text-xs font-mono" style="color:var(--text-muted)">{{ t.ticket_number }}</span>
             <span class="text-[10px] px-2 py-0.5 rounded-full uppercase font-bold" :style="priorityStyle(t.priority)">{{ t.priority }}</span>
@@ -58,7 +58,7 @@
               <p class="text-xs font-semibold mb-1" style="color:var(--text-primary)">{{ selected.user?.name || selected.guest_name }} <span class="font-normal" style="color:var(--text-muted)">· {{ ago(selected.created_at) }}</span></p>
               <p class="text-sm whitespace-pre-wrap" style="color:var(--text-secondary)">{{ selected.description }}</p>
             </div>
-            <div v-for="r in selected.replies" :key="r.id" class="p-3 rounded-xl" :style="r.is_staff ? 'background:rgba(111,255,210,0.06);margin-left:2rem' : 'background:var(--surface-overlay-soft);margin-right:2rem'">
+            <div v-for="r in selected.replies" :key="r.id" class="p-3 rounded-xl" :style="r.is_staff ? 'background:rgba(var(--accent-teal-rgb),0.06);margin-left:2rem' : 'background:var(--surface-overlay-soft);margin-right:2rem'">
               <p class="text-xs font-semibold mb-1" :style="r.is_staff ? 'color:var(--accent-teal)' : 'color:var(--text-primary)'">{{ r.user?.name }}{{ r.is_staff ? ' (staff)' : '' }} <span class="font-normal" style="color:var(--text-muted)">· {{ ago(r.created_at) }}</span></p>
               <p class="text-sm whitespace-pre-wrap" style="color:var(--text-secondary)">{{ r.body }}</p>
             </div>
@@ -72,7 +72,7 @@
                 <option value="resolved">Send &amp; mark resolved</option>
                 <option value="in_progress">Send &amp; keep in progress</option>
               </select>
-              <button type="submit" :disabled="sending" class="ml-auto px-5 py-2 rounded-xl text-xs font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ sending ? 'Sending…' : 'Send reply' }}</button>
+              <button type="submit" :disabled="sending" class="ml-auto px-5 py-2 rounded-xl text-xs font-bold disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ sending ? 'Sending…' : 'Send reply' }}</button>
             </div>
           </form>
         </div>
@@ -151,9 +151,9 @@ async function reply() {
 
 function priorityStyle(p: string) {
   return ({
-    urgent: 'background:rgba(239,68,68,0.15);color:#ef4444',
-    high: 'background:rgba(251,191,36,0.15);color:#fbbf24',
-    medium: 'background:rgba(86,216,255,0.12);color:var(--accent-cyan)',
+    urgent: 'background:rgba(var(--danger-rgb),0.15);color:var(--danger)',
+    high: 'background:rgba(var(--warning-rgb),0.15);color:var(--warning)',
+    medium: 'background:rgba(var(--accent-cyan-rgb),0.12);color:var(--accent-cyan)',
   } as Record<string, string>)[p] ?? 'background:var(--surface-overlay);color:var(--text-muted)'
 }
 

@@ -5,7 +5,7 @@
       <p class="text-sm" style="color:var(--text-muted)">CSV exports open in Excel and Google Sheets. Exports contain personal data — handle them accordingly.</p>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <div class="rounded-2xl p-5 mb-6 flex flex-wrap items-end gap-4" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
       <div>
@@ -23,7 +23,7 @@
       <div v-for="r in reports" :key="r.key" class="rounded-2xl p-5" :style="`background:var(--bg-surface);border:1px solid var(--border-subtle);${r.allowed ? '' : 'opacity:.5'}`">
         <p class="font-bold mb-1" style="color:var(--text-primary)">{{ r.label }}</p>
         <p class="text-xs mb-4" style="color:var(--text-muted)">{{ r.description }}</p>
-        <button v-if="r.allowed" @click="download(r.key)" :disabled="busy === r.key" class="px-4 py-2 rounded-xl text-xs font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+        <button v-if="r.allowed" @click="download(r.key)" :disabled="busy === r.key" class="px-4 py-2 rounded-xl text-xs font-bold disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
           {{ busy === r.key ? 'Preparing…' : 'Download CSV' }}
         </button>
         <p v-else class="text-xs" style="color:var(--text-muted)">Your role cannot export this data.</p>

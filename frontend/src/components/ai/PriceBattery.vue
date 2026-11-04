@@ -64,7 +64,7 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   percent: number
-  status: 'fair' | 'slightly_overpriced' | 'overpriced' | null
+  status: 'fair' | 'slightly_overpriced' | 'overpriced' | 'insufficient_data' | null
   listingPrice: number
   minPrice?: number | null
   maxPrice?: number | null
@@ -94,9 +94,10 @@ const statusClass = computed(() => {
 })
 
 const statusLabel = computed(() => {
-  if (props.status === 'fair') return '✓ Fair Price'
+  if (props.status === 'insufficient_data' || !props.status) return 'Not enough data yet'
+  if (props.status === 'fair') return '✓ Fair price (estimate)'
   if (props.status === 'slightly_overpriced') return '~ Slightly Overpriced'
-  return '⚠ Overpriced'
+  return '⚠ High for this market'
 })
 
 const markerColorClass = computed(() => {

@@ -15,7 +15,7 @@ export interface PageMeta {
 const SITE = 'AIPrice.app'
 const DEFAULT_TITLE = 'AIPrice.app — AI-Powered Marketplace Intelligence'
 const DEFAULT_DESCRIPTION =
-  'AIPrice.app — AI-powered truth in every transaction. Marketplace intelligence for cars, real estate and investments in North Cyprus.'
+  'AIPrice.app — Know the value, not just the price. AI price estimates for cars and property in North Cyprus and Turkey.'
 
 function setMeta(attr: 'name' | 'property', key: string, content: string | undefined | null) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`)

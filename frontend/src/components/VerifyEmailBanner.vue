@@ -1,13 +1,13 @@
 <template>
-  <div v-if="show" class="mb-6 px-4 py-3 rounded-xl flex flex-wrap items-center gap-3 text-sm" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25)">
+  <div v-if="show" class="mb-6 px-4 py-3 rounded-xl flex flex-wrap items-center gap-3 text-sm" style="background:rgba(var(--warning-rgb),0.06);border:1px solid rgba(var(--warning-rgb),0.25)">
     <span>✉️</span>
     <p class="flex-1 min-w-[200px]" style="color:var(--text-secondary)">
       Verify <strong style="color:var(--text-primary)">{{ auth.user?.email }}</strong> to publish listings and contact sellers.
     </p>
-    <button @click="resend" :disabled="sending || sent" class="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60" style="background:rgba(251,191,36,0.12);color:#fbbf24">
+    <button @click="resend" :disabled="sending || sent" class="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60" style="background:rgba(var(--warning-rgb),0.12);color:var(--warning)">
       {{ sent ? 'Sent — check your inbox' : sending ? 'Sending…' : 'Resend email' }}
     </button>
-    <p v-if="error" class="w-full text-xs" style="color:#ef4444">{{ error }}</p>
+    <p v-if="error" class="w-full text-xs" style="color:var(--danger)">{{ error }}</p>
   </div>
 </template>
 

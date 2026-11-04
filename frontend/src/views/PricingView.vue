@@ -1,19 +1,19 @@
 <template>
   <div style="background:var(--bg-base);min-height:100vh">
-    <div class="text-center py-20 px-4" style="background:radial-gradient(ellipse 60% 40% at 50% -10%,rgba(111,255,210,0.08),transparent)">
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6" style="background:rgba(111,255,210,0.08);border:1px solid rgba(111,255,210,0.2);color:var(--accent-teal)">
+    <div class="text-center py-20 px-4" style="background:radial-gradient(ellipse 60% 40% at 50% -10%,rgba(var(--accent-teal-rgb),0.08),transparent)">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6" style="background:rgba(var(--accent-teal-rgb),0.08);border:1px solid rgba(var(--accent-teal-rgb),0.2);color:var(--accent-teal)">
         AI-Powered Pricing
       </div>
       <h1 class="text-5xl font-black mb-4" style="color:var(--text-primary)">Simple, <span class="gradient-text">Transparent</span> Pricing</h1>
       <p class="text-lg mb-8 max-w-xl mx-auto" style="color:var(--text-muted)">Start free forever. Upgrade when you need AI pricing intelligence, featured listings, or dealer tools.</p>
       <div class="inline-flex items-center gap-1 p-1 rounded-2xl mb-6" style="background:var(--surface-overlay);border:1px solid var(--border-subtle)">
-        <button @click="yearly = false" class="px-5 py-2 rounded-xl text-sm font-semibold transition-all" :style="!yearly ? 'background:rgba(111,255,210,0.12);color:var(--accent-teal)' : 'color:var(--text-muted)'">Monthly</button>
-        <button @click="yearly = true" class="px-5 py-2 rounded-xl text-sm font-semibold transition-all" :style="yearly ? 'background:rgba(111,255,210,0.12);color:var(--accent-teal)' : 'color:var(--text-muted)'">
-          Yearly <span v-if="maxYearlySaving > 0" class="text-xs ml-1 px-1.5 py-0.5 rounded-full" style="background:rgba(111,255,210,0.15);color:var(--accent-teal)">save up to {{ maxYearlySaving }}%</span>
+        <button @click="yearly = false" class="px-5 py-2 rounded-xl text-sm font-semibold transition-all" :style="!yearly ? 'background:rgba(var(--accent-teal-rgb),0.12);color:var(--accent-teal)' : 'color:var(--text-muted)'">Monthly</button>
+        <button @click="yearly = true" class="px-5 py-2 rounded-xl text-sm font-semibold transition-all" :style="yearly ? 'background:rgba(var(--accent-teal-rgb),0.12);color:var(--accent-teal)' : 'color:var(--text-muted)'">
+          Yearly <span v-if="maxYearlySaving > 0" class="text-xs ml-1 px-1.5 py-0.5 rounded-full" style="background:rgba(var(--accent-teal-rgb),0.15);color:var(--accent-teal)">save up to {{ maxYearlySaving }}%</span>
         </button>
       </div>
-      <p v-if="route.query.checkout === 'cancelled'" class="text-sm" style="color:#fbbf24">Checkout was cancelled — you have not been charged.</p>
-      <p v-if="error" class="text-sm mt-2" style="color:#ef4444">{{ error }}</p>
+      <p v-if="route.query.checkout === 'cancelled'" class="text-sm" style="color:var(--warning)">Checkout was cancelled — you have not been charged.</p>
+      <p v-if="error" class="text-sm mt-2" style="color:var(--danger)">{{ error }}</p>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 pb-20">
@@ -23,9 +23,9 @@
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16" :class="plans.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'">
         <div v-for="(plan, i) in plans" :key="plan.id" class="rounded-2xl p-6 relative flex flex-col"
-          :style="plan.id === featuredId ? 'background:linear-gradient(135deg,rgba(111,255,210,0.07),rgba(86,216,255,0.04));border:2px solid rgba(111,255,210,0.3)' : 'background:var(--bg-surface);border:1px solid var(--border-subtle)'">
-          <div v-if="plan.id === featuredId" class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black" style="background:linear-gradient(90deg,#6fffd2,#56d8ff);color:var(--on-accent)">MOST POPULAR</div>
-          <div v-if="currentPlanId === plan.id" class="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:rgba(111,255,210,0.12);color:var(--accent-teal)">YOUR PLAN</div>
+          :style="plan.id === featuredId ? 'background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.07),rgba(var(--accent-cyan-rgb),0.04));border:2px solid rgba(var(--accent-teal-rgb),0.3)' : 'background:var(--bg-surface);border:1px solid var(--border-subtle)'">
+          <div v-if="plan.id === featuredId" class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black" style="background:linear-gradient(90deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">MOST POPULAR</div>
+          <div v-if="currentPlanId === plan.id" class="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:rgba(var(--accent-teal-rgb),0.12);color:var(--accent-teal)">YOUR PLAN</div>
 
           <div class="mb-5">
             <h3 class="text-lg font-black mb-1" style="color:var(--text-primary)">{{ plan.name }}</h3>
@@ -48,7 +48,7 @@
           </ul>
 
           <button @click="choose(plan)" :disabled="busyPlan === plan.id || currentPlanId === plan.id" class="w-full py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-60"
-            :style="plan.id === featuredId ? 'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)' : 'background:var(--surface-overlay);color:var(--text-primary);border:1px solid var(--border-subtle)'">
+            :style="plan.id === featuredId ? 'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)' : 'background:var(--surface-overlay);color:var(--text-primary);border:1px solid var(--border-subtle)'">
             {{ ctaLabel(plan) }}
           </button>
         </div>
@@ -115,7 +115,7 @@ const billingEnabled = ref(false)
 const busyPlan = ref<string | null>(null)
 const currentPlanId = ref<string | null>(null)
 
-const colors = ['var(--text-muted)', '#6fffd2', '#56d8ff', '#a78bfa', '#fbbf24']
+const colors = ['var(--text-muted)', 'var(--accent-teal)', 'var(--accent-cyan)', 'var(--accent-violet)', 'var(--warning)']
 const taglines: Record<string, string> = {
   buyer: 'For buyers who want the full picture', seller: 'For private sellers',
   dealer: 'For dealerships and power sellers', agency: 'For real estate agencies', investor: 'For investors',

@@ -38,9 +38,9 @@ const props = withDefaults(defineProps<{
 })
 
 const fillColor = computed(() => {
-  if (props.score >= 85) return '#6fffd2'
-  if (props.score >= 60) return '#fbbf24'
-  return '#ef4444'
+  if (props.score >= 85) return 'var(--accent-teal)'
+  if (props.score >= 60) return 'var(--warning)'
+  return 'var(--danger)'
 })
 
 const label = computed(() => {
@@ -52,10 +52,10 @@ const label = computed(() => {
 const fillStyle = computed(() => ({
   width: `${Math.max(4, props.score)}%`,
   background: props.score >= 85
-    ? 'linear-gradient(90deg, #6fffd2, #56d8ff)'
+    ? 'linear-gradient(90deg, var(--accent-teal), var(--accent-cyan))'
     : props.score >= 60
-      ? 'linear-gradient(90deg, #fbbf24, #f97316)'
-      : 'linear-gradient(90deg, #ef4444, #dc2626)',
+      ? 'linear-gradient(90deg, var(--warning), var(--warning))'
+      : 'linear-gradient(90deg, var(--danger), var(--danger))',
 }))
 </script>
 

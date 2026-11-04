@@ -3,10 +3,10 @@
     :to="to"
     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
     :class="isActive
-      ? 'text-[#6fffd2]'
+      ? 'text-[var(--accent-teal)]'
       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'"
     :style="isActive
-      ? 'background:rgba(111,255,210,0.08);border:1px solid rgba(111,255,210,0.15)'
+      ? 'background:rgba(var(--accent-teal-rgb),0.08);border:1px solid rgba(var(--accent-teal-rgb),0.15)'
       : 'border:1px solid transparent'"
   >
     <AppIcon :name="iconName" :size="18" class="w-5 shrink-0" />

@@ -19,7 +19,7 @@
             <td class="py-3" style="color:var(--text-primary)">{{ l.title }}</td>
             <td class="py-3" style="color:var(--text-secondary)">{{ l.view_count||0 }}</td>
             <td class="py-3" style="color:var(--text-secondary)">{{ l.inquiry_count||0 }}</td>
-            <td class="py-3"><span v-if="l.price_battery_percent" class="font-bold" :style="l.price_battery_percent>=85?'color:var(--accent-teal)':l.price_battery_percent>=60?'color:#fbbf24':'color:#ef4444'">{{ l.price_battery_percent }}%</span><span v-else style="color:var(--text-muted)">-</span></td>
+            <td class="py-3"><span v-if="l.price_battery_percent" class="font-bold" :style="l.price_battery_percent>=85?'color:var(--accent-teal)':l.price_battery_percent>=60?'color:var(--warning)':'color:var(--danger)'">{{ l.price_battery_percent }}%</span><span v-else style="color:var(--text-muted)">-</span></td>
           </tr>
         </tbody>
       </table>
@@ -32,9 +32,9 @@ import client from '@/api/client'
 const listings = ref<any[]>([]); const loading = ref(true)
 onMounted(async () => { try { const r = await client.get('/my-listings?per_page=50'); listings.value = r.data.data || [] } catch {} finally { loading.value=false } })
 const stats = computed(() => [
-  { label:'Total Views', value: listings.value.reduce((s:number,l:any)=>s+(l.view_count||0),0), color:'#6fffd2' },
-  { label:'Inquiries', value: listings.value.reduce((s:number,l:any)=>s+(l.inquiry_count||0),0), color:'#56d8ff' },
-  { label:'Avg AI Score', value: listings.value.length ? Math.round(listings.value.reduce((s:number,l:any)=>s+Number(l.price_battery_percent||0),0)/listings.value.length)+'%' : '-', color:'#a78bfa' },
-  { label:'Featured', value: listings.value.filter((l:any)=>l.is_featured).length, color:'#fbbf24' },
+  { label:'Total Views', value: listings.value.reduce((s:number,l:any)=>s+(l.view_count||0),0), color:'var(--accent-teal)' },
+  { label:'Inquiries', value: listings.value.reduce((s:number,l:any)=>s+(l.inquiry_count||0),0), color:'var(--accent-cyan)' },
+  { label:'Avg AI Score', value: listings.value.length ? Math.round(listings.value.reduce((s:number,l:any)=>s+Number(l.price_battery_percent||0),0)/listings.value.length)+'%' : '-', color:'var(--accent-violet)' },
+  { label:'Featured', value: listings.value.filter((l:any)=>l.is_featured).length, color:'var(--warning)' },
 ])
 </script>

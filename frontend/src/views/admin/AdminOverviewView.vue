@@ -53,13 +53,13 @@
           <div class="space-y-3">
             <div v-for="u in data?.recent_users?.slice(0,6)" :key="u.id" class="flex items-center justify-between p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--surface-overlay)">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,rgba(111,255,210,0.2),rgba(86,216,255,0.2));color:var(--accent-teal)">{{ u.name?.charAt(0) }}</div>
+                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.2),rgba(var(--accent-cyan-rgb),0.2));color:var(--accent-teal)">{{ u.name?.charAt(0) }}</div>
                 <div>
                   <p class="text-xs font-medium" style="color:var(--text-primary)">{{ u.name }}</p>
                   <p class="text-xs truncate max-w-[120px]" style="color:var(--text-muted)">{{ u.email }}</p>
                 </div>
               </div>
-              <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(86,216,255,0.1);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">{{ u.role }}</span>
+              <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">{{ u.role }}</span>
             </div>
           </div>
         </div>
@@ -73,14 +73,14 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 const loading = ref(true); const data = ref<any>(null)
 onMounted(async () => { const r = await client.get("/admin/dashboard"); data.value = r.data; loading.value = false })
 const stats = computed(() => data.value ? [
-  { icon: "users", label: "Total Users", value: data.value.stats.total_users, color: "#56d8ff" },
-  { icon: "clipboard", label: "Active Listings", value: data.value.stats.active_listings, color: "#6fffd2" },
-  { icon: "alert", label: "Pending Review", value: data.value.stats.pending_listings, color: "#fbbf24" },
-  { icon: "car", label: "Vehicles", value: data.value.stats.vehicle_listings, color: "#6fffd2" },
-  { icon: "home", label: "Properties", value: data.value.stats.property_listings, color: "#56d8ff" },
-  { icon: "key", label: "Rentals", value: data.value.stats.rental_listings, color: "#a78bfa" },
-  { icon: "building", label: "Dealers", value: data.value.stats.dealers, color: "#fbbf24" },
-  { icon: "shield", label: "KYC Verified", value: 0, color: "#6fffd2" },
+  { icon: "users", label: "Total Users", value: data.value.stats.total_users, color: "var(--accent-cyan)" },
+  { icon: "clipboard", label: "Active Listings", value: data.value.stats.active_listings, color: "var(--accent-teal)" },
+  { icon: "alert", label: "Pending Review", value: data.value.stats.pending_listings, color: "var(--warning)" },
+  { icon: "car", label: "Vehicles", value: data.value.stats.vehicle_listings, color: "var(--accent-teal)" },
+  { icon: "home", label: "Properties", value: data.value.stats.property_listings, color: "var(--accent-cyan)" },
+  { icon: "key", label: "Rentals", value: data.value.stats.rental_listings, color: "var(--accent-violet)" },
+  { icon: "building", label: "Dealers", value: data.value.stats.dealers, color: "var(--warning)" },
+  { icon: "shield", label: "KYC Verified", value: 0, color: "var(--accent-teal)" },
 ] : [])
 function statusClass(s: string) {
   return { active: "badge-teal", pending: "badge-amber", rejected: "badge-red" }[s] || "badge-cyan"

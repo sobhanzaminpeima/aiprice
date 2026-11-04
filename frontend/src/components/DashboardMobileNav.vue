@@ -17,7 +17,7 @@
     <div v-if="open" class="md:hidden fixed top-0 right-0 bottom-0 z-50 w-72 flex flex-col" style="background:var(--bg-surface);border-left:1px solid var(--border-subtle)">
       <div class="flex items-center justify-between p-5" style="border-bottom:1px solid var(--border-subtle)">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ auth.user?.name?.charAt(0) }}</div>
+          <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ auth.user?.name?.charAt(0) }}</div>
           <div class="min-w-0">
             <p class="text-xs font-semibold truncate" style="color:var(--text-primary)">{{ auth.user?.name }}</p>
             <p class="text-xs truncate" style="color:var(--text-muted)">{{ auth.user?.role }}</p>
@@ -28,7 +28,7 @@
       <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
         <RouterLink v-for="link in links" :key="link.to" :to="link.to" @click="open = false"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all"
-          :style="$route.path === link.to ? 'background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)' : 'color:var(--text-secondary);border:1px solid transparent'">
+          :style="$route.path === link.to ? 'background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.15)' : 'color:var(--text-secondary);border:1px solid transparent'">
           {{ link.label }}
         </RouterLink>
       </nav>

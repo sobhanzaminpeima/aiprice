@@ -14,7 +14,7 @@
           </div>
 
           <form v-else @submit.prevent="submit" class="space-y-5" novalidate>
-            <div v-if="error" role="alert" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+            <div v-if="error" role="alert" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label for="c-name" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">NAME</label>
@@ -35,7 +35,7 @@
             </div>
             <!-- Honeypot: invisible to people, bots fill it and get rejected. -->
             <input v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute -left-[9999px] w-px h-px opacity-0" />
-            <button type="submit" :disabled="busy" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+            <button type="submit" :disabled="busy" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
               {{ busy ? 'Sending…' : 'Send message' }}
             </button>
           </form>

@@ -2,7 +2,7 @@
   <div class="relative" ref="root">
     <button @click="toggle" class="relative w-9 h-9 flex items-center justify-center rounded-lg" style="background:var(--surface-overlay);border:1px solid var(--border-subtle)" :aria-label="`Notifications (${unread} unread)`">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text-secondary)"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-      <span v-if="unread > 0" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center" style="background:#ef4444;color:#fff">{{ unread > 99 ? '99+' : unread }}</span>
+      <span v-if="unread > 0" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center" style="background:var(--danger);color:#fff">{{ unread > 99 ? '99+' : unread }}</span>
     </button>
 
     <div v-if="open" class="absolute z-50 w-80 rounded-2xl overflow-hidden shadow-2xl" :style="panelPosition" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -13,7 +13,7 @@
       <div class="max-h-96 overflow-y-auto">
         <p v-if="loading" class="px-4 py-6 text-xs text-center" style="color:var(--text-muted)">Loading…</p>
         <p v-else-if="items.length === 0" class="px-4 py-6 text-xs text-center" style="color:var(--text-muted)">You're all caught up.</p>
-        <button v-for="n in items" :key="n.id" @click="openItem(n)" class="w-full text-left px-4 py-3 flex gap-3" :style="n.read_at ? '' : 'background:rgba(111,255,210,0.04)'" style="border-bottom:1px solid var(--border-subtle)">
+        <button v-for="n in items" :key="n.id" @click="openItem(n)" class="w-full text-left px-4 py-3 flex gap-3" :style="n.read_at ? '' : 'background:rgba(var(--accent-teal-rgb),0.04)'" style="border-bottom:1px solid var(--border-subtle)">
           <AppIcon :name="describe(n).icon" :size="18" class="shrink-0" />
           <span class="flex-1 min-w-0">
             <span class="block text-xs font-semibold" style="color:var(--text-primary)">{{ describe(n).title }}</span>

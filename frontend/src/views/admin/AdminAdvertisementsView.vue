@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Advertisement <span class="gradient-text">Management</span></h1>
         <p class="text-sm" style="color:var(--text-muted)">Manage Top 10 sponsored listings and banner ads</p>
       </div>
-      <button @click="showAdd=true" class="px-5 py-2.5 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ New Ad</button>
+      <button @click="showAdd=true" class="px-5 py-2.5 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">+ New Ad</button>
     </div>
 
     <!-- Stats -->
@@ -19,7 +19,7 @@
         <p class="text-xs" style="color:var(--text-muted)">Top 10 Slots</p>
       </div>
       <div class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <p class="text-2xl font-black mb-1" style="color:#fbbf24">{{ ads.reduce((s,a)=>s+(a.impression_count||0),0).toLocaleString() }}</p>
+        <p class="text-2xl font-black mb-1" style="color:var(--warning)">{{ ads.reduce((s,a)=>s+(a.impression_count||0),0).toLocaleString() }}</p>
         <p class="text-xs" style="color:var(--text-muted)">Total Impressions</p>
       </div>
       <div class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -31,7 +31,7 @@
     <!-- Tabs -->
     <div class="flex gap-2 mb-6">
       <button v-for="t in slotTabs" :key="t.id" @click="activeTab=t.id" class="px-4 py-2 rounded-xl text-sm font-semibold"
-        :style="activeTab===t.id?'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)':'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">
+        :style="activeTab===t.id?'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)':'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">
         {{ t.label }} ({{ ads.filter(a=>t.id==='all'||a.slot===t.id).length }})
       </button>
     </div>
@@ -47,15 +47,15 @@
       <div v-for="ad in filteredAds" :key="ad.id" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <div class="flex items-center justify-between flex-wrap gap-4">
           <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2)">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#fbbf24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(var(--warning-rgb),0.1);border:1px solid rgba(var(--warning-rgb),0.2)">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="warning" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
             </div>
             <div>
               <div class="flex items-center gap-2 mb-0.5">
                 <p class="font-semibold text-sm" style="color:var(--text-primary)">{{ ad.name }}</p>
-                <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(251,191,36,0.1);color:#fbbf24">{{ ad.slot }}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(86,216,255,0.1);color:var(--accent-cyan)">{{ ad.type }}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full" :style="ad.is_active?'background:rgba(111,255,210,0.1);color:var(--accent-teal)':'background:rgba(239,68,68,0.1);color:#ef4444'">{{ ad.is_active?'Active':'Paused' }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(var(--warning-rgb),0.1);color:var(--warning)">{{ ad.slot }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full capitalize" style="background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan)">{{ ad.type }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full" :style="ad.is_active?'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)':'background:rgba(var(--danger-rgb),0.1);color:var(--danger)'">{{ ad.is_active?'Active':'Paused' }}</span>
               </div>
               <p class="text-xs" style="color:var(--text-muted)">
                 Impressions: {{ (ad.impression_count||0).toLocaleString() }} · Clicks: {{ (ad.click_count||0).toLocaleString() }}
@@ -64,11 +64,11 @@
             </div>
           </div>
           <div class="flex gap-2">
-            <button @click="toggleActive(ad)" class="px-3 py-1.5 text-xs rounded-lg" :style="ad.is_active?'background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)':'background:rgba(111,255,210,0.06);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)'">
+            <button @click="toggleActive(ad)" class="px-3 py-1.5 text-xs rounded-lg" :style="ad.is_active?'background:rgba(var(--danger-rgb),0.06);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.15)':'background:rgba(var(--accent-teal-rgb),0.06);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.15)'">
               {{ ad.is_active ? 'Pause' : 'Activate' }}
             </button>
-            <button @click="openEdit(ad)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">Edit</button>
-            <button @click="del(ad.id)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)">Delete</button>
+            <button @click="openEdit(ad)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(var(--accent-cyan-rgb),0.08);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">Edit</button>
+            <button @click="del(ad.id)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(var(--danger-rgb),0.06);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.15)">Delete</button>
           </div>
         </div>
       </div>
@@ -76,7 +76,7 @@
 
     <!-- Add/Edit Modal -->
     <div v-if="showAdd||editing" class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.75)" @click.self="showAdd=false;editing=null">
-      <div class="w-full max-w-lg rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.25)">
+      <div class="w-full max-w-lg rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(var(--accent-teal-rgb),0.25)">
         <h2 class="font-bold mb-5" style="color:var(--text-primary)">{{ editing ? 'Edit Ad' : 'New Advertisement' }}</h2>
         <div class="space-y-3">
           <div>
@@ -125,7 +125,7 @@
           </label>
         </div>
         <div class="flex gap-3 mt-5">
-          <button @click="save" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ saving?'Saving...':'Save Ad' }}</button>
+          <button @click="save" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ saving?'Saving...':'Save Ad' }}</button>
           <button @click="showAdd=false;editing=null" class="flex-1 py-3 rounded-xl text-sm" style="border:1px solid var(--border-strong);color:var(--text-secondary)">Cancel</button>
         </div>
       </div>

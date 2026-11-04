@@ -10,9 +10,9 @@
         <div><label class="block text-xs font-medium mb-2" style="color:var(--text-muted)">Price</label><input v-model="form.price" type="number" required class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" /></div>
         <div><label class="block text-xs font-medium mb-2" style="color:var(--text-muted)">Currency</label><select v-model="form.currency" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"><option>GBP</option><option>TRY</option><option>USD</option><option>EUR</option></select></div>
       </div>
-      <div v-if="msg" class="text-xs py-2 px-3 rounded-lg" :style="msg.ok?'background:rgba(111,255,210,0.08);color:var(--accent-teal)':'background:rgba(239,68,68,0.08);color:#ef4444'">{{ msg.text }}</div>
+      <div v-if="msg" class="text-xs py-2 px-3 rounded-lg" :style="msg.ok?'background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal)':'background:rgba(var(--danger-rgb),0.08);color:var(--danger)'">{{ msg.text }}</div>
       <div class="flex gap-3">
-        <button type="submit" :disabled="saving" class="flex-1 py-3 font-semibold text-sm rounded-xl disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ saving?'Saving...':'Save Changes' }}</button>
+        <button type="submit" :disabled="saving" class="flex-1 py-3 font-semibold text-sm rounded-xl disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ saving?'Saving...':'Save Changes' }}</button>
         <RouterLink to="/dashboard/listings" class="flex-1 py-3 text-sm text-center rounded-xl font-medium" style="border:1px solid var(--border-strong);color:var(--text-secondary)">Cancel</RouterLink>
       </div>
     </form>

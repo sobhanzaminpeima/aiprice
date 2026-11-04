@@ -23,7 +23,7 @@ const glowClass = computed(() => {
 .glass-card--hover:hover {
   transform: translateY(-3px);
 }
-.glow-teal { border-color: rgba(111,255,210,0.2); box-shadow: 0 0 30px rgba(111,255,210,0.06), inset 0 0 30px rgba(111,255,210,0.02); }
-.glow-cyan { border-color: rgba(86,216,255,0.2); box-shadow: 0 0 30px rgba(86,216,255,0.06), inset 0 0 30px rgba(86,216,255,0.02); }
-.glow-violet { border-color: rgba(167,139,250,0.2); box-shadow: 0 0 30px rgba(167,139,250,0.06), inset 0 0 30px rgba(167,139,250,0.02); }
+.glow-teal { border-color: rgba(var(--accent-teal-rgb),0.2); box-shadow: 0 0 30px rgba(var(--accent-teal-rgb),0.06), inset 0 0 30px rgba(var(--accent-teal-rgb),0.02); }
+.glow-cyan { border-color: rgba(var(--accent-cyan-rgb),0.2); box-shadow: 0 0 30px rgba(var(--accent-cyan-rgb),0.06), inset 0 0 30px rgba(var(--accent-cyan-rgb),0.02); }
+.glow-violet { border-color: rgba(var(--accent-violet-rgb),0.2); box-shadow: 0 0 30px rgba(var(--accent-violet-rgb),0.06), inset 0 0 30px rgba(var(--accent-violet-rgb),0.02); }
 </style>

@@ -7,14 +7,14 @@
 
     <!-- Tabs -->
     <div class="flex gap-2 mb-6">
-      <button v-for="t in tabs" :key="t.id" @click="tab=t.id" class="px-4 py-2 rounded-xl text-sm font-semibold" :style="tab===t.id?'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)':'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">{{ t.label }}</button>
+      <button v-for="t in tabs" :key="t.id" @click="tab=t.id" class="px-4 py-2 rounded-xl text-sm font-semibold" :style="tab===t.id?'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)':'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">{{ t.label }}</button>
     </div>
 
     <!-- Vehicle Brands Tab -->
     <div v-if="tab==='brands'">
       <div class="flex items-center justify-between mb-5">
         <h2 class="font-bold" style="color:var(--text-primary)">Vehicle Brands ({{ brands.length }})</h2>
-        <button @click="showBrand=true" class="px-4 py-2 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ Add Brand</button>
+        <button @click="showBrand=true" class="px-4 py-2 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">+ Add Brand</button>
       </div>
       <div v-if="loading" class="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div v-for="i in 6" :key="i" class="h-20 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
@@ -26,11 +26,11 @@
               <p class="font-semibold" style="color:var(--text-primary)">{{ b.name }}</p>
               <p class="text-xs" style="color:var(--text-muted)">{{ b.country || '-' }} · {{ b.models?.length||0 }} models</p>
             </div>
-            <span class="text-xs" :style="b.is_active!==false?'color:var(--accent-teal)':'color:#ef4444'">{{ b.is_active!==false?'●':'○' }}</span>
+            <span class="text-xs" :style="b.is_active!==false?'color:var(--accent-teal)':'color:var(--danger)'">{{ b.is_active!==false?'●':'○' }}</span>
           </div>
           <div class="flex gap-2">
-            <button @click="editBrand(b)" class="flex-1 py-1.5 text-xs rounded-lg" style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">Edit</button>
-            <button @click="delBrand(b.id)" class="py-1.5 px-3 text-xs rounded-lg" style="background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)">Del</button>
+            <button @click="editBrand(b)" class="flex-1 py-1.5 text-xs rounded-lg" style="background:rgba(var(--accent-cyan-rgb),0.08);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">Edit</button>
+            <button @click="delBrand(b.id)" class="py-1.5 px-3 text-xs rounded-lg" style="background:rgba(var(--danger-rgb),0.06);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.15)">Del</button>
           </div>
         </div>
       </div>
@@ -40,7 +40,7 @@
     <div v-if="tab==='models'">
       <div class="flex items-center justify-between mb-5">
         <h2 class="font-bold" style="color:var(--text-primary)">Vehicle Models ({{ models.length }})</h2>
-        <button @click="showModel=true" class="px-4 py-2 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ Add Model</button>
+        <button @click="showModel=true" class="px-4 py-2 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">+ Add Model</button>
       </div>
       <div class="mb-4">
         <select v-model="modelBrandFilter" @change="fetchModels" class="px-4 py-2 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
@@ -56,8 +56,8 @@
             <p class="text-xs" style="color:var(--text-muted)">{{ brands.find(b=>b.id===m.vehicle_brand_id)?.name || '-' }} · {{ m.year_from||'-' }}{{ m.year_to?'-'+m.year_to:'+' }}</p>
           </div>
           <div class="flex gap-2">
-            <button @click="editModel(m)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">Edit</button>
-            <button @click="delModel(m.id)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)">Delete</button>
+            <button @click="editModel(m)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(var(--accent-cyan-rgb),0.08);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">Edit</button>
+            <button @click="delModel(m.id)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(var(--danger-rgb),0.06);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.15)">Delete</button>
           </div>
         </div>
       </div>
@@ -67,7 +67,7 @@
     <div v-if="tab==='properties'">
       <div class="flex items-center justify-between mb-5">
         <h2 class="font-bold" style="color:var(--text-primary)">Property Types ({{ propertyTypes.length }})</h2>
-        <button @click="showPropType=true" class="px-4 py-2 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ Add Type</button>
+        <button @click="showPropType=true" class="px-4 py-2 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">+ Add Type</button>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div v-for="pt in propertyTypes" :key="pt.id" class="rounded-2xl p-4" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -75,12 +75,12 @@
             <span class="text-2xl">{{ pt.icon || '🏠' }}</span>
             <div>
               <p class="font-semibold" style="color:var(--text-primary)">{{ pt.name }}</p>
-              <span class="text-xs" :style="pt.is_active!==false?'color:var(--accent-teal)':'color:#ef4444'">{{ pt.is_active!==false?'Active':'Inactive' }}</span>
+              <span class="text-xs" :style="pt.is_active!==false?'color:var(--accent-teal)':'color:var(--danger)'">{{ pt.is_active!==false?'Active':'Inactive' }}</span>
             </div>
           </div>
           <div class="flex gap-2">
-            <button @click="editPropType(pt)" class="flex-1 py-1.5 text-xs rounded-lg" style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">Edit</button>
-            <button @click="delPropType(pt.id)" class="py-1.5 px-3 text-xs rounded-lg" style="background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)">Del</button>
+            <button @click="editPropType(pt)" class="flex-1 py-1.5 text-xs rounded-lg" style="background:rgba(var(--accent-cyan-rgb),0.08);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">Edit</button>
+            <button @click="delPropType(pt.id)" class="py-1.5 px-3 text-xs rounded-lg" style="background:rgba(var(--danger-rgb),0.06);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.15)">Del</button>
           </div>
         </div>
       </div>
@@ -88,13 +88,13 @@
 
     <!-- Add/Edit Brand Modal -->
     <div v-if="showBrand||editingBrand" class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.75)" @click.self="showBrand=false;editingBrand=null">
-      <div class="w-80 rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.25)">
+      <div class="w-80 rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(var(--accent-teal-rgb),0.25)">
         <h3 class="font-bold mb-4" style="color:var(--text-primary)">{{ editingBrand?'Edit Brand':'Add Brand' }}</h3>
         <input v-model="brandForm.name" placeholder="Brand name (e.g. Toyota)" class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
         <input v-model="brandForm.country" placeholder="Country of origin" class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
         <label class="flex items-center gap-2 text-sm mb-4 cursor-pointer" style="color:var(--text-primary)"><input type="checkbox" v-model="brandForm.is_active" /> Active</label>
         <div class="flex gap-3">
-          <button @click="saveBrand" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ saving?'Saving...':'Save' }}</button>
+          <button @click="saveBrand" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ saving?'Saving...':'Save' }}</button>
           <button @click="showBrand=false;editingBrand=null" class="flex-1 py-3 rounded-xl text-sm" style="border:1px solid var(--border-strong);color:var(--text-secondary)">Cancel</button>
         </div>
       </div>
@@ -102,7 +102,7 @@
 
     <!-- Add/Edit Model Modal -->
     <div v-if="showModel||editingModel" class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.75)" @click.self="showModel=false;editingModel=null">
-      <div class="w-80 rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.25)">
+      <div class="w-80 rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(var(--accent-teal-rgb),0.25)">
         <h3 class="font-bold mb-4" style="color:var(--text-primary)">{{ editingModel?'Edit Model':'Add Model' }}</h3>
         <select v-model="modelForm.vehicle_brand_id" class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
           <option value="">Select Brand</option>
@@ -114,7 +114,7 @@
           <input v-model="modelForm.year_to" type="number" placeholder="Year to" class="px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
         </div>
         <div class="flex gap-3">
-          <button @click="saveModel" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ saving?'Saving...':'Save' }}</button>
+          <button @click="saveModel" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ saving?'Saving...':'Save' }}</button>
           <button @click="showModel=false;editingModel=null" class="flex-1 py-3 rounded-xl text-sm" style="border:1px solid var(--border-strong);color:var(--text-secondary)">Cancel</button>
         </div>
       </div>
@@ -122,13 +122,13 @@
 
     <!-- Add/Edit Property Type Modal -->
     <div v-if="showPropType||editingPropType" class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.75)" @click.self="showPropType=false;editingPropType=null">
-      <div class="w-80 rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.25)">
+      <div class="w-80 rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(var(--accent-teal-rgb),0.25)">
         <h3 class="font-bold mb-4" style="color:var(--text-primary)">{{ editingPropType?'Edit Property Type':'Add Property Type' }}</h3>
         <input v-model="propTypeForm.name" placeholder="Type name (e.g. Villa)" class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
         <input v-model="propTypeForm.icon" placeholder="Emoji icon (e.g. 🏠)" class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
         <label class="flex items-center gap-2 text-sm mb-4 cursor-pointer" style="color:var(--text-primary)"><input type="checkbox" v-model="propTypeForm.is_active" /> Active</label>
         <div class="flex gap-3">
-          <button @click="savePropType" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ saving?'Saving...':'Save' }}</button>
+          <button @click="savePropType" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ saving?'Saving...':'Save' }}</button>
           <button @click="showPropType=false;editingPropType=null" class="flex-1 py-3 rounded-xl text-sm" style="border:1px solid var(--border-strong);color:var(--text-secondary)">Cancel</button>
         </div>
       </div>

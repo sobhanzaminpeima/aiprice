@@ -6,6 +6,7 @@ use App\Models\Listing;
 use App\Models\SocialPost;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Support\BrandGuard;
 
 /**
  * Orchestrates turning a Listing into a ready-to-review Instagram post:
@@ -91,20 +92,24 @@ class SocialPostService
         }
 
         $price = $listing->currency . ' ' . number_format((float) $listing->price);
+        $rules = BrandGuard::PROMPT_RULES;
+        $safeTitle = BrandGuard::scrub($listing->title);
         $prompt = <<<P
 You are a viral social media manager for AIPrice.app, an AI-powered marketplace in North Cyprus.
 Write an Instagram caption for this listing:
-- Title: {$listing->title}
+- Title: {$safeTitle}
 - Type: {$listing->type}
 - Price: {$price}
 - City: {$listing->city}
-- AI value score: {$listing->price_battery_percent}/100
+- AI price-fairness estimate: {$listing->price_battery_percent}/100
 
 Rules:
 - 2-3 short punchy lines, premium and exciting tone, tasteful emojis.
-- Mention it's AI-verified pricing.
+- Say the price was checked with AIPrice.app's AI price estimate (an estimate, not a guarantee).
 - End with a call to action.
 - Then EXACTLY 5 viral, relevant hashtags.
+
+{$rules}
 
 Respond ONLY as JSON: {"caption":"...","hashtags":["#a","#b","#c","#d","#e"]}
 P;
@@ -121,7 +126,7 @@ P;
                 $data = json_decode($content, true);
                 if (is_array($data) && !empty($data['caption'])) {
                     $tags = array_slice(array_map(fn($h) => str_starts_with($h, '#') ? $h : '#' . $h, $data['hashtags'] ?? $fallbackTags), 0, 5);
-                    return [$data['caption'], $tags ?: $fallbackTags];
+                    return [BrandGuard::scrub($data['caption']), $tags ?: $fallbackTags];
                 }
             }
         } catch (\Throwable $e) {
@@ -134,6 +139,7 @@ P;
     {
         $price = $listing->currency . ' ' . number_format((float) $listing->price);
         $emoji = $listing->type === 'vehicle' ? '🚗' : '🏡';
-        return "{$emoji} {$listing->title}\n💰 {$price} — AI-verified fair price\n📍 {$listing->city}, North Cyprus\n\nFind the real market value before you buy 👉 AIPrice.app";
+        $title = BrandGuard::scrub($listing->title);
+        return "{$emoji} {$title}\n💰 {$price} · AI price estimate\n📍 {$listing->city}, North Cyprus\n\nFind the real market value before you buy 👉 AIPrice.app";
     }
 }

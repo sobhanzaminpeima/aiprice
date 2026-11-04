@@ -126,6 +126,8 @@ class ListingExtractionService
         $brandList = implode(', ', $brands);
         $typeList = implode(', ', $propertyTypes);
 
+        $rules = \App\Support\BrandGuard::PROMPT_RULES;
+
         return <<<PROMPT
 You extract structured listing data from a seller's free-text description of a car or a property for sale in North Cyprus. The text may be in English or Persian/Farsi.
 
@@ -174,12 +176,20 @@ Rules:
 - "description" should be the seller's text, lightly cleaned up (fix obvious typos, keep their meaning and language), not rewritten from scratch.
 - "price" is a plain number with no currency symbol or thousands separator.
 - "missing_required" lists which of these are still null and are needed before this can be submitted: for vehicle: type, title, price, brand, model, year. For property: type, title, price, property_type.
+- Remove names, URLs and watermarks of other websites from "title" and "description".
+
+{$rules}
 PROMPT;
     }
 
     private function normalize(array $data, array $brands, array $propertyTypes): array
     {
         $data['confidence'] = empty($data['missing_required']) ? 'high' : 'needs_review';
+        foreach (['title', 'description'] as $field) {
+            if (isset($data[$field]) && is_string($data[$field])) {
+                $data[$field] = \App\Support\BrandGuard::scrub($data[$field]);
+            }
+        }
 
         if (!empty($data['brand'])) {
             $data['brand_match'] = $this->closestMatch($data['brand'], $brands);

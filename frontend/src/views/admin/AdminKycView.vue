@@ -8,10 +8,10 @@
     <div class="flex gap-2 mb-6">
       <button v-for="s in ['pending', 'approved', 'rejected', 'all']" :key="s" @click="setFilter(s)"
         class="px-4 py-2 rounded-xl text-xs font-semibold capitalize transition-all"
-        :style="statusFilter === s ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">{{ s }}</button>
+        :style="statusFilter === s ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">{{ s }}</button>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <div v-if="loading" class="space-y-3"><div v-for="i in 3" :key="i" class="h-40 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div></div>
 
@@ -47,12 +47,12 @@
           <span v-if="!docFields.some((f) => k[f.key])" class="text-xs" style="color:var(--text-muted)">No document images uploaded</span>
         </div>
 
-        <div v-if="k.status === 'rejected' && k.rejection_reason" class="text-xs mb-4 p-3 rounded-lg" style="background:rgba(239,68,68,0.06);color:#ef4444">Reason: {{ k.rejection_reason }}</div>
+        <div v-if="k.status === 'rejected' && k.rejection_reason" class="text-xs mb-4 p-3 rounded-lg" style="background:rgba(var(--danger-rgb),0.06);color:var(--danger)">Reason: {{ k.rejection_reason }}</div>
 
         <div v-if="k.status === 'pending'" class="flex flex-wrap items-center gap-3">
-          <button @click="approve(k)" :disabled="busy === k.id" class="px-4 py-2 rounded-xl text-xs font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Approve</button>
+          <button @click="approve(k)" :disabled="busy === k.id" class="px-4 py-2 rounded-xl text-xs font-bold disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Approve</button>
           <input v-model="reasons[k.id]" placeholder="Rejection reason (shown to the user)" class="flex-1 min-w-[220px] px-3 py-2 rounded-xl text-xs outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
-          <button @click="reject(k)" :disabled="busy === k.id || !reasons[k.id]" class="px-4 py-2 rounded-xl text-xs font-bold disabled:opacity-40" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)">Reject</button>
+          <button @click="reject(k)" :disabled="busy === k.id || !reasons[k.id]" class="px-4 py-2 rounded-xl text-xs font-bold disabled:opacity-40" style="background:rgba(var(--danger-rgb),0.1);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.2)">Reject</button>
         </div>
       </div>
     </div>
@@ -136,9 +136,9 @@ async function reject(k: any) {
 }
 
 function statusStyle(s: string) {
-  if (s === 'approved') return 'background:rgba(111,255,210,0.1);color:var(--accent-teal)'
-  if (s === 'rejected') return 'background:rgba(239,68,68,0.1);color:#ef4444'
-  return 'background:rgba(251,191,36,0.1);color:#fbbf24'
+  if (s === 'approved') return 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)'
+  if (s === 'rejected') return 'background:rgba(var(--danger-rgb),0.1);color:var(--danger)'
+  return 'background:rgba(var(--warning-rgb),0.1);color:var(--warning)'
 }
 
 function fmtDate(d: string) {

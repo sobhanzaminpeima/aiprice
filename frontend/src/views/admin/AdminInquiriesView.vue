@@ -8,7 +8,7 @@
     <div class="flex gap-2 mb-6">
       <button v-for="s in ['all','pending','contacted','closed']" :key="s" @click="statusFilter=s; load()"
         class="px-4 py-2 rounded-xl text-xs font-semibold capitalize transition-all"
-        :style="statusFilter===s?'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)':'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">{{ s }}</button>
+        :style="statusFilter===s?'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)':'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">{{ s }}</button>
     </div>
 
     <div v-if="loading" class="space-y-3"><div v-for="i in 4" :key="i" class="h-32 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div></div>
@@ -29,13 +29,13 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="p-3 rounded-xl" style="background:rgba(86,216,255,0.06);border:1px solid rgba(86,216,255,0.15)">
+          <div class="p-3 rounded-xl" style="background:rgba(var(--accent-cyan-rgb),0.06);border:1px solid rgba(var(--accent-cyan-rgb),0.15)">
             <p class="text-xs font-bold mb-1" style="color:var(--accent-cyan)">👤 Buyer (requester)</p>
             <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ inq.buyer?.name }}</p>
             <p class="text-xs" style="color:var(--text-secondary)">{{ inq.buyer?.email }}</p>
             <p class="text-xs" style="color:var(--text-secondary)">{{ inq.buyer?.phone || 'No phone on file' }}</p>
           </div>
-          <div class="p-3 rounded-xl" style="background:rgba(111,255,210,0.06);border:1px solid rgba(111,255,210,0.15)">
+          <div class="p-3 rounded-xl" style="background:rgba(var(--accent-teal-rgb),0.06);border:1px solid rgba(var(--accent-teal-rgb),0.15)">
             <p class="text-xs font-bold mb-1" style="color:var(--accent-teal)">🏠 Owner</p>
             <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ inq.listing?.user?.name }}</p>
             <p class="text-xs" style="color:var(--text-secondary)">{{ inq.listing?.user?.email }}</p>
@@ -49,8 +49,8 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <button v-if="inq.status!=='contacted'" @click="setStatus(inq,'contacted')" class="text-xs px-3 py-1.5 rounded-lg" style="background:rgba(86,216,255,0.1);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">Mark Contacted</button>
-          <button v-if="inq.status!=='closed'" @click="setStatus(inq,'closed')" class="text-xs px-3 py-1.5 rounded-lg" style="background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)">Close</button>
+          <button v-if="inq.status!=='contacted'" @click="setStatus(inq,'contacted')" class="text-xs px-3 py-1.5 rounded-lg" style="background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">Mark Contacted</button>
+          <button v-if="inq.status!=='closed'" @click="setStatus(inq,'closed')" class="text-xs px-3 py-1.5 rounded-lg" style="background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)">Close</button>
           <span class="text-xs ml-auto" style="color:var(--text-muted)">{{ fmtDate(inq.created_at) }}</span>
         </div>
       </div>
@@ -86,8 +86,8 @@ async function setStatus(inq: any, status: string) {
 
 function fmtDate(d: string) { return d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '' }
 function statusStyle(s: string) {
-  if (s === 'contacted') return 'background:rgba(86,216,255,0.1);color:var(--accent-cyan)'
-  if (s === 'closed') return 'background:rgba(111,255,210,0.1);color:var(--accent-teal)'
-  return 'background:rgba(167,139,250,0.1);color:var(--accent-violet)'
+  if (s === 'contacted') return 'background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan)'
+  if (s === 'closed') return 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)'
+  return 'background:rgba(var(--accent-violet-rgb),0.1);color:var(--accent-violet)'
 }
 </script>

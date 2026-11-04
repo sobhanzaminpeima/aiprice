@@ -36,6 +36,8 @@
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+    # HSTS only over HTTPS, so local HTTP development is unaffected.
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" "expr=%{HTTPS} == 'on'"
 
     # Vite's hashed bundles never change: cache for a year.
     <If "%{REQUEST_URI} =~ m#^/assets/#">

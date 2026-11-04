@@ -7,7 +7,7 @@
       </div>
       <div class="rounded-2xl p-8" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <form @submit.prevent="handleSubmit" class="space-y-5">
-          <div v-if="error" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+          <div v-if="error" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
           <div>
             <label class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">TEMPORARY PASSWORD</label>
             <input v-model="current" type="password" required autocomplete="current-password" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
@@ -20,7 +20,7 @@
             <label class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">CONFIRM PASSWORD</label>
             <input v-model="confirm" type="password" required autocomplete="new-password" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
           </div>
-          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
             {{ loading ? 'Saving...' : 'Set Password' }}
           </button>
         </form>

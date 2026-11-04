@@ -1,11 +1,11 @@
 <template>
   <div class='flex min-h-screen' style='background:var(--bg-base)'>
-    <aside class='w-64 shrink-0 flex flex-col' style='background:var(--bg-surface);border-right:1px solid rgba(111,255,210,0.1)'>
+    <aside class='w-64 shrink-0 flex flex-col' style='background:var(--bg-surface);border-right:1px solid rgba(var(--accent-teal-rgb),0.1)'>
       <div class='p-5' style='border-bottom:1px solid var(--border-subtle)'>
         <RouterLink to='/' class='flex items-center gap-2 mb-2'>
           <BrandLogo :size="26" />
         </RouterLink>
-        <span class='text-xs px-2 py-0.5 rounded-full font-semibold' style='background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)'>Admin Panel</span>
+        <span class='text-xs px-2 py-0.5 rounded-full font-semibold' style='background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)'>Admin Panel</span>
       </div>
       <nav class='flex-1 p-3 overflow-y-auto'>
         <template v-for='section in visibleNav' :key='section.title'>
@@ -15,7 +15,7 @@
       </nav>
       <div class='p-4' style='border-top:1px solid var(--border-subtle)'>
         <div class='flex items-center gap-3 mb-3'>
-          <div class='w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0' style='background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)'>
+          <div class='w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0' style='background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)'>
             {{ auth.user?.name?.charAt(0)?.toUpperCase() || 'A' }}
           </div>
           <div class='flex-1 min-w-0'>
@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class='flex items-center gap-2'>
-          <button @click='logout' class='flex-1 py-2 rounded-lg text-xs font-medium' style='background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);color:#ef4444'>Sign Out</button>
+          <button @click='logout' class='flex-1 py-2 rounded-lg text-xs font-medium' style='background:rgba(var(--danger-rgb),0.08);border:1px solid rgba(var(--danger-rgb),0.15);color:var(--danger)'>Sign Out</button>
           <NotificationBell align="up" />
           <ThemeToggle :size="34" />
         </div>
@@ -57,7 +57,7 @@ const SideLink = defineComponent({
       to: props.to,
       class: 'flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all mb-0.5 w-full',
       style: isActive.value
-        ? 'background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)'
+        ? 'background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.15)'
         : 'color:var(--text-muted);border:1px solid transparent'
     }, slots.default)
   }
@@ -72,5 +72,5 @@ const visibleNav = computed(() =>
 async function logout() { await auth.logout(); router.push('/') }
 </script>
 <style scoped>
-.nav-section { font-size:10px;font-weight:700;letter-spacing:0.1em;color:#2a3a4a;padding:16px 12px 6px;text-transform:uppercase; }
+.nav-section { font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);padding:16px 12px 6px;text-transform:uppercase; }
 </style>

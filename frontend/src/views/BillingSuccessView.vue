@@ -11,7 +11,7 @@
         <p class="text-4xl mb-4">🎉</p>
         <p class="text-xl font-black mb-2" style="color:var(--text-primary)">You're on {{ planName }}</p>
         <p class="text-sm mb-8" style="color:var(--text-secondary)">A receipt is on its way to {{ auth.user?.email }}.</p>
-        <RouterLink to="/dashboard/subscription" class="inline-block px-6 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Go to my subscription</RouterLink>
+        <RouterLink to="/dashboard/subscription" class="inline-block px-6 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Go to my subscription</RouterLink>
       </template>
 
       <template v-else>
@@ -19,7 +19,7 @@
         <p class="font-bold mb-2" style="color:var(--text-primary)">Payment received — activation is taking longer than usual</p>
         <p class="text-sm mb-8" style="color:var(--text-secondary)">You don't need to pay again. Your plan will switch on automatically; if it hasn't within a few minutes, contact support.</p>
         <div class="flex gap-3 justify-center">
-          <RouterLink to="/dashboard/subscription" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Check subscription</RouterLink>
+          <RouterLink to="/dashboard/subscription" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Check subscription</RouterLink>
           <RouterLink to="/dashboard/support" class="px-5 py-2.5 rounded-xl text-sm" style="color:var(--text-secondary);border:1px solid var(--border-subtle)">Contact support</RouterLink>
         </div>
       </template>

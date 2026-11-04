@@ -49,29 +49,31 @@ class DatabaseSeeder extends Seeder
 
         foreach ($rolePermissions as $roleName => $perms) {
             $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
-            if (!empty($perms)) {
+            if (! empty($perms)) {
                 $role->syncPermissions($perms);
             }
         }
 
         // Password matches DEVELOPMENT.md's documented admin login exactly —
         // keep these in sync if either changes.
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@aiprice.app'],
-            [
-                'name' => 'AIPrice Admin',
-                'username' => 'admin',
-                'password' => Hash::make('Admin@123456'),
-                'role' => 'super_admin',
-                'is_active' => true,
-                'is_verified' => true,
-                'kyc_verified' => true,
-                'force_password_change' => false,
-                'email_verified_at' => now(),
-            ]
-        );
-        $admin->syncRoles(['super_admin']);
-        UserProfile::firstOrCreate(['user_id' => $admin->id], ['business_name' => 'AIPrice.app', 'country' => 'GB']);
+        if (! app()->environment('production')) {
+            $admin = User::firstOrCreate(
+                ['email' => 'admin@aiprice.app'],
+                [
+                    'name' => 'AIPrice Admin',
+                    'username' => 'admin',
+                    'password' => Hash::make('Admin@123456'),
+                    'role' => 'super_admin',
+                    'is_active' => true,
+                    'is_verified' => true,
+                    'kyc_verified' => true,
+                    'force_password_change' => false,
+                    'email_verified_at' => now(),
+                ]
+            );
+            $admin->syncRoles(['super_admin']);
+            UserProfile::firstOrCreate(['user_id' => $admin->id], ['business_name' => 'AIPrice.app', 'country' => 'GB']);
+        }
 
         $brandsData = [
             ['name' => 'BMW', 'country' => 'DE', 'models' => ['3 Series', '5 Series', '7 Series', 'X3', 'X5', 'M3', 'M5']],

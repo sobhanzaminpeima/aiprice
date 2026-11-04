@@ -28,7 +28,7 @@ rm -rf "$STAGE" && mkdir -p "$STAGE"
 echo "→ Building frontend ($SHA)"
 # Reuse an existing install: `npm ci` deletes node_modules first, which fails
 # half-way on Windows while a dev server holds files open.
-( cd frontend && { [[ -x node_modules/.bin/vite ]] || npm ci --no-audit --no-fund; } && npx vite build --logLevel warn )
+( cd frontend && { [[ -x node_modules/.bin/vite ]] || npm ci --no-audit --no-fund; } && npm run build )
 
 echo "→ Packing backend from git"
 git archive --format=tar HEAD:backend | tar -x -C "$STAGE"
@@ -42,7 +42,7 @@ COMPOSER_CMD="${COMPOSER_BIN:-composer}"
 ( cd "$STAGE" \
   && "$COMPOSER_CMD" config platform.php "$SERVER_PHP" \
   && "$COMPOSER_CMD" install --no-dev --optimize-autoloader --no-interaction --no-scripts --quiet \
-  && "$COMPOSER_CMD" check-platform-reqs --no-dev --quiet 2>/dev/null || true )
+  && "$COMPOSER_CMD" check-platform-reqs --no-dev )
 [[ -f "$STAGE/vendor/autoload.php" ]] || { echo "✗ composer install failed" >&2; exit 1; }
 # Keep the committed composer.json untouched in the release.
 git show HEAD:backend/composer.json > "$STAGE/composer.json"

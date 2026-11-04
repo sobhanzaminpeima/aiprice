@@ -43,7 +43,8 @@ class ScoringOrchestratorService
         }
 
         $result = [
-            'battery_score' => $price['battery_score'],
+            'has_estimate' => $price['has_estimate'],
+            'battery_score' => $price['has_estimate'] ? $price['battery_score'] : null,
             'battery_label' => $price['battery_label'],
             'price_status' => $price['price_status'],
             'market_avg' => $price['market_avg'],
@@ -71,8 +72,10 @@ class ScoringOrchestratorService
                 'ai_investment_score' => $investment['score'],
                 'ai_demand_score' => $demand['score'],
                 'ai_deal_score' => $deal['score'],
-                'ai_price_score' => $price['battery_score'],
-                'price_battery_percent' => $price['battery_score'],
+                // No estimate (too few comparables) is stored as null, so the
+                // UI shows "not enough data" instead of a made-up verdict.
+                'ai_price_score' => $price['has_estimate'] ? $price['battery_score'] : null,
+                'price_battery_percent' => $price['has_estimate'] ? $price['battery_score'] : null,
                 'ai_price_status' => $price['price_status'],
                 'ai_confidence_score' => $price['confidence'],
                 'market_avg_price' => $price['market_avg'],

@@ -10,12 +10,12 @@
           If an account exists for <strong>{{ email }}</strong>, a reset link is on its way. The link expires in 60 minutes.
         </div>
         <form v-else @submit.prevent="handleSubmit" class="space-y-5">
-          <div v-if="error" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+          <div v-if="error" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
           <div>
             <label class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">EMAIL ADDRESS</label>
             <input v-model="email" type="email" required placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
           </div>
-          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
             {{ loading ? 'Sending...' : 'Send Reset Link' }}
           </button>
         </form>

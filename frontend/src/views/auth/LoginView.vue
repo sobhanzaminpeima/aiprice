@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex items-center justify-center px-4" style="background:var(--bg-base)">
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-20%] left-[30%] w-[600px] h-[600px] rounded-full" style="background:radial-gradient(circle,rgba(111,255,210,0.05) 0%,transparent 70%)"></div>
+      <div class="absolute top-[-20%] left-[30%] w-[600px] h-[600px] rounded-full" style="background:radial-gradient(circle,rgba(var(--accent-teal-rgb),0.05) 0%,transparent 70%)"></div>
     </div>
     <div class="relative w-full max-w-md">
       <div class="text-center mb-10">
@@ -12,7 +12,7 @@
       </div>
       <div class="rounded-2xl p-8" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <form @submit.prevent="handleLogin" class="space-y-5">
-          <div v-if="error" role="alert" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+          <div v-if="error" role="alert" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
           <div>
             <label for="login-email" class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">EMAIL ADDRESS</label>
             <input id="login-email" v-model="form.email" type="email" autocomplete="email" required placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
@@ -24,7 +24,7 @@
             </div>
             <input id="login-pass" v-model="form.password" type="password" autocomplete="current-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
           </div>
-          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
             {{ loading ? "Signing in..." : "Sign In" }}
           </button>
         </form>

@@ -8,12 +8,12 @@
       <div class="flex gap-3">
         <button @click="importAll" :disabled="importing"
           class="px-4 py-2.5 text-sm font-semibold rounded-xl disabled:opacity-50 transition-all"
-          style="background:rgba(167,139,250,0.1);color:var(--accent-violet);border:1px solid rgba(167,139,250,0.25)">
+          style="background:rgba(var(--accent-violet-rgb),0.1);color:var(--accent-violet);border:1px solid rgba(var(--accent-violet-rgb),0.25)">
           {{ importing ? 'Importing...' : 'Import All' }}
         </button>
         <button @click="showAdd = true"
           class="px-5 py-2.5 text-sm font-semibold rounded-xl"
-          style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+          style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
           + Add Source
         </button>
       </div>
@@ -21,11 +21,11 @@
 
     <!-- Import result -->
     <div v-if="importResult" class="mb-6 rounded-2xl p-4"
-      style="background:rgba(111,255,210,0.06);border:1px solid rgba(111,255,210,0.2)">
+      style="background:rgba(var(--accent-teal-rgb),0.06);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
       <p class="font-semibold mb-2" style="color:var(--accent-teal)">Import Complete</p>
       <div v-for="r in importResult" :key="r.source" class="text-sm" style="color:var(--text-secondary)">
         {{ r.source }}: +{{ r.imported }} new, {{ r.updated }} updated
-        <span v-if="r.errors" style="color:#ef4444"> ({{ r.errors }} errors)</span>
+        <span v-if="r.errors" style="color:var(--danger)"> ({{ r.errors }} errors)</span>
       </div>
     </div>
 
@@ -38,7 +38,7 @@
             <div class="flex items-center gap-3 mb-2">
               <h3 class="font-semibold text-lg" style="color:var(--text-primary)">{{ s.name }}</h3>
               <span class="text-xs px-2 py-0.5 rounded-full capitalize font-medium"
-                :style="s.is_active ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : 'background:rgba(239,68,68,0.1);color:#ef4444'">
+                :style="s.is_active ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)' : 'background:rgba(var(--danger-rgb),0.1);color:var(--danger)'">
                 {{ s.is_active ? 'Active' : 'Paused' }}
               </span>
               <span class="text-xs px-2 py-0.5 rounded-full capitalize"
@@ -69,7 +69,7 @@
           <div class="flex flex-col gap-2 ml-6">
             <button @click="importSource(s)" :disabled="importingId === s.id"
               class="px-4 py-2 text-xs rounded-xl font-medium disabled:opacity-50 transition-all"
-              style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">
+              style="background:rgba(var(--accent-cyan-rgb),0.08);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
               {{ importingId === s.id ? 'Importing...' : 'Import Now' }}
             </button>
             <button @click="toggleSource(s)"
@@ -79,7 +79,7 @@
             </button>
             <button @click="viewListings(s)"
               class="px-4 py-2 text-xs rounded-xl font-medium transition-all"
-              style="background:rgba(167,139,250,0.08);color:var(--accent-violet);border:1px solid rgba(167,139,250,0.2)">
+              style="background:rgba(var(--accent-violet-rgb),0.08);color:var(--accent-violet);border:1px solid rgba(var(--accent-violet-rgb),0.2)">
               View Data
             </button>
           </div>
@@ -99,7 +99,7 @@
       <div class="flex items-center justify-between mb-5">
         <h2 class="font-bold" style="color:var(--text-primary)">{{ selectedSource.name }} — Imported Data</h2>
         <span class="text-xs px-3 py-1 rounded-full"
-          style="background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.2)">
+          style="background:rgba(var(--warning-rgb),0.1);color:var(--warning);border:1px solid rgba(var(--warning-rgb),0.2)">
           AI Analysis Only — Not Public
         </span>
       </div>
@@ -133,7 +133,7 @@
       <div v-if="competitorPagination.last_page > 1" class="flex gap-2 mt-4">
         <button v-for="p in competitorPagination.last_page" :key="p" @click="loadListingsPage(p)"
           class="w-8 h-8 rounded-lg text-xs font-semibold"
-          :style="p === competitorPagination.current_page ? 'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)' : 'background:var(--border-subtle);color:var(--text-muted)'">
+          :style="p === competitorPagination.current_page ? 'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)' : 'background:var(--border-subtle);color:var(--text-muted)'">
           {{ p }}
         </button>
       </div>
@@ -142,7 +142,7 @@
     <!-- Add Source Modal -->
     <div v-if="showAdd" class="fixed inset-0 flex items-center justify-center z-50"
       style="background:rgba(0,0,0,0.7)" @click.self="showAdd = false">
-      <div class="rounded-2xl p-6 w-full max-w-md" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.2)">
+      <div class="rounded-2xl p-6 w-full max-w-md" style="background:var(--bg-surface);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
         <h2 class="font-bold mb-5" style="color:var(--text-primary)">Add Competitor Source</h2>
         <form @submit.prevent="addSource" class="space-y-4">
           <input v-model="newSource.name" required placeholder="Display name (e.g. KKT Carabam)"
@@ -167,7 +167,7 @@
           </select>
           <div class="flex gap-3">
             <button type="submit" class="flex-1 py-3 font-bold text-sm rounded-xl"
-              style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+              style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
               Add Source
             </button>
             <button type="button" @click="showAdd = false" class="flex-1 py-3 text-sm rounded-xl"

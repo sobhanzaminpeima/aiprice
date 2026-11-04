@@ -23,13 +23,13 @@
         <li v-for="t in trust" :key="t" class="flex gap-3 text-sm" style="color:var(--text-secondary)"><span style="color:var(--accent-teal)">✓</span>{{ t }}</li>
       </ul>
 
-      <div class="rounded-2xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6" style="background:linear-gradient(135deg,rgba(111,255,210,0.08),rgba(86,216,255,0.06));border:1px solid rgba(111,255,210,0.2)">
+      <div class="rounded-2xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.08),rgba(var(--accent-cyan-rgb),0.06));border:1px solid rgba(var(--accent-teal-rgb),0.2)">
         <div>
           <p class="text-xl font-black mb-1" style="color:var(--text-primary)">Selling a car or a home?</p>
           <p class="text-sm" style="color:var(--text-muted)">List for free and get an instant AI price check.</p>
         </div>
         <div class="flex gap-3">
-          <RouterLink to="/register" class="px-6 py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Get started</RouterLink>
+          <RouterLink to="/register" class="px-6 py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Get started</RouterLink>
           <RouterLink to="/contact" class="px-6 py-3 rounded-xl text-sm font-semibold" style="color:var(--text-primary);border:1px solid var(--border-strong)">Contact us</RouterLink>
         </div>
       </div>

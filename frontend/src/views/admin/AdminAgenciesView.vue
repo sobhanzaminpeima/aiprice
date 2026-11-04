@@ -6,8 +6,8 @@
         <p class="text-sm" style="color:var(--text-muted)">Manage agencies, dealers and their listings</p>
       </div>
       <div class="flex items-center gap-3">
-        <span class="px-3 py-1 rounded-full text-sm" style="background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)">{{ total }} partners</span>
-        <button @click="openAdd" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ Add Agency / Dealer</button>
+        <span class="px-3 py-1 rounded-full text-sm" style="background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)">{{ total }} partners</span>
+        <button @click="openAdd" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">+ Add Agency / Dealer</button>
       </div>
     </div>
 
@@ -15,7 +15,7 @@
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6)" @click.self="showAddModal=false">
       <div class="w-full max-w-md rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <h3 class="text-lg font-bold mb-4" style="color:var(--text-primary)">Add Agency / Dealer</h3>
-        <div v-if="addError" class="mb-3 p-3 rounded-xl text-xs" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ addError }}</div>
+        <div v-if="addError" class="mb-3 p-3 rounded-xl text-xs" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ addError }}</div>
         <div class="space-y-3">
           <div>
             <label class="text-xs mb-1 block" style="color:var(--text-muted)">Business / Agency Name *</label>
@@ -46,7 +46,7 @@
           </div>
         </div>
         <div class="flex gap-3 mt-5">
-          <button @click="submitAdd" :disabled="!addForm.name || !addForm.email || addForm.password.length<8 || addSaving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ addSaving?'Creating...':'Create' }}</button>
+          <button @click="submitAdd" :disabled="!addForm.name || !addForm.email || addForm.password.length<8 || addSaving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ addSaving?'Creating...':'Create' }}</button>
           <button @click="showAddModal=false" class="flex-1 py-3 rounded-xl text-sm" style="border:1px solid var(--border-strong);color:var(--text-secondary)">Cancel</button>
         </div>
       </div>
@@ -79,15 +79,15 @@
       <div v-for="u in items" :key="u.id" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <div class="flex items-center justify-between flex-wrap gap-4">
           <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg shrink-0" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg shrink-0" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
               {{ u.name?.charAt(0)?.toUpperCase() || 'A' }}
             </div>
             <div>
               <div class="flex items-center gap-2 mb-0.5">
                 <p class="font-semibold text-sm" style="color:var(--text-primary)">{{ u.name }}</p>
-                <span class="text-xs px-2 py-0.5 rounded-full capitalize font-medium" :style="u.role==='agency'?'background:rgba(167,139,250,0.1);color:var(--accent-violet)':'background:rgba(86,216,255,0.1);color:var(--accent-cyan)'">{{ u.role }}</span>
-                <span v-if="u.kyc_verified" class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(111,255,210,0.1);color:var(--accent-teal)">✓ Verified</span>
-                <span v-if="!u.is_active" class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:#ef4444">Banned</span>
+                <span class="text-xs px-2 py-0.5 rounded-full capitalize font-medium" :style="u.role==='agency'?'background:rgba(var(--accent-violet-rgb),0.1);color:var(--accent-violet)':'background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan)'">{{ u.role }}</span>
+                <span v-if="u.kyc_verified" class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)">✓ Verified</span>
+                <span v-if="!u.is_active" class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(var(--danger-rgb),0.1);color:var(--danger)">Banned</span>
               </div>
               <p class="text-xs" style="color:var(--text-muted)">{{ u.email }} · Joined {{ new Date(u.created_at).toLocaleDateString('en-GB') }}</p>
               <p class="text-xs mt-0.5" style="color:var(--text-muted)">
@@ -97,12 +97,12 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
-            <button v-if="!u.kyc_verified" @click="verify(u.id)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)">Verify</button>
-            <button @click="openEdit(u)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">Edit</button>
-            <button @click="toggleActive(u)" class="px-3 py-1.5 text-xs rounded-lg" :style="u.is_active?'background:rgba(239,68,68,0.06);color:#ef4444;border:1px solid rgba(239,68,68,0.15)':'background:rgba(111,255,210,0.06);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)'">
+            <button v-if="!u.kyc_verified" @click="verify(u.id)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)">Verify</button>
+            <button @click="openEdit(u)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(var(--accent-cyan-rgb),0.08);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">Edit</button>
+            <button @click="toggleActive(u)" class="px-3 py-1.5 text-xs rounded-lg" :style="u.is_active?'background:rgba(var(--danger-rgb),0.06);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.15)':'background:rgba(var(--accent-teal-rgb),0.06);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.15)'">
               {{ u.is_active ? 'Ban' : 'Activate' }}
             </button>
-            <button @click="openDetail(u)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(167,139,250,0.08);color:var(--accent-violet);border:1px solid rgba(167,139,250,0.2)">View Details</button>
+            <button @click="openDetail(u)" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(var(--accent-violet-rgb),0.08);color:var(--accent-violet);border:1px solid rgba(var(--accent-violet-rgb),0.2)">View Details</button>
           </div>
         </div>
       </div>
@@ -110,12 +110,12 @@
 
     <!-- Pagination -->
     <div v-if="lastPage>1" class="flex gap-2 justify-center mt-8">
-      <button v-for="p in lastPage" :key="p" @click="fetch(p)" class="w-9 h-9 rounded-xl text-xs font-semibold" :style="p===currentPage?'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)':'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)'">{{ p }}</button>
+      <button v-for="p in lastPage" :key="p" @click="fetch(p)" class="w-9 h-9 rounded-xl text-xs font-semibold" :style="p===currentPage?'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)':'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)'">{{ p }}</button>
     </div>
 
     <!-- Edit Modal -->
     <div v-if="editing" class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.75)" @click.self="editing=null">
-      <div class="w-full max-w-md rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.25)">
+      <div class="w-full max-w-md rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid rgba(var(--accent-teal-rgb),0.25)">
         <h2 class="font-bold mb-5" style="color:var(--text-primary)">Edit Partner</h2>
         <div class="space-y-3">
           <div>
@@ -140,7 +140,7 @@
           </div>
         </div>
         <div class="flex gap-3 mt-5">
-          <button @click="save" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ saving?'Saving...':'Save Changes' }}</button>
+          <button @click="save" :disabled="saving" class="flex-1 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ saving?'Saving...':'Save Changes' }}</button>
           <button @click="editing=null" class="flex-1 py-3 rounded-xl text-sm" style="border:1px solid var(--border-strong);color:var(--text-secondary)">Cancel</button>
         </div>
       </div>
@@ -172,7 +172,7 @@
                   <option value="">Select plan...</option>
                   <option v-for="p in plans" :key="p.id" :value="p.id">{{ p.name }} — {{ p.price_monthly }}/mo</option>
                 </select>
-                <button @click="changePlan" :disabled="!planChangeId || planSaving" class="px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-40" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ planSaving?'Saving...':'Apply' }}</button>
+                <button @click="changePlan" :disabled="!planChangeId || planSaving" class="px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-40" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ planSaving?'Saving...':'Apply' }}</button>
               </div>
             </div>
           </div>
@@ -183,7 +183,7 @@
             <div v-else class="space-y-2">
               <div v-for="t in tokens" :key="t.id" class="flex items-center justify-between p-3 rounded-xl text-xs" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
                 <p style="color:var(--text-primary)">{{ t.name }} <span style="color:var(--text-muted)">· {{ new Date(t.created_at).toLocaleDateString('en-GB') }}</span></p>
-                <button @click="revokeToken(t.id)" class="px-3 py-1.5 rounded-lg font-medium" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.2)">Revoke</button>
+                <button @click="revokeToken(t.id)" class="px-3 py-1.5 rounded-lg font-medium" style="background:rgba(var(--danger-rgb),0.08);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.2)">Revoke</button>
               </div>
             </div>
           </div>

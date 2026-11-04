@@ -31,7 +31,7 @@ Or use XAMPP Control Panel → Start MySQL.
 
 ### 2. Start Laravel Backend
 ```powershell
-cd "C:\Claude Projects\Hubprice\backend"
+cd "C:\Claude Projects\AiPrice\backend"
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 If `artisan serve` reports `Failed to listen`, use PHP's built-in server directly:
@@ -41,7 +41,7 @@ If `artisan serve` reports `Failed to listen`, use PHP's built-in server directl
 AI scoring, competitor crawls and all emails/notifications run on the queue —
 without a worker they sit in the `jobs` table and nothing is sent.
 ```powershell
-cd "C:\Claude Projects\Hubprice\backend"
+cd "C:\Claude Projects\AiPrice\backend"
 php artisan queue:work --queue=default,ai,crawl
 ```
 In a second terminal (runs expiry, re-scoring and crawl tasks on schedule):
@@ -67,7 +67,7 @@ previous release automatically if any step fails.
 
 ### 4. Start Vue Frontend
 ```powershell
-cd "C:\Claude Projects\Hubprice\frontend"
+cd "C:\Claude Projects\AiPrice\frontend"
 npm run dev
 ```
 
@@ -81,7 +81,7 @@ credentials (or Postmark/SES/Resend) in `.env` for real delivery, and set
 
 ### Tests
 ```powershell
-cd "C:\Claude Projects\Hubprice\backend"
+cd "C:\Claude Projects\AiPrice\backend"
 php vendor/bin/phpunit
 ```
 

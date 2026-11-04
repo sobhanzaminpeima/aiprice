@@ -5,10 +5,10 @@
         <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Help &amp; <span class="gradient-text">Support</span></h1>
         <p class="text-sm" style="color:var(--text-muted)">Ask us anything — we reply by email and here.</p>
       </div>
-      <button v-if="!creating" @click="creating = true; selected = null" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">New ticket</button>
+      <button v-if="!creating" @click="creating = true; selected = null" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">New ticket</button>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <form v-if="creating" @submit.prevent="create" class="rounded-2xl p-6 mb-6 space-y-4" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -25,7 +25,7 @@
       <textarea v-model="form.description" required rows="5" maxlength="5000" placeholder="Describe what happened" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
       <div class="flex gap-2 justify-end">
         <button type="button" @click="creating = false" class="px-4 py-2 rounded-xl text-sm" style="color:var(--text-muted)">Cancel</button>
-        <button type="submit" :disabled="busy" class="px-5 py-2 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ busy ? 'Sending…' : 'Submit' }}</button>
+        <button type="submit" :disabled="busy" class="px-5 py-2 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ busy ? 'Sending…' : 'Submit' }}</button>
       </div>
     </form>
 
@@ -38,14 +38,14 @@
           <p class="text-xs mb-1" style="color:var(--text-muted)">You · {{ fmt(selected.created_at) }}</p>
           <p class="text-sm whitespace-pre-wrap" style="color:var(--text-secondary)">{{ selected.description }}</p>
         </div>
-        <div v-for="r in selected.replies" :key="r.id" class="p-3 rounded-xl" :style="r.is_staff ? 'background:rgba(111,255,210,0.06);margin-right:2rem' : 'background:var(--surface-overlay-soft);margin-left:2rem'">
+        <div v-for="r in selected.replies" :key="r.id" class="p-3 rounded-xl" :style="r.is_staff ? 'background:rgba(var(--accent-teal-rgb),0.06);margin-right:2rem' : 'background:var(--surface-overlay-soft);margin-left:2rem'">
           <p class="text-xs mb-1" :style="r.is_staff ? 'color:var(--accent-teal)' : 'color:var(--text-muted)'">{{ r.is_staff ? 'AIPrice support' : 'You' }} · {{ fmt(r.created_at) }}</p>
           <p class="text-sm whitespace-pre-wrap" style="color:var(--text-secondary)">{{ r.body }}</p>
         </div>
       </div>
       <form v-if="selected.status !== 'closed'" @submit.prevent="reply" class="flex gap-2">
         <textarea v-model="replyBody" required rows="2" placeholder="Reply…" class="flex-1 px-3 py-2 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
-        <button type="submit" :disabled="busy" class="px-4 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Send</button>
+        <button type="submit" :disabled="busy" class="px-4 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Send</button>
       </form>
       <p v-else class="text-xs" style="color:var(--text-muted)">This ticket is closed. Open a new one if you still need help.</p>
     </div>
@@ -57,7 +57,7 @@
           <p class="text-sm font-semibold truncate" style="color:var(--text-primary)">{{ t.subject }}</p>
           <p class="text-xs" style="color:var(--text-muted)">{{ t.ticket_number }} · {{ t.replies_count }} replies · updated {{ fmt(t.updated_at) }}</p>
         </div>
-        <span class="text-xs px-2 py-0.5 rounded-full capitalize" :style="t.status === 'waiting' ? 'background:rgba(251,191,36,0.1);color:#fbbf24' : 'background:var(--surface-overlay);color:var(--text-muted)'">{{ t.status === 'waiting' ? 'reply needed' : t.status.replace('_', ' ') }}</span>
+        <span class="text-xs px-2 py-0.5 rounded-full capitalize" :style="t.status === 'waiting' ? 'background:rgba(var(--warning-rgb),0.1);color:var(--warning)' : 'background:var(--surface-overlay);color:var(--text-muted)'">{{ t.status === 'waiting' ? 'reply needed' : t.status.replace('_', ' ') }}</span>
       </button>
     </div>
   </div>

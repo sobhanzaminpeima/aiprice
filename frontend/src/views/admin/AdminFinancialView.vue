@@ -8,7 +8,7 @@
       <RouterLink v-if="auth.can('view_analytics')" to="/admin/reports" class="btn-outline px-5 py-2.5 text-sm">Export payments</RouterLink>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-6 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-6 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <div v-if="loading" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       <div v-for="i in 4" :key="i" class="h-28 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
@@ -30,8 +30,8 @@
           <p v-if="maxMonth === 0" class="text-sm py-12 text-center" style="color:var(--text-muted)">No completed payments in this period yet.</p>
           <div v-else class="flex items-end gap-3 h-40">
             <div v-for="(m, i) in data.monthly_revenue" :key="m.key" class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-              <span class="text-xs font-bold" :style="{ color: i === data.monthly_revenue.length - 1 ? '#6fffd2' : 'var(--text-muted)' }">{{ money(m.amount, true) }}</span>
-              <div class="w-full rounded-t-lg" :style="`height:${Math.max(4, (m.amount / maxMonth) * 100)}%;background:${i === data.monthly_revenue.length - 1 ? 'linear-gradient(to top,#6fffd2,#56d8ff)' : 'var(--border-subtle)'}`"></div>
+              <span class="text-xs font-bold" :style="{ color: i === data.monthly_revenue.length - 1 ? 'var(--accent-teal)' : 'var(--text-muted)' }">{{ money(m.amount, true) }}</span>
+              <div class="w-full rounded-t-lg" :style="`height:${Math.max(4, (m.amount / maxMonth) * 100)}%;background:${i === data.monthly_revenue.length - 1 ? 'linear-gradient(to top,var(--accent-teal),var(--accent-cyan))' : 'var(--border-subtle)'}`"></div>
               <span class="text-xs" style="color:var(--text-muted)">{{ m.month }}</span>
             </div>
           </div>
@@ -128,7 +128,7 @@ const page = ref(1)
 const lastPage = ref(1)
 const statusFilter = ref('')
 const search = ref('')
-const palette = ['#6fffd2', '#56d8ff', '#a78bfa', '#fbbf24', '#f472b6']
+const palette = ['var(--accent-teal)', 'var(--accent-cyan)', 'var(--accent-violet)', 'var(--warning)', '#f472b6']
 
 const maxMonth = computed(() => Math.max(0, ...(data.value?.monthly_revenue ?? []).map((m: any) => m.amount)))
 const totalPlans = computed(() => (data.value?.plan_breakdown ?? []).reduce((s: number, p: any) => s + p.count, 0))
@@ -136,10 +136,10 @@ const totalPlans = computed(() => (data.value?.plan_breakdown ?? []).reduce((s: 
 const statCards = computed(() => {
   const s = data.value?.stats ?? {}
   return [
-    { label: 'Revenue this month', value: money(s.revenue_this_month), color: '#6fffd2', change: s.revenue_change_pct },
-    { label: 'MRR', value: money(s.mrr), color: '#56d8ff', note: `${s.active_subscriptions ?? 0} active subscriptions` },
-    { label: 'New subscriptions', value: String(s.new_subscriptions ?? 0), color: '#a78bfa', change: s.new_subscriptions_change_pct },
-    { label: 'Churn this month', value: `${s.churn_rate_pct ?? 0}%`, color: '#fbbf24', note: `${s.failed_payments_this_month ?? 0} failed payments` },
+    { label: 'Revenue this month', value: money(s.revenue_this_month), color: 'var(--accent-teal)', change: s.revenue_change_pct },
+    { label: 'MRR', value: money(s.mrr), color: 'var(--accent-cyan)', note: `${s.active_subscriptions ?? 0} active subscriptions` },
+    { label: 'New subscriptions', value: String(s.new_subscriptions ?? 0), color: 'var(--accent-violet)', change: s.new_subscriptions_change_pct },
+    { label: 'Churn this month', value: `${s.churn_rate_pct ?? 0}%`, color: 'var(--warning)', note: `${s.failed_payments_this_month ?? 0} failed payments` },
   ]
 })
 
@@ -160,13 +160,13 @@ function changeText(c: number | null) {
 }
 function changeStyle(c: number | null) {
   if (c === null || c === 0) return 'color:var(--text-muted)'
-  return c > 0 ? 'color:var(--accent-teal)' : 'color:#ef4444'
+  return c > 0 ? 'color:var(--accent-teal)' : 'color:var(--danger)'
 }
 function statusStyle(s: string) {
-  if (s === 'completed') return 'background:rgba(111,255,210,0.1);color:var(--accent-teal)'
-  if (s === 'failed') return 'background:rgba(239,68,68,0.1);color:#ef4444'
-  if (s === 'refunded') return 'background:rgba(167,139,250,0.1);color:#a78bfa'
-  return 'background:rgba(251,191,36,0.1);color:#fbbf24'
+  if (s === 'completed') return 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)'
+  if (s === 'failed') return 'background:rgba(var(--danger-rgb),0.1);color:var(--danger)'
+  if (s === 'refunded') return 'background:rgba(var(--accent-violet-rgb),0.1);color:var(--accent-violet)'
+  return 'background:rgba(var(--warning-rgb),0.1);color:var(--warning)'
 }
 function fmtDate(d: string) { return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }
 

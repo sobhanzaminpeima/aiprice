@@ -26,8 +26,14 @@ class Listing extends Model
         'ai_price_status', 'market_min_price', 'market_max_price', 'market_avg_price',
         'price_battery_percent', 'ai_confidence_score', 'ai_analysis', 'ai_comparable_ids',
         'ai_score_breakdown', 'ai_scored_at',
-        'meta', 'rejection_reason',
+        'meta', 'rejection_reason', 'import_source_key',
     ];
+
+    /**
+     * Never serialized: meta holds import provenance (source site URL/ID) and
+     * an optional seller contact phone, which must only be read server-side.
+     */
+    protected $hidden = ['meta', 'import_source_key'];
 
     protected function casts(): array
     {

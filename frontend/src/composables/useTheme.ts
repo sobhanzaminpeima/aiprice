@@ -3,7 +3,7 @@ import { ref } from 'vue'
 export type Theme = 'dark' | 'light'
 
 const STORAGE_KEY = 'hp_theme'
-const theme = ref<Theme>('dark')
+const theme = ref<Theme>('light')
 
 function apply(t: Theme) {
   document.documentElement.setAttribute('data-theme', t)
@@ -12,7 +12,7 @@ function apply(t: Theme) {
 
 export function initTheme() {
   const saved = (localStorage.getItem(STORAGE_KEY) as Theme | null)
-  theme.value = saved === 'light' || saved === 'dark' ? saved : 'dark'
+  theme.value = saved === 'light' || saved === 'dark' ? saved : 'light'
   apply(theme.value)
 }
 

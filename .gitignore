@@ -3,10 +3,14 @@
 /backend/.env
 /backend/.env.backup
 /backend/storage/logs/*.log
-/backend/storage/framework/cache/
-/backend/storage/framework/sessions/
-/backend/storage/framework/views/
-/backend/bootstrap/cache/
+/backend/storage/framework/cache/*
+!/backend/storage/framework/cache/.gitignore
+/backend/storage/framework/sessions/*
+!/backend/storage/framework/sessions/.gitignore
+/backend/storage/framework/views/*
+!/backend/storage/framework/views/.gitignore
+/backend/bootstrap/cache/*
+!/backend/bootstrap/cache/.gitignore
 /backend/public/storage
 
 # Vue / Node
@@ -53,3 +57,6 @@ create_final_zip.mjs
 /build/
 /output/
 /tmp/
+
+# Local Claude Code settings (contain machine paths and test credentials)
+.claude/settings.local.json

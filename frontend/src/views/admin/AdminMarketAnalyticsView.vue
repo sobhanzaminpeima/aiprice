@@ -5,7 +5,7 @@
       <p class="text-sm" style="color:var(--text-muted)">Computed from active AIPrice listings and their AI scores. Segments without scored listings show “—”.</p>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-6 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-6 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
     <div v-if="loading" class="grid grid-cols-1 md:grid-cols-3 gap-4"><div v-for="i in 3" :key="i" class="h-44 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div></div>
 
     <template v-else-if="data">
@@ -32,7 +32,7 @@
           <div class="flex items-center justify-between mb-5">
             <h2 class="font-bold" style="color:var(--text-primary)">Prices by city</h2>
             <div class="flex gap-1">
-              <button v-for="t in types" :key="t.key" @click="cityType = t.key" class="px-3 py-1 rounded-lg text-xs" :style="cityType === t.key ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : 'color:var(--text-muted)'">{{ t.short }}</button>
+              <button v-for="t in types" :key="t.key" @click="cityType = t.key" class="px-3 py-1 rounded-lg text-xs" :style="cityType === t.key ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)' : 'color:var(--text-muted)'">{{ t.short }}</button>
             </div>
           </div>
           <p v-if="!cityRows.length" class="text-sm py-6 text-center" style="color:var(--text-muted)">No active listings in this segment.</p>
@@ -44,7 +44,7 @@
                 <td class="py-2.5 text-right" style="color:var(--text-secondary)">{{ c.listings }}</td>
                 <td class="py-2.5 text-right font-bold" style="color:var(--accent-teal)">{{ money(c.avg_price, c.currency) }}</td>
                 <td class="py-2.5 text-right" style="color:var(--text-muted)">{{ money(c.min_price, c.currency, true) }} – {{ money(c.max_price, c.currency, true) }}</td>
-                <td class="py-2.5 text-right" :style="c.trend_pct === null ? 'color:var(--text-muted)' : c.trend_pct >= 0 ? 'color:var(--accent-teal)' : 'color:#ef4444'">{{ c.trend_pct === null ? '—' : `${c.trend_pct > 0 ? '+' : ''}${c.trend_pct}%` }}</td>
+                <td class="py-2.5 text-right" :style="c.trend_pct === null ? 'color:var(--text-muted)' : c.trend_pct >= 0 ? 'color:var(--accent-teal)' : 'color:var(--danger)'">{{ c.trend_pct === null ? '—' : `${c.trend_pct > 0 ? '+' : ''}${c.trend_pct}%` }}</td>
               </tr>
             </tbody>
           </table>
@@ -89,9 +89,9 @@ import client from '@/api/client'
 import { apiErrorMessage } from '@/api/errors'
 
 const types = [
-  { key: 'vehicle', label: 'Cars market', short: 'Cars', color: '#6fffd2' },
-  { key: 'property', label: 'Property market', short: 'Property', color: '#56d8ff' },
-  { key: 'rental', label: 'Rental market', short: 'Rentals', color: '#a78bfa' },
+  { key: 'vehicle', label: 'Cars market', short: 'Cars', color: 'var(--accent-teal)' },
+  { key: 'property', label: 'Property market', short: 'Property', color: 'var(--accent-cyan)' },
+  { key: 'rental', label: 'Rental market', short: 'Rentals', color: 'var(--accent-violet)' },
 ]
 
 const loading = ref(true)
@@ -104,10 +104,10 @@ const cityRows = computed(() => (data.value?.cities ?? []).filter((c: any) => c.
 const priceStatusTotal = computed(() => Object.values(data.value?.price_status ?? {}).reduce((s: number, n: any) => s + Number(n), 0))
 
 function verdictColor(s: string) {
-  if (s.includes('under') || s === 'great_deal') return '#6fffd2'
-  if (s === 'fair') return '#56d8ff'
-  if (s.includes('slightly')) return '#fbbf24'
-  return '#ef4444'
+  if (s.includes('under') || s === 'great_deal') return 'var(--accent-teal)'
+  if (s === 'fair') return 'var(--accent-cyan)'
+  if (s.includes('slightly')) return 'var(--warning)'
+  return 'var(--danger)'
 }
 
 function money(v: number, currency = 'GBP', compact = false) {

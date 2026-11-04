@@ -133,7 +133,7 @@ npm run lint
 npm run build
 ```
 
-The current backend suite contains 60 tests with 279 assertions. Run the checks again whenever dependencies or application code change.
+The current backend suite contains 83 tests with 400 assertions. Run the checks again whenever dependencies or application code change.
 
 ## API overview
 
@@ -164,6 +164,7 @@ The remote script performs preflight checks, database and file backups, maintena
 
 - [Developer setup and architecture](DEVELOPMENT.md)
 - [Deployment and rollback](docs/DEPLOYMENT.md)
+- [Launch deployment checklist](docs/DEPLOYMENT_CHECKLIST.md)
 - [Security policy and production checklist](SECURITY.md)
 - [Release history](CHANGELOG.md)
 - [Backend entry point](backend/README.md)

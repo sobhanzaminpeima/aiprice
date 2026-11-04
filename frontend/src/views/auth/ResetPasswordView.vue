@@ -6,18 +6,18 @@
         <p class="mt-3 text-sm" style="color:var(--text-muted)">Choose a new password</p>
       </div>
       <div class="rounded-2xl p-8" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <div v-if="!token || !email" class="text-sm text-center py-4" style="color:#ef4444">
+        <div v-if="!token || !email" class="text-sm text-center py-4" style="color:var(--danger)">
           This reset link is incomplete. Please request a new one.
           <p class="mt-4"><RouterLink to="/forgot-password" style="color:var(--accent-teal)">Request a new link</RouterLink></p>
         </div>
 
         <div v-else-if="done" class="text-center py-4">
           <p class="text-sm mb-6" style="color:var(--accent-teal)">Your password has been reset. All other sessions were signed out.</p>
-          <RouterLink to="/login" class="inline-block px-6 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Sign in</RouterLink>
+          <RouterLink to="/login" class="inline-block px-6 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Sign in</RouterLink>
         </div>
 
         <form v-else @submit.prevent="handleSubmit" class="space-y-5">
-          <div v-if="error" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+          <div v-if="error" class="px-4 py-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
           <div>
             <label class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">EMAIL</label>
             <input :value="email" disabled class="w-full px-4 py-3 rounded-xl text-sm opacity-70" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
@@ -30,7 +30,7 @@
             <label class="block text-xs font-semibold mb-2" style="color:var(--text-muted)">CONFIRM PASSWORD</label>
             <input v-model="confirm" type="password" required autocomplete="new-password" class="w-full px-4 py-3 rounded-xl text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
           </div>
-          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+          <button type="submit" :disabled="loading" class="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-60" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
             {{ loading ? 'Saving...' : 'Reset Password' }}
           </button>
         </form>

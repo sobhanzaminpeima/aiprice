@@ -4,7 +4,7 @@
     <div v-if="hasReasons" class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
       <button @click="whyOpen = !whyOpen" class="w-full flex items-center justify-between text-left">
         <span class="font-bold text-sm flex items-center gap-2" style="color:var(--text-primary)">
-          <span class="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">AI</span>
+          <span class="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">AI</span>
           Why these scores?
         </span>
         <span style="color:var(--text-muted)">{{ whyOpen ? '−' : '+' }}</span>
@@ -26,7 +26,7 @@
     <!-- Show Me Better -->
     <div class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
       <button v-if="!better.length && !betterLoaded" @click="loadBetter" :disabled="loadingBetter"
-        class="w-full py-2.5 rounded-xl text-sm font-bold transition" style="background:var(--surface-overlay);border:1px solid rgba(111,255,210,0.25);color:var(--accent-teal)">
+        class="w-full py-2.5 rounded-xl text-sm font-bold transition" style="background:var(--surface-overlay);border:1px solid rgba(var(--accent-teal-rgb),0.25);color:var(--accent-teal)">
         {{ loadingBetter ? 'Searching…' : '🔍 Show Me Better' }}
       </button>
       <template v-else-if="betterLoaded">
@@ -35,7 +35,7 @@
         </p>
         <template v-else>
           <p class="text-xs font-bold mb-3" style="color:var(--text-primary)">Found {{ better.length }} better match{{ better.length === 1 ? '' : 'es' }}</p>
-          <RouterLink v-for="b in better" :key="b.id" :to="`/listings/${b.slug}`" class="block p-3 rounded-xl mb-2 last:mb-0 transition" style="background:var(--surface-overlay-soft);border:1px solid rgba(111,255,210,0.15)">
+          <RouterLink v-for="b in better" :key="b.id" :to="`/listings/${b.slug}`" class="block p-3 rounded-xl mb-2 last:mb-0 transition" style="background:var(--surface-overlay-soft);border:1px solid rgba(var(--accent-teal-rgb),0.15)">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-semibold truncate" style="color:var(--text-primary)">{{ b.title }}</span>
               <span class="text-xs font-black shrink-0 ml-2" style="color:var(--accent-teal)">{{ formatPrice(b.price, b.currency) }}</span>
@@ -65,10 +65,10 @@ const reasonGroups = computed(() => {
   const b = props.listing.ai_score_breakdown
   if (!b) return []
   const map = [
-    { key: 'price', label: 'Price', color: '#6fffd2' },
-    { key: 'trust', label: 'Trust', color: '#56d8ff' },
-    { key: 'demand', label: 'Demand', color: '#a78bfa' },
-    { key: 'investment', label: 'Investment', color: '#fbbf24' },
+    { key: 'price', label: 'Price', color: 'var(--accent-teal)' },
+    { key: 'trust', label: 'Trust', color: 'var(--accent-cyan)' },
+    { key: 'demand', label: 'Demand', color: 'var(--accent-violet)' },
+    { key: 'investment', label: 'Investment', color: 'var(--warning)' },
   ] as const
   return map
     .map(m => ({ ...m, reasons: (b as any)[m.key] as string[] | undefined }))

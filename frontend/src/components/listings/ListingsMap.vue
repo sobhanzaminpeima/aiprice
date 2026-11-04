@@ -4,7 +4,7 @@
     <div class="map-filters">
       <button v-for="t in typeFilters" :key="t.value" @click="setType(t.value)"
         class="map-filter-chip inline-flex items-center gap-1.5" :class="{ 'map-filter-chip--active': activeType === t.value }"
-        :style="activeType === t.value ? `background:${t.color};color:#05070b` : ''">
+        :style="activeType === t.value ? `background:${t.color};color:var(--bg-base)` : ''">
         <AssetIcon :type="(t.value || 'all') as any" :size="13" /> {{ t.label }}
       </button>
       <span v-if="!loading" class="map-count">{{ markers.length }} on map</span>
@@ -42,9 +42,9 @@ interface MapListing {
 }
 
 const typeFilters = [
-  { value: '', label: 'All', color: '#56d8ff' },
-  { value: 'vehicle', label: 'Cars', color: '#6fffd2' },
-  { value: 'property', label: 'Properties', color: '#a78bfa' },
+  { value: '', label: 'All', color: 'var(--accent-cyan)' },
+  { value: 'vehicle', label: 'Cars', color: 'var(--accent-teal)' },
+  { value: 'property', label: 'Properties', color: 'var(--accent-violet)' },
 ]
 
 const mapEl = ref<HTMLElement | null>(null)
@@ -59,10 +59,10 @@ const NORTH_CYPRUS_BOUNDS: L.LatLngBoundsExpression = [[35.00, 32.25], [35.75, 3
 const NORTH_CYPRUS_CENTER: L.LatLngExpression = [35.28, 33.45]
 
 const batteryColor = (pct: number | null) => {
-  if (pct === null) return '#6b7f96'
-  if (pct >= 80) return '#6fffd2'
-  if (pct >= 55) return '#fbbf24'
-  return '#ef4444'
+  if (pct === null) return 'var(--text-muted)'
+  if (pct >= 80) return 'var(--accent-teal)'
+  if (pct >= 55) return 'var(--warning)'
+  return 'var(--danger)'
 }
 
 const MARKER_ICON_PATHS: Record<string, string> = {
@@ -87,18 +87,22 @@ function buildIcon(listing: MapListing): L.DivIcon {
   })
 }
 
+function esc(v: unknown): string {
+  return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string)
+}
+
 function popupHtml(listing: MapListing): string {
-  const price = Number(listing.price).toLocaleString() + ' ' + listing.currency
+  const price = Number(listing.price).toLocaleString() + ' ' + esc(listing.currency)
   const battery = listing.price_battery_percent ? Math.round(listing.price_battery_percent) : null
   const ring = batteryColor(listing.price_battery_percent)
   return `
-    <a href="/listings/${listing.slug}" class="ai-map-popup">
-      ${listing.thumbnail ? `<img src="${listing.thumbnail}" class="ai-map-popup-img" />` : ''}
+    <a href="/listings/${encodeURIComponent(String(listing.slug))}" class="ai-map-popup">
+      ${listing.thumbnail ? `<img src="${esc(listing.thumbnail)}" alt="" class="ai-map-popup-img" />` : ''}
       <div class="ai-map-popup-body">
-        <p class="ai-map-popup-title">${listing.title}</p>
+        <p class="ai-map-popup-title">${esc(listing.title)}</p>
         <p class="ai-map-popup-price">${price}</p>
         <div class="ai-map-popup-meta">
-          <span>${listing.city ?? ''}</span>
+          <span>${esc(listing.city)}</span>
           ${battery !== null ? `<span style="color:${ring};font-weight:800">${battery}% battery</span>` : ''}
         </div>
         <span class="ai-map-popup-cta">View Details →</span>
@@ -158,11 +162,15 @@ onMounted(() => {
     attributionControl: false,
   })
 
-  // Dark tiles to match the site's theme — free, no API key required.
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
+  // OpenStreetMap standard tiles: no API key, attribution required by the
+  // OSM tile policy. Override with VITE_MAP_TILE_URL for a commercial provider
+  // once traffic grows (the public OSM servers are for light use only).
+  const tileUrl = import.meta.env.VITE_MAP_TILE_URL || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+  L.tileLayer(tileUrl, {
     maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
   }).addTo(map)
+  L.control.attribution({ prefix: false }).addTo(map)
 
   markerLayer = L.layerGroup().addTo(map)
   loadMarkers()
@@ -181,33 +189,33 @@ watch(() => props.initialType, (v) => { if (v !== undefined) setType(v) })
   position: relative;
   border-radius: 24px;
   overflow: hidden;
-  border: 1px solid rgba(111, 255, 210, 0.18);
-  background: #05070b;
+  border: 1px solid rgba(var(--accent-teal-rgb), 0.18);
+  background: var(--bg-base);
 }
 .map-canvas { width: 100%; height: 100%; }
 .map-filters {
   position: absolute; top: 14px; left: 14px; z-index: 500;
   display: flex; align-items: center; gap: 8px;
   background: rgba(5, 7, 11, 0.75); backdrop-filter: blur(8px);
-  padding: 8px; border-radius: 14px; border: 1px solid rgba(111, 255, 210, 0.15);
+  padding: 8px; border-radius: 14px; border: 1px solid rgba(var(--accent-teal-rgb), 0.15);
 }
 .map-filter-chip {
   font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 10px;
-  background: rgba(255,255,255,0.05); color: #9fb3c8; border: none; cursor: pointer; transition: all 0.15s;
+  background: var(--surface-overlay); color: var(--text-secondary); border: none; cursor: pointer; transition: all 0.15s;
 }
-.map-filter-chip--active { box-shadow: 0 0 16px rgba(111,255,210,0.4); }
-.map-count { font-size: 11px; color: #6b7f96; padding-left: 6px; }
+.map-filter-chip--active { box-shadow: 0 0 16px rgba(var(--accent-teal-rgb),0.4); }
+.map-count { font-size: 11px; color: var(--text-muted); padding-left: 6px; }
 .map-expand-link {
   position: absolute; bottom: 14px; right: 14px; z-index: 500;
-  background: linear-gradient(135deg,#6fffd2,#56d8ff); color: #05070b;
+  background: linear-gradient(135deg,var(--accent-teal),var(--accent-cyan)); color: var(--bg-base);
   font-size: 12px; font-weight: 800; padding: 8px 14px; border-radius: 10px; text-decoration: none;
 }
 .map-loading {
   position: absolute; inset: 0; z-index: 400; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-  background: #05070b; color: #6fffd2; font-size: 13px; font-weight: 600;
+  background: var(--bg-base); color: var(--accent-teal); font-size: 13px; font-weight: 600;
 }
 .map-loading-pulse {
-  width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(111,255,210,0.3); border-top-color: #6fffd2;
+  width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(var(--accent-teal-rgb),0.3); border-top-color: var(--accent-teal);
   animation: map-spin 0.9s linear infinite;
 }
 @keyframes map-spin { to { transform: rotate(360deg); } }
@@ -224,8 +232,8 @@ watch(() => props.initialType, (v) => { if (v !== undefined) setType(v) })
 .ai-map-marker-badge {
   position: relative; width: 32px; height: 32px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center; font-size: 15px;
-  background: rgba(5,7,11,0.92); border: 2px solid var(--ring, #6fffd2);
-  box-shadow: 0 0 14px var(--ring, #6fffd2);
+  background: rgba(5,7,11,0.92); border: 2px solid var(--ring, var(--accent-teal));
+  box-shadow: 0 0 14px var(--ring, var(--accent-teal));
   transition: transform 0.15s;
 }
 .ai-map-marker:hover .ai-map-marker-badge { transform: scale(1.18); }
@@ -234,16 +242,16 @@ watch(() => props.initialType, (v) => { if (v !== undefined) setType(v) })
   70% { transform: scale(1.9); opacity: 0; }
   100% { opacity: 0; }
 }
-.leaflet-popup-content-wrapper { background: #0d1117 !important; color: #f0f6fc !important; border-radius: 14px !important; border: 1px solid rgba(111,255,210,0.25); padding: 0 !important; overflow: hidden; }
+.leaflet-popup-content-wrapper { background: var(--bg-surface) !important; color: var(--text-primary) !important; border-radius: 14px !important; border: 1px solid rgba(var(--accent-teal-rgb),0.25); padding: 0 !important; overflow: hidden; }
 .leaflet-popup-content { margin: 0 !important; width: 220px !important; }
-.leaflet-popup-tip { background: #0d1117 !important; }
+.leaflet-popup-tip { background: var(--bg-surface) !important; }
 .ai-map-popup { display: block; text-decoration: none; color: inherit; }
 .ai-map-popup-img { width: 100%; height: 110px; object-fit: cover; display: block; }
 .ai-map-popup-body { padding: 10px 12px; }
-.ai-map-popup-title { font-size: 12px; font-weight: 700; color: #f0f6fc; margin: 0 0 4px; }
-.ai-map-popup-price { font-size: 14px; font-weight: 900; color: #6fffd2; margin: 0 0 6px; }
-.ai-map-popup-meta { display: flex; justify-content: space-between; font-size: 10px; color: #6e7f96; margin-bottom: 8px; }
-.ai-map-popup-cta { display: block; font-size: 11px; font-weight: 800; color: #56d8ff; }
-.leaflet-container { background: #05070b !important; font-family: inherit !important; }
-.leaflet-control-zoom a { background: #0d1117 !important; color: #6fffd2 !important; border-color: rgba(111,255,210,0.2) !important; }
+.ai-map-popup-title { font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px; }
+.ai-map-popup-price { font-size: 14px; font-weight: 900; color: var(--accent-teal); margin: 0 0 6px; }
+.ai-map-popup-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+.ai-map-popup-cta { display: block; font-size: 11px; font-weight: 800; color: var(--accent-cyan); }
+.leaflet-container { background: var(--bg-base) !important; font-family: inherit !important; }
+.leaflet-control-zoom a { background: var(--bg-surface) !important; color: var(--accent-teal) !important; border-color: rgba(var(--accent-teal-rgb),0.2) !important; }
 </style>

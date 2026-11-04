@@ -59,6 +59,7 @@ class EnsureAdminPermission
         'ai-models' => 'manage_ai',
         'ai-models/*' => 'manage_ai',
         'llm/*' => 'manage_ai',
+        'ai/*' => 'manage_ai',
 
         'social/*' => 'manage_cms',
         'homepage-sections' => 'manage_cms',

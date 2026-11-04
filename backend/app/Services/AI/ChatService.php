@@ -47,7 +47,7 @@ class ChatService
         $message = $this->buildReply($intent, $results);
 
         return [
-            'message' => $message,
+            'message' => \App\Support\BrandGuard::scrub($message),
             'intent' => $intent,
             'results' => $results,
             'suggestions' => ['Cheaper', 'Higher trust', 'Show more'],
@@ -148,13 +148,16 @@ class ChatService
             fn ($r) => "- {$r['title']}: {$r['currency']} " . number_format($r['price']) . ", match {$r['match_score']}%, deal score " . ($r['deal_score'] ?? 'n/a'),
             array_slice($results, 0, 5)
         );
-        $listText = implode("\n", $lines);
+        $listText = \App\Support\BrandGuard::scrub(implode("\n", $lines));
+        $rules = \App\Support\BrandGuard::PROMPT_RULES;
 
         return <<<PROMPT
 You are a marketplace search assistant. Write ONE short reply (max 30 words, no markdown) to a buyer searching for a {$intent['asset_type']}. State the count found and name the single best match by title. Use ONLY the data below — never invent numbers.
 
 Results found: {$count}
 {$listText}
+
+{$rules}
 PROMPT;
     }
 

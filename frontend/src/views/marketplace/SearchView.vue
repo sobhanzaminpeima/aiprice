@@ -14,9 +14,9 @@
         </div>
         <div class="flex p-1 rounded-xl" style="background:var(--surface-overlay);border:1px solid var(--border-subtle)">
           <button @click="view = 'grid'" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5"
-            :style="view === 'grid' ? 'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)' : 'color:var(--text-muted)'"><AppIcon name="clipboard" :size="15" /> Grid</button>
+            :style="view === 'grid' ? 'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)' : 'color:var(--text-muted)'"><AppIcon name="clipboard" :size="15" /> Grid</button>
           <button @click="view = 'map'" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5"
-            :style="view === 'map' ? 'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)' : 'color:var(--text-muted)'"><AppIcon name="map" :size="15" /> Map</button>
+            :style="view === 'map' ? 'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)' : 'color:var(--text-muted)'"><AppIcon name="map" :size="15" /> Map</button>
         </div>
       </div>
 

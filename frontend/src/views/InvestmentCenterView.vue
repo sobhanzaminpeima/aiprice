@@ -10,7 +10,7 @@
       <div class="flex justify-center gap-2 mb-8" role="tablist">
         <button v-for="t in tabs" :key="t.key" role="tab" :aria-selected="type === t.key" @click="setType(t.key)"
           class="px-5 py-2 rounded-xl text-sm font-semibold"
-          :style="type === t.key ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.25)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">
+          :style="type === t.key ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.25)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">
           {{ t.label }}
         </button>
       </div>
@@ -18,7 +18,7 @@
       <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div v-for="i in 6" :key="i" class="h-80 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
       </div>
-      <p v-else-if="error" class="text-center text-sm" style="color:#ef4444">{{ error }}</p>
+      <p v-else-if="error" class="text-center text-sm" style="color:var(--danger)">{{ error }}</p>
       <p v-else-if="!listings.length" class="text-center py-16" style="color:var(--text-muted)">No scored {{ type === 'property' ? 'properties' : 'vehicles' }} yet — check back soon.</p>
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         <ListingCard v-for="l in listings" :key="l.id" :listing="l" />

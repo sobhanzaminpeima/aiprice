@@ -8,7 +8,7 @@ import {
   AlertTriangle, BarChart3, Bath, BedDouble, Bell, Building2, CalendarDays,
   CarFront, Check, CircleHelp, ClipboardList, Cpu, CreditCard, Eye, FileText,
   Fuel, Gauge, Globe2, Heart, Home, KeyRound, List, Mail, Map, MapPin,
-  MessageCircle, Palette, Paperclip, Plane, Plus, Ruler, Search, Settings,
+  MessageCircle, Palette, Paperclip, Phone, Plane, Plus, Ruler, Search, Send, Settings,
   ShieldCheck, SlidersHorizontal, Sparkles, Star, Trash2, TrendingUp, User,
   Users, Wrench, X,
 } from 'lucide-vue-next'
@@ -24,7 +24,7 @@ const icons: Record<string, typeof Home> = {
   clipboard: ClipboardList, cpu: Cpu, creditCard: CreditCard, eye: Eye, file: FileText,
   fuel: Fuel, gauge: Gauge, globe: Globe2, heart: Heart, help: CircleHelp, home: Home,
   key: KeyRound, list: List, mail: Mail, map: Map, mapPin: MapPin, message: MessageCircle,
-  palette: Palette, paperclip: Paperclip, plane: Plane, plus: Plus, ruler: Ruler,
+  palette: Palette, paperclip: Paperclip, phone: Phone, plane: Plane, plus: Plus, ruler: Ruler, send: Send,
   search: Search, settings: Settings, shield: ShieldCheck, sliders: SlidersHorizontal,
   sparkles: Sparkles, star: Star, trash: Trash2, trending: TrendingUp, user: User,
   users: Users, wrench: Wrench, x: X,

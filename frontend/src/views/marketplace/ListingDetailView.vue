@@ -5,7 +5,7 @@
 
     <div v-if="loading" class="min-h-screen flex items-center justify-center" role="status">
       <div class="text-center">
-        <div class="w-12 h-12 rounded-full border-2 animate-spin mx-auto mb-4" style="border-color:rgba(111,255,210,0.2);border-top-color:var(--accent-teal)"></div>
+        <div class="w-12 h-12 rounded-full border-2 animate-spin mx-auto mb-4" style="border-color:rgba(var(--accent-teal-rgb),0.2);border-top-color:var(--accent-teal)"></div>
         <p style="color:var(--text-muted)">Loading…</p>
       </div>
     </div>
@@ -15,7 +15,7 @@
       <h1 class="text-2xl font-black mb-3" style="color:var(--text-primary)">This listing is no longer available</h1>
       <p class="mb-8" style="color:var(--text-muted)">It may have been sold, rented or removed by the seller.</p>
       <div class="flex flex-wrap gap-3 justify-center">
-        <RouterLink to="/cars" class="px-6 py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Browse cars</RouterLink>
+        <RouterLink to="/cars" class="px-6 py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Browse cars</RouterLink>
         <RouterLink to="/properties" class="px-6 py-3 rounded-xl text-sm font-semibold" style="color:var(--text-primary);border:1px solid var(--border-strong)">Browse properties</RouterLink>
       </div>
     </div>

@@ -58,7 +58,7 @@ export interface Listing {
   ai_investment_score: number | null
   ai_demand_score: number | null
   ai_deal_score: number | null
-  ai_price_status: 'fair' | 'slightly_overpriced' | 'overpriced' | null
+  ai_price_status: 'fair' | 'slightly_overpriced' | 'overpriced' | 'insufficient_data' | null
   price_battery_percent: number | null
   market_min_price: number | null
   market_max_price: number | null

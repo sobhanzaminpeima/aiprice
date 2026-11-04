@@ -10,7 +10,7 @@
       <div v-if="loading" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         <div v-for="i in 4" :key="i" class="h-28 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
       </div>
-      <p v-else-if="error" class="text-center text-sm" style="color:#ef4444">{{ error }}</p>
+      <p v-else-if="error" class="text-center text-sm" style="color:var(--danger)">{{ error }}</p>
 
       <template v-else-if="stats">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
@@ -54,11 +54,11 @@
           </div>
         </div>
 
-        <div class="rounded-2xl p-8 text-center" style="background:linear-gradient(135deg,rgba(111,255,210,0.08),rgba(86,216,255,0.06));border:1px solid rgba(111,255,210,0.2)">
+        <div class="rounded-2xl p-8 text-center" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.08),rgba(var(--accent-cyan-rgb),0.06));border:1px solid rgba(var(--accent-teal-rgb),0.2)">
           <p class="text-xl font-black mb-2" style="color:var(--text-primary)">See the verdict on a specific listing</p>
           <p class="text-sm mb-6" style="color:var(--text-muted)">Every car and property page shows its fair-price analysis.</p>
           <div class="flex flex-wrap gap-3 justify-center">
-            <RouterLink to="/cars" class="px-6 py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Browse cars</RouterLink>
+            <RouterLink to="/cars" class="px-6 py-3 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Browse cars</RouterLink>
             <RouterLink to="/properties" class="px-6 py-3 rounded-xl text-sm font-semibold" style="color:var(--text-primary);border:1px solid var(--border-strong)">Browse properties</RouterLink>
           </div>
         </div>
@@ -85,25 +85,25 @@ usePageMeta(() => ({
 }))
 
 const segments = [
-  { key: 'vehicle', label: 'Cars', color: '#6fffd2' },
-  { key: 'property', label: 'Property', color: '#56d8ff' },
-  { key: 'rental', label: 'Rentals', color: '#a78bfa' },
+  { key: 'vehicle', label: 'Cars', color: 'var(--accent-teal)' },
+  { key: 'property', label: 'Property', color: 'var(--accent-cyan)' },
+  { key: 'rental', label: 'Rentals', color: 'var(--accent-violet)' },
 ]
 
 const indexFor = (type: string) => stats.value?.indexes?.find((i: any) => i.type === type)
 const verdictTotal = computed(() => Object.values(stats.value?.price_verdicts ?? {}).reduce((s: number, n: any) => s + Number(n), 0))
 const statCards = computed(() => [
-  { label: 'Cars for sale', value: (stats.value?.vehicle_listings ?? 0).toLocaleString(), color: '#6fffd2' },
-  { label: 'Properties', value: (stats.value?.property_listings ?? 0).toLocaleString(), color: '#56d8ff' },
-  { label: 'Rentals', value: (stats.value?.rental_listings ?? 0).toLocaleString(), color: '#a78bfa' },
-  { label: 'AI-scored listings', value: (stats.value?.ai_scored_listings ?? 0).toLocaleString(), color: '#fbbf24' },
+  { label: 'Cars for sale', value: (stats.value?.vehicle_listings ?? 0).toLocaleString(), color: 'var(--accent-teal)' },
+  { label: 'Properties', value: (stats.value?.property_listings ?? 0).toLocaleString(), color: 'var(--accent-cyan)' },
+  { label: 'Rentals', value: (stats.value?.rental_listings ?? 0).toLocaleString(), color: 'var(--accent-violet)' },
+  { label: 'AI-scored listings', value: (stats.value?.ai_scored_listings ?? 0).toLocaleString(), color: 'var(--warning)' },
 ])
 
 function verdictColor(s: string) {
-  if (s.includes('under') || s.includes('deal')) return '#6fffd2'
-  if (s === 'fair') return '#56d8ff'
-  if (s.includes('slightly')) return '#fbbf24'
-  return '#ef4444'
+  if (s.includes('under') || s.includes('deal')) return 'var(--accent-teal)'
+  if (s === 'fair') return 'var(--accent-cyan)'
+  if (s.includes('slightly')) return 'var(--warning)'
+  return 'var(--danger)'
 }
 
 onMounted(async () => {

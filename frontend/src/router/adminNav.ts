@@ -53,15 +53,12 @@ export const adminNav: AdminNavSection[] = [
       { path: 'content', label: 'Content', permission: 'manage_cms' },
       { path: 'notifications', label: 'Announcements', permission: 'manage_cms' },
       { path: 'competitors', label: 'Competitors', permission: 'manage_competitors' },
-      { path: 'settings', label: 'Settings', permission: 'manage_settings' },
     ],
   },
   {
-    title: 'AI / LLM',
+    title: 'AI',
     items: [
-      { path: 'llm-management', label: 'LLM Management', permission: 'manage_ai' },
-      { path: 'ai-intelligence', label: 'AI Intelligence', permission: 'manage_ai' },
-      { path: 'analytics', label: 'AI Usage & Cost', permission: 'view_analytics' },
+      { path: 'ai-status', label: 'AI Status', permission: 'manage_ai' },
     ],
   },
   {

@@ -13,7 +13,7 @@
     <div class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
       <div class="flex items-center justify-between mb-5">
         <h2 class="font-bold" style="color:var(--text-primary)">Recent Listings</h2>
-        <RouterLink to="/dashboard/listings/new" class="px-4 py-2 text-xs font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ New Listing</RouterLink>
+        <RouterLink to="/dashboard/listings/new" class="px-4 py-2 text-xs font-semibold rounded-xl" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">+ New Listing</RouterLink>
       </div>
       <div v-if="loading" class="space-y-2">
         <div v-for="i in 3" :key="i" class="h-14 rounded-xl animate-pulse" style="background:var(--surface-overlay)"></div>
@@ -21,7 +21,7 @@
       <div v-else-if="listings.length===0" class="text-center py-10">
         <p class="text-4xl mb-3">📋</p>
         <p class="text-sm mb-4" style="color:var(--text-muted)">No listings yet</p>
-        <RouterLink to="/dashboard/listings/new" class="px-4 py-2 text-xs font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Create First Listing</RouterLink>
+        <RouterLink to="/dashboard/listings/new" class="px-4 py-2 text-xs font-semibold rounded-xl" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Create First Listing</RouterLink>
       </div>
       <div v-else class="space-y-2">
         <div v-for="l in listings.slice(0,5)" :key="l.id" class="flex items-center justify-between p-4 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--surface-overlay)">
@@ -48,11 +48,11 @@ const listings = ref<any[]>([])
 const loading = ref(true)
 onMounted(async () => { try { const r = await client.get('/my-listings'); listings.value = r.data.data || [] } catch {} finally { loading.value = false } })
 const stats = computed(() => [
-  { label: 'Total Listings', value: listings.value.length, color: '#6fffd2' },
-  { label: 'Active', value: listings.value.filter((l:any) => l.status === 'active').length, color: '#56d8ff' },
-  { label: 'Pending Review', value: listings.value.filter((l:any) => l.status === 'pending').length, color: '#fbbf24' },
-  { label: 'Total Views', value: listings.value.reduce((s:number,l:any) => s+(l.view_count||0), 0), color: '#a78bfa' },
+  { label: 'Total Listings', value: listings.value.length, color: 'var(--accent-teal)' },
+  { label: 'Active', value: listings.value.filter((l:any) => l.status === 'active').length, color: 'var(--accent-cyan)' },
+  { label: 'Pending Review', value: listings.value.filter((l:any) => l.status === 'pending').length, color: 'var(--warning)' },
+  { label: 'Total Views', value: listings.value.reduce((s:number,l:any) => s+(l.view_count||0), 0), color: 'var(--accent-violet)' },
 ])
 function formatPrice(v:number, cur='GBP') { return new Intl.NumberFormat('en-GB',{style:'currency',currency:cur||'GBP',maximumFractionDigits:0}).format(v) }
-function statusStyle(s:string) { const m:Record<string,string>={active:'background:rgba(111,255,210,0.1);color:var(--accent-teal)',pending:'background:rgba(251,191,36,0.1);color:#fbbf24',rejected:'background:rgba(239,68,68,0.1);color:#ef4444'}; return m[s]||'background:var(--surface-overlay);color:var(--text-muted)' }
+function statusStyle(s:string) { const m:Record<string,string>={active:'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)',pending:'background:rgba(var(--warning-rgb),0.1);color:var(--warning)',rejected:'background:rgba(var(--danger-rgb),0.1);color:var(--danger)'}; return m[s]||'background:var(--surface-overlay);color:var(--text-muted)' }
 </script>

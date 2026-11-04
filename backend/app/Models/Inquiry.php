@@ -9,7 +9,9 @@ class Inquiry extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['listing_id', 'buyer_id', 'message', 'status', 'admin_notes'];
+    protected $fillable = ['listing_id', 'buyer_id', 'message', 'share_contact', 'status', 'admin_notes'];
+
+    protected $casts = ['share_contact' => 'boolean'];
 
     public function listing()
     {

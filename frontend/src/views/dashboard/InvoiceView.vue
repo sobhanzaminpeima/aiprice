@@ -5,7 +5,7 @@
       <button v-if="invoice" @click="print" class="px-4 py-2 rounded-xl text-sm font-semibold" style="background:var(--surface-overlay);color:var(--text-primary);border:1px solid var(--border-subtle)">Print / Save as PDF</button>
     </div>
 
-    <p v-if="error" class="text-sm" style="color:#ef4444">{{ error }}</p>
+    <p v-if="error" class="text-sm" style="color:var(--danger)">{{ error }}</p>
     <div v-else-if="!invoice" class="h-96 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
 
     <div v-else class="invoice rounded-2xl p-10" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -17,7 +17,7 @@
         <div class="text-right">
           <p class="text-2xl font-black" style="color:var(--text-primary)">INVOICE</p>
           <p class="text-sm font-mono" style="color:var(--text-secondary)">{{ invoice.invoice_number }}</p>
-          <span class="inline-block mt-2 px-2 py-0.5 rounded text-xs font-bold uppercase" :style="invoice.status === 'paid' ? 'background:rgba(111,255,210,0.12);color:var(--accent-teal)' : 'background:rgba(239,68,68,0.1);color:#ef4444'">{{ invoice.status === 'void' ? 'refunded' : invoice.status }}</span>
+          <span class="inline-block mt-2 px-2 py-0.5 rounded text-xs font-bold uppercase" :style="invoice.status === 'paid' ? 'background:rgba(var(--accent-teal-rgb),0.12);color:var(--accent-teal)' : 'background:rgba(var(--danger-rgb),0.1);color:var(--danger)'">{{ invoice.status === 'void' ? 'refunded' : invoice.status }}</span>
         </div>
       </div>
 

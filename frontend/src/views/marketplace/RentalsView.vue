@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="mb-8">
         <h1 class="text-4xl font-black text-[var(--text-primary)] mb-2">Rentals</h1>
-        <p class="text-[var(--text-muted)]">Find verified rentals at fair prices</p>
+        <p class="text-[var(--text-muted)]">Find rentals and compare prices with AI estimates</p>
       </div>
       <ListingsGrid type="rental" />
     </div>

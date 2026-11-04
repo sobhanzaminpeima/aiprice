@@ -75,6 +75,13 @@ class RealListingsSeeder extends Seeder
 
     public function run(): void
     {
+        // These are illustrative sample listings, not real offers: never let
+        // them reach a production marketplace.
+        if (app()->environment('production')) {
+            $this->command?->warn('RealListingsSeeder skipped: sample listings are not allowed in production.');
+
+            return;
+        }
         $seller = User::where('role', 'dealer')->first()
             ?? User::where('role', 'seller')->first()
             ?? User::where('email', 'admin@aiprice.app')->first();

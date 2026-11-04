@@ -6,10 +6,10 @@
     </div>
 
     <div class="flex gap-2 mb-6">
-      <button v-for="t in tabs" :key="t" @click="tab = t; editing = null" class="px-4 py-2 rounded-xl text-xs font-semibold" :style="tab === t ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">{{ t }}</button>
+      <button v-for="t in tabs" :key="t" @click="tab = t; editing = null" class="px-4 py-2 rounded-xl text-xs font-semibold" :style="tab === t ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid transparent'">{{ t }}</button>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <!-- ============ POSTS ============ -->
     <template v-if="tab === 'Blog posts'">
@@ -42,7 +42,7 @@
             </select>
             <input v-if="editing.status === 'scheduled'" v-model="editing.published_at" type="datetime-local" required class="px-3 py-2 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
             <button type="button" @click="editing = null" class="ml-auto px-4 py-2 text-sm" style="color:var(--text-muted)">Cancel</button>
-            <button type="submit" :disabled="busy" class="px-5 py-2 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ busy ? 'Saving…' : 'Save' }}</button>
+            <button type="submit" :disabled="busy" class="px-5 py-2 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ busy ? 'Saving…' : 'Save' }}</button>
           </div>
         </form>
         <article class="rounded-2xl p-6 prose-content" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -55,7 +55,7 @@
       <div v-else>
         <div class="flex justify-between mb-4">
           <input v-model="postSearch" @keyup.enter="loadPosts" placeholder="Search posts" class="px-3 py-2 rounded-lg text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
-          <button @click="newPost" class="px-4 py-2 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">New post</button>
+          <button @click="newPost" class="px-4 py-2 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">New post</button>
         </div>
         <p v-if="!posts.length" class="text-sm py-12 text-center rounded-2xl" style="background:var(--bg-surface);color:var(--text-muted)">No posts yet.</p>
         <div v-else class="space-y-2">
@@ -64,10 +64,10 @@
               <p class="text-sm font-semibold truncate" style="color:var(--text-primary)">{{ p.title }}</p>
               <p class="text-xs" style="color:var(--text-muted)">{{ p.category?.name || 'Uncategorised' }} · {{ p.view_count }} views · updated {{ fmt(p.updated_at) }}</p>
             </div>
-            <span class="text-xs px-2 py-0.5 rounded-full capitalize" :style="p.status === 'published' ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : p.status === 'scheduled' ? 'background:rgba(86,216,255,0.1);color:var(--accent-cyan)' : 'background:var(--surface-overlay);color:var(--text-muted)'">{{ p.status }}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full capitalize" :style="p.status === 'published' ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)' : p.status === 'scheduled' ? 'background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan)' : 'background:var(--surface-overlay);color:var(--text-muted)'">{{ p.status }}</span>
             <a v-if="p.status === 'published'" :href="`/blog/${p.slug}`" target="_blank" class="text-xs" style="color:var(--text-muted)">View</a>
             <button @click="editPost(p.id)" class="text-xs" style="color:var(--accent-teal)">Edit</button>
-            <button @click="deletePost(p)" class="text-xs" style="color:#ef4444">Delete</button>
+            <button @click="deletePost(p)" class="text-xs" style="color:var(--danger)">Delete</button>
           </div>
         </div>
       </div>
@@ -77,12 +77,12 @@
     <template v-else-if="tab === 'Categories'">
       <form @submit.prevent="addCategory" class="flex gap-2 mb-4">
         <input v-model="newCategory" required placeholder="New category name" class="px-3 py-2 rounded-lg text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
-        <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Add</button>
+        <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Add</button>
       </form>
       <div class="space-y-2">
         <div v-for="c in categories" :key="c.id" class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
           <p class="flex-1 text-sm" style="color:var(--text-primary)">{{ c.name }} <span class="text-xs" style="color:var(--text-muted)">/{{ c.slug }} · {{ c.posts_count }} posts</span></p>
-          <button @click="deleteCategory(c)" :disabled="c.posts_count > 0" class="text-xs disabled:opacity-30" style="color:#ef4444" :title="c.posts_count > 0 ? 'Has posts' : ''">Delete</button>
+          <button @click="deleteCategory(c)" :disabled="c.posts_count > 0" class="text-xs disabled:opacity-30" style="color:var(--danger)" :title="c.posts_count > 0 ? 'Has posts' : ''">Delete</button>
         </div>
       </div>
     </template>
@@ -97,7 +97,7 @@
         <textarea v-model="faqForm.answer" required rows="3" placeholder="Answer" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
         <div class="flex justify-end gap-2">
           <button v-if="faqForm.id" type="button" @click="resetFaq" class="px-3 py-2 text-sm" style="color:var(--text-muted)">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ faqForm.id ? 'Update' : 'Add FAQ' }}</button>
+          <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ faqForm.id ? 'Update' : 'Add FAQ' }}</button>
         </div>
       </form>
       <div class="space-y-2">
@@ -109,7 +109,7 @@
             </div>
             <button @click="toggleFaq(f)" class="text-xs" style="color:var(--text-muted)">{{ f.is_active ? 'Hide' : 'Show' }}</button>
             <button @click="faqForm = { ...f }" class="text-xs" style="color:var(--accent-teal)">Edit</button>
-            <button @click="deleteFaq(f)" class="text-xs" style="color:#ef4444">Delete</button>
+            <button @click="deleteFaq(f)" class="text-xs" style="color:var(--danger)">Delete</button>
           </div>
         </div>
       </div>

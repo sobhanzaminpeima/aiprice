@@ -5,14 +5,14 @@
         <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">User <span class="gradient-text">Management</span></h1>
         <p class="text-sm" style="color:var(--text-muted)">Manage users, KYC verification, and account status</p>
       </div>
-      <button @click="openAdd" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">+ Add User</button>
+      <button @click="openAdd" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">+ Add User</button>
     </div>
 
     <!-- Add User Modal -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6)" @click.self="showAddModal = false">
       <div class="w-full max-w-md rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <h3 class="text-lg font-bold mb-4" style="color:var(--text-primary)">Add New User</h3>
-        <div v-if="addError" class="mb-3 p-3 rounded-xl text-xs" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ addError }}</div>
+        <div v-if="addError" class="mb-3 p-3 rounded-xl text-xs" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ addError }}</div>
         <div class="space-y-3">
           <div>
             <label class="text-xs font-medium mb-1 block" style="color:var(--text-muted)">Full Name *</label>
@@ -44,7 +44,7 @@
         <div class="flex justify-end gap-2 mt-5">
           <button @click="showAddModal = false" class="px-4 py-2 rounded-xl text-sm font-semibold" style="background:var(--border-subtle);color:var(--text-secondary)">Cancel</button>
           <button @click="submitAdd" :disabled="!addForm.name || !addForm.email || addForm.password.length < 8 || addSaving"
-            class="px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-40" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+            class="px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-40" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
             {{ addSaving ? 'Creating...' : 'Create User' }}
           </button>
         </div>
@@ -86,7 +86,7 @@
         <!-- Avatar + info -->
         <div class="flex items-center gap-4">
           <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
-            style="background:linear-gradient(135deg,rgba(111,255,210,0.2),rgba(86,216,255,0.2));color:var(--accent-teal)">
+            style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.2),rgba(var(--accent-cyan-rgb),0.2));color:var(--accent-teal)">
             {{ u.name?.charAt(0)?.toUpperCase() || '?' }}
           </div>
           <div>
@@ -98,44 +98,44 @@
         <!-- Badges + Actions -->
         <div class="flex items-center gap-3 flex-wrap">
           <span class="text-xs px-2 py-1 rounded-full capitalize font-medium"
-            style="background:rgba(86,216,255,0.1);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">
+            style="background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
             {{ u.role }}
           </span>
           <span class="text-xs px-2 py-1 rounded-full font-medium"
-            :style="u.kyc_verified ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">
+            :style="u.kyc_verified ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)' : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">
             {{ u.kyc_verified ? '✓ KYC Verified' : 'KYC Pending' }}
           </span>
           <span class="text-xs px-2 py-1 rounded-full font-medium"
-            :style="u.is_active !== false ? 'background:rgba(111,255,210,0.08);color:var(--accent-teal)' : 'background:rgba(239,68,68,0.08);color:#ef4444'">
+            :style="u.is_active !== false ? 'background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal)' : 'background:rgba(var(--danger-rgb),0.08);color:var(--danger)'">
             {{ u.is_active !== false ? 'Active' : 'Suspended' }}
           </span>
 
           <!-- Risk score if present -->
           <span v-if="u.risk_score !== undefined && u.risk_score !== null"
             class="text-xs px-2 py-1 rounded-full font-medium"
-            :style="`background:rgba(${u.risk_score>70?'239,68,68':u.risk_score>40?'251,191,36':'111,255,210'},0.08);color:${u.risk_score>70?'#ef4444':u.risk_score>40?'#fbbf24':'#6fffd2'}`">
+            :style="`background:rgba(${u.risk_score>70?'var(--danger-rgb)':u.risk_score>40?'var(--warning-rgb)':'var(--accent-teal-rgb)'},0.08);color:${u.risk_score>70?'var(--danger)':u.risk_score>40?'var(--warning)':'var(--accent-teal)'}`">
             Risk: {{ u.risk_score }}%
           </span>
 
           <div class="flex gap-2">
             <button v-if="!u.kyc_verified" @click="approveKyc(u.id)"
               class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
-              style="background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)">
+              style="background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
               Approve KYC
             </button>
             <button @click="toggleActive(u.id)"
               class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
-              :style="u.is_active !== false ? 'background:rgba(251,191,36,0.08);color:#fbbf24;border:1px solid rgba(251,191,36,0.2)' : 'background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)'">
+              :style="u.is_active !== false ? 'background:rgba(var(--warning-rgb),0.08);color:var(--warning);border:1px solid rgba(var(--warning-rgb),0.2)' : 'background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)'">
               {{ u.is_active !== false ? 'Suspend' : 'Activate' }}
             </button>
             <button @click="changeRole(u)"
               class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
-              style="background:rgba(167,139,250,0.08);color:var(--accent-violet);border:1px solid rgba(167,139,250,0.2)">
+              style="background:rgba(var(--accent-violet-rgb),0.08);color:var(--accent-violet);border:1px solid rgba(var(--accent-violet-rgb),0.2)">
               Change Role
             </button>
             <button @click="openDetail(u)"
               class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
-              style="background:rgba(86,216,255,0.08);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">
+              style="background:rgba(var(--accent-cyan-rgb),0.08);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
               View Details
             </button>
           </div>
@@ -150,7 +150,7 @@
         <template v-else-if="detail">
           <div class="flex items-center justify-between mb-5">
             <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-full flex items-center justify-center font-black text-xl shrink-0" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ detail.name?.charAt(0)?.toUpperCase() }}</div>
+              <div class="w-14 h-14 rounded-full flex items-center justify-center font-black text-xl shrink-0" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ detail.name?.charAt(0)?.toUpperCase() }}</div>
               <div>
                 <p class="font-bold text-lg" style="color:var(--text-primary)">{{ detail.name }}</p>
                 <p class="text-xs" style="color:var(--text-muted)">{{ detail.email }} · {{ detail.phone || 'no phone' }}</p>
@@ -181,7 +181,7 @@
                   <option value="">Select plan...</option>
                   <option v-for="p in plans" :key="p.id" :value="p.id">{{ p.name }} — {{ p.price_monthly }}/mo</option>
                 </select>
-                <button @click="changePlan" :disabled="!planChangeId || planSaving" class="px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-40" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ planSaving ? 'Saving...' : 'Apply' }}</button>
+                <button @click="changePlan" :disabled="!planChangeId || planSaving" class="px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-40" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ planSaving ? 'Saving...' : 'Apply' }}</button>
               </div>
             </div>
           </div>
@@ -197,7 +197,7 @@
                   <p style="color:var(--text-primary)">{{ t.name }}</p>
                   <p style="color:var(--text-muted)">Created {{ new Date(t.created_at).toLocaleDateString('en-GB') }} · Last used {{ t.last_used_at ? new Date(t.last_used_at).toLocaleDateString('en-GB') : 'never' }}</p>
                 </div>
-                <button @click="revokeToken(t.id)" class="px-3 py-1.5 rounded-lg font-medium" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.2)">Revoke</button>
+                <button @click="revokeToken(t.id)" class="px-3 py-1.5 rounded-lg font-medium" style="background:rgba(var(--danger-rgb),0.08);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.2)">Revoke</button>
               </div>
             </div>
           </div>
@@ -209,7 +209,7 @@
     <div v-if="lastPage > 1" class="flex items-center justify-center gap-2 mt-8">
       <button v-for="p in lastPage" :key="p" @click="goPage(p)"
         class="w-9 h-9 rounded-xl text-xs font-semibold transition-all"
-        :style="p === currentPage ? 'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)'">
+        :style="p === currentPage ? 'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)'">
         {{ p }}
       </button>
     </div>

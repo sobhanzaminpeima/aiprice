@@ -2,10 +2,10 @@
   <div class="flex items-center gap-2">
     <div class="relative w-10 h-10">
       <svg viewBox="0 0 36 36" class="w-10 h-10 -rotate-90">
-        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e293b" stroke-width="3" />
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" data-tone="track" stroke-width="3" />
         <circle
           cx="18" cy="18" r="15.9" fill="none"
-          :stroke="strokeColor"
+          :style="{ stroke: strokeColor }"
           stroke-width="3"
           stroke-linecap="round"
           :stroke-dasharray="`${score} ${100 - score}`"
@@ -32,7 +32,7 @@ const strokeColor = computed(() => {
   if (props.score >= 80) return '#10b981'
   if (props.score >= 60) return '#0ea5e9'
   if (props.score >= 40) return '#f59e0b'
-  return '#ef4444'
+  return 'var(--danger)'
 })
 
 const label = computed(() => {

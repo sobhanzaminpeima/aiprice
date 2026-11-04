@@ -24,6 +24,7 @@ class AdminAccessTest extends TestCase
     {
         $user = User::factory()->create(['role' => $role, 'is_active' => true]);
         $user->assignRole($role);
+
         return $user;
     }
 
@@ -139,5 +140,37 @@ class AdminAccessTest extends TestCase
             ->assertOk()
             ->assertJsonPath('is_staff', true)
             ->assertJsonPath('permissions', ['view_dashboard', 'manage_support']);
+    }
+
+    public function test_agency_endpoint_cannot_grant_staff_or_modify_an_admin(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $agency = $this->userWithRole('agency');
+        $super = $this->userWithRole('super_admin');
+        $this->actingAs($admin, 'sanctum');
+        $this->putJson("/api/v1/admin/agencies/{$agency->id}", ['role' => 'super_admin'])->assertUnprocessable();
+        $this->putJson("/api/v1/admin/agencies/{$super->id}", ['name' => 'Compromised'])->assertNotFound();
+        $this->postJson("/api/v1/admin/agencies/{$super->id}/verify")->assertNotFound();
+        $this->assertSame('agency', $agency->fresh()->role);
+    }
+
+    public function test_agency_role_changes_sync_permissions_and_suspension_revokes_tokens(): void
+    {
+        $agency = $this->userWithRole('agency');
+        $agency->createToken('agency-session');
+        $this->actingAs($this->userWithRole('admin'), 'sanctum')
+            ->putJson("/api/v1/admin/agencies/{$agency->id}", ['role' => 'dealer', 'is_active' => false])->assertOk();
+        $this->assertTrue($agency->fresh()->hasRole('dealer'));
+        $this->assertFalse($agency->fresh()->hasRole('agency'));
+        $this->assertSame(0, $agency->tokens()->count());
+    }
+
+    public function test_business_verification_does_not_approve_identity_documents(): void
+    {
+        $agency = $this->userWithRole('agency');
+        $this->actingAs($this->userWithRole('admin'), 'sanctum')
+            ->postJson("/api/v1/admin/agencies/{$agency->id}/verify")->assertOk();
+        $this->assertTrue($agency->fresh()->is_verified);
+        $this->assertFalse($agency->fresh()->kyc_verified);
     }
 }

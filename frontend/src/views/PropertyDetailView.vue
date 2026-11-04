@@ -1,7 +1,7 @@
 <template>
   <div v-if="loading" class="min-h-screen flex items-center justify-center">
     <div class="text-center">
-      <div class="w-12 h-12 rounded-full border-2 animate-spin mx-auto mb-4" style="border-color:rgba(111,255,210,0.2);border-top-color:var(--accent-teal)"></div>
+      <div class="w-12 h-12 rounded-full border-2 animate-spin mx-auto mb-4" style="border-color:rgba(var(--accent-teal-rgb),0.2);border-top-color:var(--accent-teal)"></div>
       <p style="color:var(--text-muted)">Loading property...</p>
     </div>
   </div>
@@ -80,7 +80,7 @@
             <div class="mt-6 pt-5" style="border-top:1px solid var(--border-subtle)">
               <h3 class="text-sm font-semibold mb-3" style="color:var(--text-secondary)">Amenities</h3>
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <div v-for="a in amenitiesList" :key="a.label" class="flex items-center gap-2 text-xs py-2 px-3 rounded-lg" :style="a.has ? 'background:rgba(111,255,210,0.06);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.15)' : 'background:var(--surface-overlay-soft);color:var(--text-muted);border:1px solid var(--surface-overlay)'">
+                <div v-for="a in amenitiesList" :key="a.label" class="flex items-center gap-2 text-xs py-2 px-3 rounded-lg" :style="a.has ? 'background:rgba(var(--accent-teal-rgb),0.06);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.15)' : 'background:var(--surface-overlay-soft);color:var(--text-muted);border:1px solid var(--surface-overlay)'">
                   <span>{{ a.has ? '✓' : '✗' }}</span> {{ a.label }}
                 </div>
               </div>
@@ -106,27 +106,27 @@
           </div>
 
           <!-- AI Investment Analysis -->
-          <div class="rounded-2xl p-6" style="background:linear-gradient(135deg,rgba(86,216,255,0.04),rgba(167,139,250,0.03));border:1px solid rgba(86,216,255,0.15)">
+          <div class="rounded-2xl p-6" style="background:linear-gradient(135deg,rgba(var(--accent-cyan-rgb),0.04),rgba(var(--accent-violet-rgb),0.03));border:1px solid rgba(var(--accent-cyan-rgb),0.15)">
             <div class="flex items-center gap-3 mb-5">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)">AI</div>
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-violet));color:var(--on-accent)">AI</div>
               <h2 class="font-bold text-lg" style="color:var(--text-primary)">AI Investment Analysis</h2>
             </div>
 
             <div v-if="listing.market_min_price && listing.market_max_price" class="mb-6">
               <div class="flex justify-between text-xs mb-2" style="color:var(--text-muted)">
-                <span>Min: {{ formatPrice(listing.market_min_price, listing.currency) }}</span>
-                <span>Max: {{ formatPrice(listing.market_max_price, listing.currency) }}</span>
+                <span>Typical low: {{ formatPrice(listing.market_min_price, listing.currency) }}</span>
+                <span>Typical high: {{ formatPrice(listing.market_max_price, listing.currency) }}</span>
               </div>
               <div class="relative h-3 rounded-full" style="background:var(--border-subtle)">
-                <div class="h-3 rounded-full" style="background:linear-gradient(90deg,rgba(86,216,255,0.3),rgba(167,139,250,0.3));width:100%"></div>
-                <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2" style="background:#56d8ff;border-color:var(--on-accent);box-shadow:0 0 12px rgba(86,216,255,0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
+                <div class="h-3 rounded-full" style="background:linear-gradient(90deg,rgba(var(--accent-cyan-rgb),0.3),rgba(var(--accent-violet-rgb),0.3));width:100%"></div>
+                <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2" style="background:var(--accent-cyan);border-color:var(--on-accent);box-shadow:0 0 12px rgba(var(--accent-cyan-rgb),0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
               </div>
             </div>
 
             <div class="grid grid-cols-3 gap-4">
-              <ScoreGauge v-if="listing.ai_trust_score" label="Trust Score" :value="listing.ai_trust_score" color="#6fffd2" />
-              <ScoreGauge v-if="listing.ai_investment_score" label="ROI Score" :value="listing.ai_investment_score" color="#a78bfa" />
-              <ScoreGauge v-if="listing.ai_confidence_score" label="Confidence" :value="listing.ai_confidence_score" color="#56d8ff" />
+              <ScoreGauge v-if="listing.ai_trust_score" label="Trust Score" :value="listing.ai_trust_score" color="var(--accent-teal)" />
+              <ScoreGauge v-if="listing.ai_investment_score" label="ROI Score" :value="listing.ai_investment_score" color="var(--accent-violet)" />
+              <ScoreGauge v-if="listing.ai_confidence_score" label="Confidence" :value="listing.ai_confidence_score" color="var(--accent-cyan)" />
             </div>
 
             <div v-if="listing.ai_analysis" class="mt-5 p-4 rounded-xl text-sm leading-relaxed" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle);color:var(--text-secondary)">
@@ -141,7 +141,7 @@
           <div v-if="comparables.length" class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
             <h2 class="font-bold text-lg mb-5" style="color:var(--text-primary)">Similar Properties</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(86,216,255,0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='var(--border-subtle)'">
+              <RouterLink v-for="c in comparables" :key="c.id" :to="`/listings/${c.slug}`" class="flex items-center gap-3 p-3 rounded-xl transition-all" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)" @mouseenter="(e:any) => e.currentTarget.style.borderColor='rgba(var(--accent-cyan-rgb),0.2)'" @mouseleave="(e:any) => e.currentTarget.style.borderColor='var(--border-subtle)'">
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:var(--surface-overlay)"><AppIcon name="home" :size="20" /></div>
                 <div class="flex-1 min-w-0">
                   <p class="text-xs font-medium truncate" style="color:var(--text-primary)">{{ c.title }}</p>
@@ -154,7 +154,7 @@
 
         <!-- Right sidebar -->
         <div class="space-y-5">
-          <div class="rounded-2xl p-6 sticky top-20" style="background:var(--bg-card);border:1px solid rgba(86,216,255,0.2)">
+          <div class="rounded-2xl p-6 sticky top-20" style="background:var(--bg-card);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
             <p class="text-3xl font-black mb-0.5" style="color:var(--text-primary)">{{ formatPrice(listing.price, listing.currency) }}</p>
             <p v-if="property?.area_sqm" class="text-sm mb-4" style="color:var(--text-muted)">{{ formatPrice(listing.price / property.area_sqm, listing.currency) }}/m²</p>
             <p v-if="listing.price_negotiable" class="text-sm mb-4" style="color:var(--accent-cyan)">✓ Price negotiable</p>
@@ -170,36 +170,14 @@
               </div>
             </div>
 
-            <!-- Seller: identity is never shown — all contact goes through AIPrice -->
-            <div class="flex items-center gap-3 mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="background:linear-gradient(135deg,rgba(86,216,255,0.2),rgba(167,139,250,0.2));color:var(--accent-cyan)">
-                <AppIcon name="shield" :size="20" />
-              </div>
-              <div>
-                <p class="text-sm font-semibold" style="color:var(--text-primary)">Verified Listing</p>
-                <p class="text-xs" style="color:var(--text-muted)">Contact is handled by the AIPrice team</p>
-              </div>
-            </div>
-
-            <div class="space-y-3">
-              <button @click="showInquiry = !showInquiry" class="w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)">
-                <AppIcon name="mail" :size="18" /> Request Viewing
-              </button>
-              <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2" :style="isFavorited ? 'background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
-                <AppIcon name="heart" :size="18" :fill="isFavorited ? 'currentColor' : 'none'" /> {{ isFavorited ? 'Saved' : 'Save Property' }}
-              </button>
-            </div>
-
-            <Transition name="slide-down">
-              <div v-if="showInquiry" class="mt-4 pt-4" style="border-top:1px solid var(--border-subtle)">
-                <textarea v-model="inquiryMsg" rows="3" placeholder="I am interested in viewing this property..." class="w-full rounded-xl p-3 text-sm resize-none outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
-                <button @click="sendInquiry" :disabled="sendingInquiry" class="w-full mt-2 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#56d8ff,#a78bfa);color:var(--on-accent)">
-                  {{ sendingInquiry ? 'Sending...' : 'Send Request' }}
+            <!-- Seller contact: masked phone for guests, full number + "Send to seller" for members -->
+            <SellerContactCard :listing-id="listing.id" :contact="sellerContact" :kind="listing.type">
+              <template #secondary>
+                <button @click="toggleFavorite" class="w-full py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2" :style="isFavorited ? 'background:rgba(var(--danger-rgb),0.12);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-strong)'">
+                  <AppIcon name="heart" :size="18" :fill="isFavorited ? 'currentColor' : 'none'" /> {{ isFavorited ? 'Saved' : 'Save Property' }}
                 </button>
-                <p v-if="inquirySent" class="text-xs text-center mt-2" style="color:var(--accent-teal)">✓ Request sent!</p>
-                <p v-if="inquiryError" class="text-xs text-center mt-2" style="color:#ef4444">{{ inquiryError }}</p>
-              </div>
-            </Transition>
+              </template>
+            </SellerContactCard>
           </div>
 
           <!-- Why buy in NC -->
@@ -220,8 +198,8 @@
 <script setup lang="ts">
 import SpecItem from '@/components/listings/SpecItem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import SellerContactCard, { type SellerContact } from '@/components/listings/SellerContactCard.vue'
 import ScoreGauge from '@/components/listings/ScoreGauge.vue'
-import { apiErrorMessage } from '@/api/errors'
 import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useListingsStore } from '@/stores/listings'
@@ -237,11 +215,7 @@ const comparables = ref<any[]>([])
 const isFavorited = ref(false)
 const activeImage = ref<string | null>(null)
 const imgErr = ref(false)
-const showInquiry = ref(false)
-const inquiryMsg = ref('')
-const sendingInquiry = ref(false)
-const inquirySent = ref(false)
-const inquiryError = ref('')
+const sellerContact = ref<SellerContact | null>(null)
 
 const property = computed(() => listing.value?.listable as Property | null)
 const images = computed(() => { const l = listing.value as any; return l?.images?.length ? l.images : (l?.thumbnail ? [l.thumbnail] : []) })
@@ -287,7 +261,7 @@ const pricePosition = computed(() => {
   return Math.max(2, Math.min(98, ((l.price - l.market_min_price) / range) * 100))
 })
 
-const batteryColor = computed(() => { const p = listing.value?.price_battery_percent ?? 0; return p >= 85 ? '#6fffd2' : p >= 70 ? '#56d8ff' : '#fbbf24' })
+const batteryColor = computed(() => { const p = listing.value?.price_battery_percent ?? 0; return p >= 85 ? 'var(--accent-teal)' : p >= 70 ? 'var(--accent-cyan)' : 'var(--warning)' })
 
 function setImg(url: string) { activeImage.value = url; imgErr.value = false }
 function capitalize(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' ') : '' }
@@ -297,20 +271,12 @@ function formatPrice(val: number, currency = 'GBP') {
 }
 
 async function toggleFavorite() { try { await store.toggleFavorite(listing.value!.id); isFavorited.value = !isFavorited.value } catch {} }
-async function sendInquiry() {
-  if (!inquiryMsg.value.trim()) return
-  sendingInquiry.value = true
-  inquiryError.value = ''
-  try { await store.sendInquiry(listing.value!.id, inquiryMsg.value); inquirySent.value = true; inquiryMsg.value = ''; setTimeout(() => { showInquiry.value = false; inquirySent.value = false }, 3000) }
-  catch (e) { inquiryError.value = apiErrorMessage(e, 'Could not send your message.') } finally { sendingInquiry.value = false }
-}
 
 const whyNC = [
-  'No capital gains tax or inheritance tax',
-  'Strong rental yields of 6-12% per annum',
-  'Growing expat community and tourism sector',
-  'Affordable prices vs EU/UK property markets',
-  'Mediterranean climate year-round',
+  'Mediterranean climate and a growing expat community',
+  'Prices are often lower than comparable EU/UK coastal markets',
+  'Rental demand from students and tourists in many areas',
+  'Tax rules and title-deed types vary: get independent legal advice before buying',
 ]
 
 async function load() {
@@ -320,6 +286,7 @@ async function load() {
     listing.value = res.listing ?? res
     comparables.value = res.comparable_listings ?? []
     isFavorited.value = res.is_favorited ?? false
+    sellerContact.value = res.seller_contact ?? null
     const imgs = (listing.value as any)?.images
     activeImage.value = imgs?.[0] ?? (listing.value as any)?.thumbnail ?? null
   } catch { listing.value = null } finally { loading.value = false }

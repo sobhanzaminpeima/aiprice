@@ -16,8 +16,8 @@
     <div v-if="loading" class="py-24 text-center" style="color:var(--text-muted)">Loading listing...</div>
 
     <template v-else-if="listing">
-      <p v-if="error" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</p>
-      <p v-if="saved" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(111,255,210,0.1);border:1px solid rgba(111,255,210,0.2);color:var(--accent-teal)">Saved.</p>
+      <p v-if="error" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</p>
+      <p v-if="saved" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(var(--accent-teal-rgb),0.1);border:1px solid rgba(var(--accent-teal-rgb),0.2);color:var(--accent-teal)">Saved.</p>
 
       <!-- Gallery -->
       <div class="rounded-2xl p-6 mb-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -26,18 +26,18 @@
         <div v-else class="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-4">
           <div v-for="(img, i) in images" :key="img" class="relative aspect-square rounded-xl overflow-hidden group" style="background:var(--surface-overlay)">
             <img :src="img" class="w-full h-full object-cover" />
-            <div v-if="img === listing.thumbnail" class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-xs font-bold" style="background:#6fffd2;color:var(--on-accent)">Cover</div>
+            <div v-if="img === listing.thumbnail" class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-xs font-bold" style="background:var(--accent-teal);color:var(--on-accent)">Cover</div>
             <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2" style="background:rgba(0,0,0,0.5)">
-              <button v-if="img !== listing.thumbnail" @click="setThumbnail(img)" title="Set as cover" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(111,255,210,0.9);color:#000">
+              <button v-if="img !== listing.thumbnail" @click="setThumbnail(img)" title="Set as cover" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(var(--accent-teal-rgb),0.9);color:#000">
                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
               </button>
-              <button @click="removeImage(img, i)" title="Delete" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(239,68,68,0.9);color:#fff">
+              <button @click="removeImage(img, i)" title="Delete" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(var(--danger-rgb),0.9);color:#fff">
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
           </div>
         </div>
-        <label class="inline-block px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer" style="background:rgba(86,216,255,0.1);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)">
+        <label class="inline-block px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer" style="background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
           {{ uploading ? 'Uploading...' : '+ Upload Photos' }}
           <input type="file" multiple accept="image/*" class="hidden" :disabled="uploading" @change="handleUpload" />
         </label>
@@ -118,7 +118,7 @@
 
       <div class="flex justify-end gap-3 sticky bottom-6">
         <button @click="router.push('/admin/listings')" class="px-6 py-3 rounded-xl text-sm font-semibold" style="background:var(--border-subtle);color:var(--text-secondary)">Cancel</button>
-        <button @click="save" :disabled="saving" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ saving ? 'Saving...' : 'Save Changes' }}</button>
+        <button @click="save" :disabled="saving" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ saving ? 'Saving...' : 'Save Changes' }}</button>
       </div>
     </template>
   </div>
@@ -201,7 +201,7 @@ async function setThumbnail(url: string) {
 }
 
 function statusStyle(s: string) {
-  const m: Record<string,string> = { active:'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)', pending:'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.2)', rejected:'background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)', sold:'background:rgba(86,216,255,0.1);color:var(--accent-cyan);border:1px solid rgba(86,216,255,0.2)', expired:'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-strong)' }
+  const m: Record<string,string> = { active:'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)', pending:'background:rgba(var(--warning-rgb),0.1);color:var(--warning);border:1px solid rgba(var(--warning-rgb),0.2)', rejected:'background:rgba(var(--danger-rgb),0.1);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.2)', sold:'background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.2)', expired:'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-strong)' }
   return m[s] || m.expired
 }
 </script>

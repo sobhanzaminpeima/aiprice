@@ -5,7 +5,7 @@
       <p class="text-sm" style="color:var(--text-muted)">{{ step === 0 ? 'Optional — let AI draft the form for you' : `Step ${step} of 5 — ${stepLabels[step - 1]}` }}</p>
     </div>
 
-    <div v-if="missingFields.length && step >= 1 && step <= 5" class="mb-6 p-3 rounded-xl text-xs flex items-start gap-2" style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);color:#fbbf24">
+    <div v-if="missingFields.length && step >= 1 && step <= 5" class="mb-6 p-3 rounded-xl text-xs flex items-start gap-2" style="background:rgba(var(--warning-rgb),0.08);border:1px solid rgba(var(--warning-rgb),0.25);color:var(--warning)">
       <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
       <span>AI filled this form from your description but couldn't determine: <strong>{{ missingFields.join(', ') }}</strong>. Please check and complete those fields.</span>
     </div>
@@ -14,22 +14,22 @@
     <div v-if="step >= 1" class="flex items-center gap-2 mb-10">
       <div v-for="i in 5" :key="i" class="flex items-center gap-2 flex-1">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all"
-          :style="i < step ? 'background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)' : i === step ? 'background:rgba(111,255,210,0.15);color:var(--accent-teal);border:2px solid #6fffd2' : 'background:var(--surface-overlay);color:var(--text-muted);border:2px solid var(--border-strong)'">
+          :style="i < step ? 'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)' : i === step ? 'background:rgba(var(--accent-teal-rgb),0.15);color:var(--accent-teal);border:2px solid var(--accent-teal)' : 'background:var(--surface-overlay);color:var(--text-muted);border:2px solid var(--border-strong)'">
           <svg v-if="i < step" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
           <span v-else>{{ i }}</span>
         </div>
-        <div v-if="i < 5" class="flex-1 h-0.5 rounded-full" :style="i < step ? 'background:#6fffd2' : 'background:var(--border-subtle)'"></div>
+        <div v-if="i < 5" class="flex-1 h-0.5 rounded-full" :style="i < step ? 'background:var(--accent-teal)' : 'background:var(--border-subtle)'"></div>
       </div>
     </div>
 
     <!-- Error banner -->
-    <div v-if="error" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <!-- STEP 0: AI free-text import -->
     <div v-if="step === 0" class="mb-10">
-      <div class="rounded-2xl p-6 mb-4" style="background:linear-gradient(135deg,rgba(111,255,210,0.06),rgba(86,216,255,0.03));border:2px solid rgba(111,255,210,0.25)">
+      <div class="rounded-2xl p-6 mb-4" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.06),rgba(var(--accent-cyan-rgb),0.03));border:2px solid rgba(var(--accent-teal-rgb),0.25)">
         <div class="flex items-center gap-3 mb-3">
-          <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">AI</div>
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">AI</div>
           <div>
             <p class="font-bold" style="color:var(--text-primary)">Describe it in your own words</p>
             <p class="text-xs" style="color:var(--text-muted)">Write it as one paragraph — brand, year, price, location, condition, anything you'd tell a buyer. AI fills the form for you; you review every field before it's submitted.</p>
@@ -40,7 +40,7 @@
         <p v-if="extractError" class="text-xs mb-3" style="color:#f87171">{{ extractError }}</p>
         <div class="flex items-center gap-3">
           <button @click="runExtraction" :disabled="freeText.trim().length < 20 || extracting"
-            class="px-6 py-3 rounded-xl font-bold text-sm disabled:opacity-40 flex items-center gap-2" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+            class="px-6 py-3 rounded-xl font-bold text-sm disabled:opacity-40 flex items-center gap-2" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
             <svg v-if="extracting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             {{ extracting ? 'Reading your description...' : 'Fill form with AI' }}
           </button>
@@ -58,16 +58,16 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <button v-for="t in types" :key="t.value" @click="form.type = t.value"
           class="rounded-2xl p-6 text-left transition-all"
-          :style="form.type === t.value ? 'background:rgba(111,255,210,0.08);border:2px solid rgba(111,255,210,0.4)' : 'background:var(--bg-surface);border:2px solid var(--border-subtle)'">
+          :style="form.type === t.value ? 'background:rgba(var(--accent-teal-rgb),0.08);border:2px solid rgba(var(--accent-teal-rgb),0.4)' : 'background:var(--bg-surface);border:2px solid var(--border-subtle)'">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" :style="'background:rgba('+t.rgb+',0.1)'">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" :stroke="`rgb(${t.rgb})`" stroke-width="1.5" v-html="t.iconPath"></svg>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" :style="`stroke:rgb(${t.rgb})`" stroke-width="1.5" v-html="t.iconPath"></svg>
           </div>
           <h3 class="font-bold mb-1" :style="{color: form.type === t.value ? 'rgb('+t.rgb+')' : 'var(--text-primary)'}">{{ t.label }}</h3>
           <p class="text-xs" style="color:var(--text-muted)">{{ t.desc }}</p>
         </button>
       </div>
       <div class="flex justify-end">
-        <button @click="nextStep" :disabled="!form.type" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Continue</button>
+        <button @click="nextStep" :disabled="!form.type" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Continue</button>
       </div>
     </div>
 
@@ -170,7 +170,7 @@
 
       <div class="flex justify-between">
         <button @click="step--" class="px-6 py-3 rounded-xl font-semibold text-sm" style="background:var(--border-subtle);color:var(--text-secondary)">Back</button>
-        <button @click="nextStep" :disabled="!canGoStep2" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Continue</button>
+        <button @click="nextStep" :disabled="!canGoStep2" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Continue</button>
       </div>
     </div>
 
@@ -181,16 +181,16 @@
 
       <!-- Upload zone -->
       <div class="border-2 border-dashed rounded-2xl p-10 text-center mb-4 cursor-pointer transition-all"
-        style="border-color:rgba(111,255,210,0.2);background:rgba(111,255,210,0.02)"
-        :style="dragOver ? 'border-color:var(--accent-teal);background:rgba(111,255,210,0.06)' : ''"
+        style="border-color:rgba(var(--accent-teal-rgb),0.2);background:rgba(var(--accent-teal-rgb),0.02)"
+        :style="dragOver ? 'border-color:var(--accent-teal);background:rgba(var(--accent-teal-rgb),0.06)' : ''"
         @dragover.prevent="dragOver=true" @dragleave="dragOver=false" @drop.prevent="handleDrop"
         @click="fileInputRef?.click()">
         <div class="flex justify-center mb-3">
-          <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="#6fffd2" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="teal" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </div>
         <p class="font-semibold mb-2" style="color:var(--text-primary)">Drag &amp; drop photos here</p>
         <p class="text-xs mb-4" style="color:var(--text-muted)">JPG, PNG, WebP up to 10MB each</p>
-        <span class="px-6 py-2.5 rounded-xl text-sm font-semibold" style="background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)">Browse Files</span>
+        <span class="px-6 py-2.5 rounded-xl text-sm font-semibold" style="background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)">Browse Files</span>
         <input ref="fileInputRef" type="file" multiple accept="image/*" class="hidden" @change="handleFileSelect" />
       </div>
 
@@ -198,8 +198,8 @@
       <div v-if="photoFiles.length > 0" class="grid grid-cols-3 md:grid-cols-5 gap-3 mb-6">
         <div v-for="(f, i) in photoFiles" :key="i" class="relative aspect-square rounded-xl overflow-hidden" style="background:var(--surface-overlay)">
           <img :src="f.preview" class="w-full h-full object-cover" />
-          <div v-if="i === 0" class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-xs font-bold" style="background:#6fffd2;color:var(--on-accent)">Cover</div>
-          <button @click="removePhoto(i)" class="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center" style="background:rgba(239,68,68,0.8);color:#fff">
+          <div v-if="i === 0" class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-xs font-bold" style="background:var(--accent-teal);color:var(--on-accent)">Cover</div>
+          <button @click="removePhoto(i)" class="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center" style="background:rgba(var(--danger-rgb),0.8);color:#fff">
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
@@ -212,7 +212,7 @@
       </div>
       <div class="flex justify-between mt-6">
         <button @click="step--" class="px-6 py-3 rounded-xl font-semibold text-sm" style="background:var(--border-subtle);color:var(--text-secondary)">Back</button>
-        <button @click="nextStep" class="px-8 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Continue</button>
+        <button @click="nextStep" class="px-8 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Continue</button>
       </div>
     </div>
 
@@ -231,7 +231,7 @@
       </div>
       <div class="flex justify-between">
         <button @click="step--" class="px-6 py-3 rounded-xl font-semibold text-sm" style="background:var(--border-subtle);color:var(--text-secondary)">Back</button>
-        <button @click="nextStep" :disabled="!form.city" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Continue</button>
+        <button @click="nextStep" :disabled="!form.city" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Continue</button>
       </div>
     </div>
 
@@ -263,24 +263,28 @@
 
       <!-- AI Button — shows if no result OR if price changed -->
       <button @click="runAi" :disabled="!form.price || aiLoading" class="w-full py-4 rounded-2xl font-bold mb-6 disabled:opacity-40 flex items-center justify-center gap-3"
-        style="background:linear-gradient(135deg,rgba(111,255,210,0.1),rgba(86,216,255,0.1));border:2px solid rgba(111,255,210,0.3);color:var(--accent-teal)">
+        style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.1),rgba(var(--accent-cyan-rgb),0.1));border:2px solid rgba(var(--accent-teal-rgb),0.3);color:var(--accent-teal)">
         <svg v-if="!aiLoading" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1 1 .23 2.717-1.07 2.717H3.866c-1.3 0-2.07-1.716-1.07-2.717L4.17 15.3"/></svg>
         <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         {{ aiLoading ? 'AI Analyzing...' : aiResult ? 'Re-Analyze Price' : 'Run AI Price Analysis' }}
       </button>
 
       <!-- AI Result -->
-      <div v-if="aiResult" class="rounded-2xl p-6 mb-6" style="background:linear-gradient(135deg,rgba(111,255,210,0.06),rgba(86,216,255,0.03));border:2px solid rgba(111,255,210,0.25)">
+      <div v-if="aiResult" class="rounded-2xl p-6 mb-6" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.06),rgba(var(--accent-cyan-rgb),0.03));border:2px solid rgba(var(--accent-teal-rgb),0.25)">
         <div class="flex items-center gap-3 mb-5">
-          <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">AI</div>
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">AI</div>
           <div>
             <p class="font-bold" style="color:var(--text-primary)">AI Price Analysis</p>
             <p class="text-xs" style="color:var(--text-muted)">{{ aiResult.comparables }} comparable listings · {{ new Date().toLocaleTimeString('en-GB') }}</p>
           </div>
         </div>
-        <div class="flex items-center gap-4 p-4 rounded-xl mb-5" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
+        <div v-if="!aiResult.has_estimate" class="p-4 rounded-xl mb-5" role="status" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
+          <p class="font-bold mb-1" style="color:var(--text-primary)">Not enough comparable listings yet</p>
+          <p v-for="r in aiResult.reasons" :key="r" class="text-xs" style="color:var(--text-muted)">{{ r }}</p>
+        </div>
+        <div v-else class="flex items-center gap-4 p-4 rounded-xl mb-5" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
           <div class="shrink-0">
-            <p class="text-xs mb-1" style="color:var(--text-muted)">Price Battery</p>
+            <p class="text-xs mb-1" style="color:var(--text-muted)">Price Battery (estimate)</p>
             <p class="text-4xl font-black" :style="{color: batteryColor}">{{ aiResult.battery_score }}%</p>
             <p class="text-sm font-bold mt-1" :style="{color: batteryColor}">{{ aiResult.battery_label }}</p>
           </div>
@@ -289,12 +293,13 @@
               <div class="h-full rounded-lg transition-all duration-1000" :style="'width:'+aiResult.battery_score+'%;background:'+batteryColor"></div>
             </div>
             <div class="flex justify-between text-xs" style="color:var(--text-muted)">
-              <span>Min: {{ fmtPrice(aiResult.market_min) }}</span>
-              <span>Avg: {{ fmtPrice(aiResult.market_avg) }}</span>
-              <span>Max: {{ fmtPrice(aiResult.market_max) }}</span>
+              <span>Low: {{ fmtPrice(aiResult.market_min) }}</span>
+              <span>Typical: {{ fmtPrice(aiResult.market_avg) }}</span>
+              <span>High: {{ fmtPrice(aiResult.market_max) }}</span>
             </div>
           </div>
         </div>
+        <p v-if="aiResult.disclaimer" class="text-xs mb-4" style="color:var(--text-muted)">{{ aiResult.disclaimer }}</p>
         <div class="grid grid-cols-3 gap-3">
           <div class="text-center p-3 rounded-xl" style="background:var(--surface-overlay-soft)">
             <p class="text-xl font-black" style="color:var(--accent-teal)">{{ aiResult.trust_score ?? '—' }}<span v-if="aiResult.trust_score !== null">%</span></p>
@@ -317,7 +322,7 @@
 
       <div class="flex justify-between">
         <button @click="step--" class="px-6 py-3 rounded-xl font-semibold text-sm" style="background:var(--border-subtle);color:var(--text-secondary)">Back</button>
-        <button @click="submitListing" :disabled="!form.price || submitting" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+        <button @click="submitListing" :disabled="!form.price || submitting" class="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-40" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
           {{ submitting ? 'Submitting...' : 'Submit Listing' }}
         </button>
       </div>
@@ -325,12 +330,12 @@
 
     <!-- Success -->
     <div v-if="step === 6" class="text-center py-20">
-      <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background:rgba(111,255,210,0.1);border:2px solid #6fffd2">
-        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="#6fffd2" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background:rgba(var(--accent-teal-rgb),0.1);border:2px solid var(--accent-teal)">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="teal" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
       </div>
       <h2 class="text-2xl font-black mb-2" style="color:var(--text-primary)">Listing Submitted!</h2>
       <p class="text-sm mb-6" style="color:var(--text-muted)">Your listing is under review. Admin will approve it shortly.</p>
-      <RouterLink to="/dashboard/listings" class="px-6 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">View My Listings</RouterLink>
+      <RouterLink to="/dashboard/listings" class="px-6 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">View My Listings</RouterLink>
     </div>
   </div>
 </template>
@@ -341,12 +346,14 @@ import client from '@/api/client'
 
 interface PhotoFile { file: File; preview: string }
 interface AiResult {
-  battery_score: number
+  has_estimate: boolean
+  battery_score: number | null
   battery_label: string
-  market_avg: number
-  market_min: number
-  market_max: number
+  market_avg: number | null
+  market_min: number | null
+  market_max: number | null
   comparables: number
+  disclaimer?: string
   confidence?: number
   reasons?: string[]
   trust_score: number | null
@@ -427,9 +434,9 @@ const amenities = [
   { key: 'has_elevator', label: 'Elevator' },
 ]
 const types = [
-  { value: 'vehicle', label: 'Car / Vehicle', desc: 'Cars, vans, motorcycles', rgb: '111,255,210', iconPath: '<path stroke-linecap="round" stroke-linejoin="round" stroke="rgb(111,255,210)" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>' },
-  { value: 'property', label: 'Property', desc: 'Apartments, villas, houses', rgb: '86,216,255', iconPath: '<path stroke-linecap="round" stroke-linejoin="round" stroke="rgb(86,216,255)" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>' },
-  { value: 'rental', label: 'Rental', desc: 'Short or long-term rental', rgb: '167,139,250', iconPath: '<path stroke-linecap="round" stroke-linejoin="round" stroke="rgb(167,139,250)" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>' },
+  { value: 'vehicle', label: 'Car / Vehicle', desc: 'Cars, vans, motorcycles', rgb: 'var(--accent-teal-rgb)', iconPath: '<path stroke-linecap="round" stroke-linejoin="round" style="stroke:rgb(var(--accent-teal-rgb))" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>' },
+  { value: 'property', label: 'Property', desc: 'Apartments, villas, houses', rgb: 'var(--accent-cyan-rgb)', iconPath: '<path stroke-linecap="round" stroke-linejoin="round" style="stroke:rgb(var(--accent-cyan-rgb))" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>' },
+  { value: 'rental', label: 'Rental', desc: 'Short or long-term rental', rgb: 'var(--accent-violet-rgb)', iconPath: '<path stroke-linecap="round" stroke-linejoin="round" style="stroke:rgb(var(--accent-violet-rgb))" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>' },
 ]
 
 // Load brands + property types on mount
@@ -457,9 +464,10 @@ const canGoStep2 = computed(() => {
 
 const batteryColor = computed(() => {
   if (!aiResult.value) return 'var(--text-muted)'
-  if (aiResult.value.battery_score >= 85) return '#6fffd2'
-  if (aiResult.value.battery_score >= 60) return '#fbbf24'
-  return '#ef4444'
+  const b = aiResult.value.battery_score ?? 0
+  if (b >= 85) return 'var(--accent-teal)'
+  if (b >= 60) return 'var(--warning)'
+  return 'var(--danger)'
 })
 
 // Reset AI result when price changes
@@ -590,7 +598,14 @@ async function runAi() {
     const r = await client.post('/ai/price-estimate', {
       type: form.value.type,
       price: form.value.price,
+      currency: form.value.currency,
       city: form.value.city,
+      brand_name: form.value.brand_name || undefined,
+      model_name: (form.value.model_name_custom || form.value.model_name) || undefined,
+      year: form.value.year || undefined,
+      property_type_name: form.value.property_type_name || undefined,
+      bedrooms: form.value.bedrooms || undefined,
+      area_sqm: form.value.area_sqm || undefined,
     })
     aiResult.value = r.data as AiResult
     lastAnalyzedPrice.value = form.value.price
@@ -670,7 +685,8 @@ async function submitListing() {
   }
 }
 
-function fmtPrice(v: number) {
+function fmtPrice(v: number | null) {
+  if (v === null || v === undefined) return '—'
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: form.value.currency || 'GBP', maximumFractionDigits: 0 }).format(v)
 }
 </script>

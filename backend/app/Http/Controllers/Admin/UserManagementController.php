@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -7,7 +8,9 @@ use App\Models\User;
 use App\Notifications\KycReviewed;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
@@ -16,10 +19,15 @@ class UserManagementController extends Controller
     public function index(Request $request): JsonResponse
     {
         $q = User::withTrashed()->orderByDesc('created_at');
-        if ($request->role) $q->where('role', $request->role);
-        if ($request->search) $q->where(function ($query) use ($request) {
-            $query->where('name', 'like', '%'.$request->search.'%')->orWhere('email', 'like', '%'.$request->search.'%');
-        });
+        if ($request->role) {
+            $q->where('role', $request->role);
+        }
+        if ($request->search) {
+            $q->where(function ($query) use ($request) {
+                $query->where('name', 'like', '%'.$request->search.'%')->orWhere('email', 'like', '%'.$request->search.'%');
+            });
+        }
+
         return response()->json($q->paginate(20));
     }
 
@@ -45,6 +53,7 @@ class UserManagementController extends Controller
         ]);
         $user->assignRole($v['role']);
         $user->profile()->create(['business_name' => $v['business_name'] ?? null]);
+
         return response()->json(['user' => $user->load('profile'), 'message' => 'User created.'], 201);
     }
 
@@ -58,11 +67,11 @@ class UserManagementController extends Controller
         $user = User::findOrFail($id);
         $this->guardTarget($request->user(), $user);
 
-        $user->update(['is_active' => !$user->is_active]);
+        $user->update(['is_active' => ! $user->is_active]);
 
         // Login refuses inactive users, but tokens issued before the suspension
         // would otherwise keep working until they expire.
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             $user->tokens()->delete();
         }
 
@@ -99,6 +108,40 @@ class UserManagementController extends Controller
         );
     }
 
+    public function updateAgency(Request $request, string $id): JsonResponse
+    {
+        $user = User::whereIn('role', ['agency', 'dealer'])->findOrFail($id);
+        $this->guardTarget($request->user(), $user);
+        $data = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => ['sometimes', 'required', 'email', Rule::unique('users')->ignore($user->id)],
+            'role' => 'sometimes|required|in:agency,dealer',
+            'is_active' => 'sometimes|boolean',
+            'is_verified' => 'sometimes|boolean',
+        ]);
+
+        return DB::transaction(function () use ($user, $data) {
+            $user->update($data);
+            if (isset($data['role'])) {
+                $user->syncRoles([$data['role']]);
+            }
+            if (isset($data['role']) || ! $user->is_active) {
+                $user->tokens()->delete();
+            }
+
+            return response()->json($user->fresh(['profile', 'activeSubscription.plan']));
+        });
+    }
+
+    public function verifyAgency(Request $request, string $id): JsonResponse
+    {
+        $user = User::whereIn('role', ['agency', 'dealer'])->findOrFail($id);
+        $this->guardTarget($request->user(), $user);
+        $user->update(['is_verified' => true]);
+
+        return response()->json(['message' => 'Agency verified.']);
+    }
+
     public function approveKyc(string $id): JsonResponse
     {
         $user = User::findOrFail($id);
@@ -108,6 +151,7 @@ class UserManagementController extends Controller
 
         $user->update(['kyc_verified' => true]);
         $user->notify(new KycReviewed(approved: true));
+
         return response()->json(['message' => 'KYC approved.']);
     }
 
@@ -121,6 +165,7 @@ class UserManagementController extends Controller
 
         $user->update(['kyc_verified' => false]);
         $user->notify(new KycReviewed(approved: false, reason: $v['reason']));
+
         return response()->json(['message' => 'KYC rejected.']);
     }
 
@@ -131,6 +176,7 @@ class UserManagementController extends Controller
 
         $user->tokens()->delete();
         $user->delete();
+
         return response()->json(['message' => 'User deleted.']);
     }
 
@@ -139,14 +185,14 @@ class UserManagementController extends Controller
     {
         abort_if($actor->id === $target->id, 403, 'You cannot change your own account from the admin panel.');
 
-        if (in_array($target->role, User::PRIVILEGED_ROLES, true) && !$actor->isSuperAdmin()) {
+        if (in_array($target->role, User::PRIVILEGED_ROLES, true) && ! $actor->isSuperAdmin()) {
             abort(403, 'Only a super admin can modify another admin.');
         }
     }
 
     private function guardPrivilegedRole(User $actor, string $role): void
     {
-        if (in_array($role, User::PRIVILEGED_ROLES, true) && !$actor->isSuperAdmin()) {
+        if (in_array($role, User::PRIVILEGED_ROLES, true) && ! $actor->isSuperAdmin()) {
             abort(403, 'Only a super admin can grant admin access.');
         }
     }

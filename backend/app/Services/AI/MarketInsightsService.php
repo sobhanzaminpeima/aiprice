@@ -114,14 +114,14 @@ class MarketInsightsService
     {
         $overallAvg = Listing::whereIn('status', ['sold', 'rented'])
             ->whereNotNull('published_at')
-            ->selectRaw('AVG(DATEDIFF(updated_at, published_at)) as avg_days')
+            ->selectRaw('AVG('.$this->daysBetween().') as avg_days')
             ->value('avg_days');
 
         return collect(self::TYPES)->map(function (string $type) use ($overallAvg) {
             $stats = Listing::where('type', $type)
                 ->whereIn('status', ['sold', 'rented'])
                 ->whereNotNull('published_at')
-                ->selectRaw('AVG(DATEDIFF(updated_at, published_at)) as avg_days, COUNT(*) as closed_count')
+                ->selectRaw('AVG('.$this->daysBetween().') as avg_days, COUNT(*) as closed_count')
                 ->first();
 
             if (!$stats || $stats->closed_count < 3) {
@@ -147,7 +147,7 @@ class MarketInsightsService
         $stats = Listing::where('type', $type)
             ->whereIn('status', ['sold', 'rented'])
             ->whereNotNull('published_at')
-            ->selectRaw('AVG(DATEDIFF(updated_at, published_at)) as avg_days, COUNT(*) as closed_count')
+            ->selectRaw('AVG('.$this->daysBetween().') as avg_days, COUNT(*) as closed_count')
             ->first();
 
         if (!$stats || $stats->closed_count < 3 || $stats->avg_days === null) {
@@ -172,5 +172,13 @@ class MarketInsightsService
             'avg' => number_format($l->market_avg_price) . ' ' . $l->currency,
             'diff' => round($diffPct, 1) . '%',
         ];
+    }
+
+    /** Days between publish and close, portable across MySQL and SQLite. */
+    private function daysBetween(): string
+    {
+        return \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite'
+            ? '(julianday(updated_at) - julianday(published_at))'
+            : 'DATEDIFF(updated_at, published_at)';
     }
 }

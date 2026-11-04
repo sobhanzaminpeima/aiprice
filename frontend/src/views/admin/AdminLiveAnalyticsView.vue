@@ -5,13 +5,13 @@
         <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Live <span class="gradient-text">Activity</span></h1>
         <p class="text-sm" style="color:var(--text-muted)">Refreshes every 15 seconds. Visitors are distinct IPs viewing listings — an approximation, not a login count.</p>
       </div>
-      <span class="flex items-center gap-2 text-xs" :style="stale ? 'color:#fbbf24' : 'color:var(--accent-teal)'">
-        <span class="w-2 h-2 rounded-full" :class="stale ? '' : 'animate-pulse'" :style="`background:${stale ? '#fbbf24' : '#6fffd2'}`"></span>
+      <span class="flex items-center gap-2 text-xs" :style="stale ? 'color:var(--warning)' : 'color:var(--accent-teal)'">
+        <span class="w-2 h-2 rounded-full" :class="stale ? '' : 'animate-pulse'" :style="`background:${stale ? 'var(--warning)' : 'var(--accent-teal)'}`"></span>
         {{ stale ? 'Reconnecting…' : `Updated ${updatedAgo}` }}
       </span>
     </div>
 
-    <div v-if="error && !data" class="rounded-2xl p-4 mb-6 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error && !data" class="rounded-2xl p-4 mb-6 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <template v-if="data">
       <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
@@ -24,7 +24,7 @@
       <div class="rounded-2xl p-6 mb-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <h2 class="font-bold mb-4" style="color:var(--text-primary)">Listing views per minute (last 30 min)</h2>
         <div class="flex items-end gap-1 h-32">
-          <div v-for="p in data.views_per_minute" :key="p.minute" class="flex-1 rounded-t" :title="`${p.minute}: ${p.views} views`" :style="`height:${maxViews ? Math.max(3, (p.views / maxViews) * 100) : 3}%;background:${p.views ? 'linear-gradient(to top,#6fffd2,#56d8ff)' : 'var(--border-subtle)'}`"></div>
+          <div v-for="p in data.views_per_minute" :key="p.minute" class="flex-1 rounded-t" :title="`${p.minute}: ${p.views} views`" :style="`height:${maxViews ? Math.max(3, (p.views / maxViews) * 100) : 3}%;background:${p.views ? 'linear-gradient(to top,var(--accent-teal),var(--accent-cyan))' : 'var(--border-subtle)'}`"></div>
         </div>
         <div class="flex justify-between text-[10px] mt-1" style="color:var(--text-muted)"><span>{{ data.views_per_minute[0]?.minute }}</span><span>now</span></div>
       </div>
@@ -80,10 +80,10 @@ const updatedAgo = computed(() => {
 const metricCards = computed(() => {
   const m = data.value?.metrics ?? {}
   return [
-    { label: 'Visitors (5 min)', value: m.active_visitors_5m ?? 0, color: '#6fffd2' },
-    { label: 'Views (30 min)', value: m.views_30m ?? 0, color: '#56d8ff' },
-    { label: 'Views today', value: m.views_today ?? 0, color: '#a78bfa' },
-    { label: 'Sign-ups today', value: m.signups_today ?? 0, color: '#fbbf24' },
+    { label: 'Visitors (5 min)', value: m.active_visitors_5m ?? 0, color: 'var(--accent-teal)' },
+    { label: 'Views (30 min)', value: m.views_30m ?? 0, color: 'var(--accent-cyan)' },
+    { label: 'Views today', value: m.views_today ?? 0, color: 'var(--accent-violet)' },
+    { label: 'Sign-ups today', value: m.signups_today ?? 0, color: 'var(--warning)' },
     { label: 'New listings today', value: m.listings_today ?? 0, color: '#f472b6' },
     { label: 'Inquiries today', value: m.inquiries_today ?? 0, color: '#34d399' },
   ]

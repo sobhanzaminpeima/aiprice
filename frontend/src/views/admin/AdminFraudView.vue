@@ -5,7 +5,7 @@
       <p class="text-sm" style="color:var(--text-muted)">User reports plus rule-based risk signals. Every flag shows exactly why it was raised.</p>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-6 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-6 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
       <div v-for="s in statCards" :key="s.label" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -19,7 +19,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h2 class="font-bold" style="color:var(--text-primary)">User reports</h2>
         <div class="flex gap-1">
-          <button v-for="s in ['open', 'confirmed', 'dismissed', 'all']" :key="s" @click="setFilter(s)" class="px-3 py-1.5 rounded-lg text-xs capitalize" :style="filter === s ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal)' : 'color:var(--text-muted)'">{{ s }}</button>
+          <button v-for="s in ['open', 'confirmed', 'dismissed', 'all']" :key="s" @click="setFilter(s)" class="px-3 py-1.5 rounded-lg text-xs capitalize" :style="filter === s ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)' : 'color:var(--text-muted)'">{{ s }}</button>
         </div>
       </div>
 
@@ -41,11 +41,11 @@
           </div>
           <p class="text-xs mb-1" style="color:var(--text-primary)"><strong>{{ r.reason }}</strong><span v-if="r.description"> — {{ r.description }}</span></p>
           <ul v-if="r.ai_analysis?.signals?.length" class="text-xs mb-3 flex flex-wrap gap-1.5">
-            <li v-for="s in r.ai_analysis.signals" :key="s.key" class="px-2 py-0.5 rounded" style="background:rgba(251,191,36,0.08);color:#fbbf24">{{ s.reason }}</li>
+            <li v-for="s in r.ai_analysis.signals" :key="s.key" class="px-2 py-0.5 rounded" style="background:rgba(var(--warning-rgb),0.08);color:var(--warning)">{{ s.reason }}</li>
           </ul>
           <div v-if="r.status === 'pending' || r.status === 'investigating'" class="flex flex-wrap gap-2">
-            <button v-if="r.status === 'pending'" @click="update(r, 'investigating')" class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:rgba(86,216,255,0.1);color:var(--accent-cyan)">Investigate</button>
-            <button @click="confirmFraud(r)" class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:rgba(239,68,68,0.1);color:#ef4444">Confirm fraud &amp; take down</button>
+            <button v-if="r.status === 'pending'" @click="update(r, 'investigating')" class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan)">Investigate</button>
+            <button @click="confirmFraud(r)" class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:rgba(var(--danger-rgb),0.1);color:var(--danger)">Confirm fraud &amp; take down</button>
             <button @click="update(r, 'dismissed')" class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:var(--surface-overlay);color:var(--text-muted)">Dismiss</button>
           </div>
         </div>
@@ -84,9 +84,9 @@ const reports = ref<any[]>([])
 const filter = ref('open')
 
 const statCards = computed(() => [
-  { label: 'Pending reports', value: stats.value.pending ?? 0, color: '#fbbf24' },
-  { label: 'Investigating', value: stats.value.investigating ?? 0, color: '#56d8ff' },
-  { label: 'Confirmed (30d)', value: stats.value.confirmed_30d ?? 0, color: '#ef4444' },
+  { label: 'Pending reports', value: stats.value.pending ?? 0, color: 'var(--warning)' },
+  { label: 'Investigating', value: stats.value.investigating ?? 0, color: 'var(--accent-cyan)' },
+  { label: 'Confirmed (30d)', value: stats.value.confirmed_30d ?? 0, color: 'var(--danger)' },
   { label: 'Dismissed (30d)', value: stats.value.dismissed_30d ?? 0, color: 'var(--text-muted)' },
   { label: 'High-risk live listings', value: stats.value.high_risk_listings ?? 0, color: '#f472b6' },
 ])
@@ -123,15 +123,15 @@ function confirmFraud(r: any) {
 }
 
 function riskStyle(score: number) {
-  if (score >= 50) return 'background:rgba(239,68,68,0.12);color:#ef4444'
-  if (score >= 25) return 'background:rgba(251,191,36,0.12);color:#fbbf24'
+  if (score >= 50) return 'background:rgba(var(--danger-rgb),0.12);color:var(--danger)'
+  if (score >= 25) return 'background:rgba(var(--warning-rgb),0.12);color:var(--warning)'
   return 'background:var(--surface-overlay);color:var(--text-muted)'
 }
 function statusStyle(s: string) {
-  if (s === 'confirmed') return 'background:rgba(239,68,68,0.1);color:#ef4444'
+  if (s === 'confirmed') return 'background:rgba(var(--danger-rgb),0.1);color:var(--danger)'
   if (s === 'dismissed') return 'background:var(--surface-overlay);color:var(--text-muted)'
-  if (s === 'investigating') return 'background:rgba(86,216,255,0.1);color:var(--accent-cyan)'
-  return 'background:rgba(251,191,36,0.1);color:#fbbf24'
+  if (s === 'investigating') return 'background:rgba(var(--accent-cyan-rgb),0.1);color:var(--accent-cyan)'
+  return 'background:rgba(var(--warning-rgb),0.1);color:var(--warning)'
 }
 function fmtDate(d: string) { return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) }
 

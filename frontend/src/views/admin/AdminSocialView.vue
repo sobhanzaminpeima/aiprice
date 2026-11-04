@@ -2,24 +2,24 @@
   <div class="p-8">
     <div class="mb-8 flex items-start justify-between flex-wrap gap-4">
       <div>
-        <h1 class="text-3xl font-black mb-1" style="color:#f0f6fc">Instagram <span class="gradient-text">Auto-Post</span></h1>
-        <p class="text-sm" style="color:#6e7f96">AI picks the best photo, designs a branded post, writes a viral caption — you approve, then publish.</p>
+        <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">Instagram <span class="gradient-text">Auto-Post</span></h1>
+        <p class="text-sm" style="color:var(--text-muted)">AI picks the best photo, designs a branded post, writes a viral caption — you approve, then publish.</p>
       </div>
       <div class="flex items-center gap-2">
         <button @click="testConn" :disabled="testing" class="px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
-          style="background:rgba(255,255,255,0.05);color:#c9d3e0;border:1px solid rgba(255,255,255,0.1)">
+          style="background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)">
           {{ testing ? 'Testing…' : 'Test connection' }}
         </button>
         <button @click="generateBatch" :disabled="generating" class="px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-60"
-          style="background:linear-gradient(135deg,#00BFFF,#00E6B0);color:#05070b">
+          style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-teal));color:var(--bg-base)">
           {{ generating ? 'Generating…' : 'Generate drafts' }}
         </button>
       </div>
     </div>
 
     <div v-if="connMsg" class="mb-6 px-4 py-3 rounded-xl text-sm" :style="connOk
-      ? 'background:rgba(0,230,176,0.1);border:1px solid rgba(0,230,176,0.25);color:#00E6B0'
-      : 'background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444'">
+      ? 'background:rgba(0,230,176,0.1);border:1px solid rgba(0,230,176,0.25);color:var(--accent-teal)'
+      : 'background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.25);color:var(--danger)'">
       {{ connMsg }}
     </div>
 
@@ -28,45 +28,45 @@
       <button v-for="f in filters" :key="f.value" @click="status = f.value; load()"
         class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition"
         :style="status === f.value
-          ? 'background:rgba(0,191,255,0.15);color:#00BFFF;border:1px solid rgba(0,191,255,0.3)'
-          : 'background:rgba(255,255,255,0.04);color:#6e7f96;border:1px solid rgba(255,255,255,0.07)'">
+          ? 'background:rgba(0,191,255,0.15);color:var(--accent-cyan);border:1px solid rgba(0,191,255,0.3)'
+          : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">
         {{ f.label }}
       </button>
     </div>
 
-    <div v-if="loading" class="text-center py-20" style="color:#6e7f96">Loading…</div>
-    <div v-else-if="posts.length === 0" class="text-center py-20 rounded-2xl" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07);color:#6e7f96">
-      No posts yet. Click <span style="color:#00E6B0">Generate drafts</span> to create posts from your active listings.
+    <div v-if="loading" class="text-center py-20" style="color:var(--text-muted)">Loading…</div>
+    <div v-else-if="posts.length === 0" class="text-center py-20 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle);color:var(--text-muted)">
+      No posts yet. Click <span style="color:var(--accent-teal)">Generate drafts</span> to create posts from your active listings.
     </div>
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-      <div v-for="post in posts" :key="post.id" class="rounded-2xl overflow-hidden flex flex-col" style="background:#0d1117;border:1px solid rgba(255,255,255,0.07)">
-        <div class="relative" style="aspect-ratio:4/5;background:#05070b">
+      <div v-for="post in posts" :key="post.id" class="rounded-2xl overflow-hidden flex flex-col" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
+        <div class="relative" style="aspect-ratio:4/5;background:var(--bg-base)">
           <img v-if="post.image_url" :src="post.image_url" :alt="post.listing?.title" class="w-full h-full object-cover" loading="lazy" />
-          <div v-else class="w-full h-full flex items-center justify-center text-xs" style="color:#3a4554">No image</div>
+          <div v-else class="w-full h-full flex items-center justify-center text-xs" style="color:var(--text-muted)">No image</div>
           <span class="absolute top-3 left-3 text-xs px-2.5 py-1 rounded-full font-semibold capitalize" :style="badgeStyle(post.status)">{{ post.status }}</span>
         </div>
 
         <div class="p-4 flex flex-col gap-3 flex-1">
-          <p class="text-sm font-bold truncate" style="color:#f0f6fc">{{ post.listing?.title || 'Listing' }}</p>
+          <p class="text-sm font-bold truncate" style="color:var(--text-primary)">{{ post.listing?.title || 'Listing' }}</p>
           <textarea v-model="post.caption" rows="4" class="w-full text-xs rounded-lg p-2.5 resize-none outline-none"
-            style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#c9d3e0"></textarea>
+            style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-secondary)"></textarea>
           <div class="flex flex-wrap gap-1">
-            <span v-for="(h, i) in post.hashtags" :key="i" class="text-xs px-2 py-0.5 rounded" style="background:rgba(0,191,255,0.1);color:#00BFFF">{{ h }}</span>
+            <span v-for="(h, i) in post.hashtags" :key="i" class="text-xs px-2 py-0.5 rounded" style="background:rgba(0,191,255,0.1);color:var(--accent-cyan)">{{ h }}</span>
           </div>
 
           <div class="flex items-center gap-2 mt-auto pt-2">
             <button v-if="post.status !== 'published'" @click="save(post)" class="px-3 py-2 rounded-lg text-xs font-semibold"
-              style="background:rgba(255,255,255,0.05);color:#c9d3e0;border:1px solid rgba(255,255,255,0.1)">Save</button>
+              style="background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)">Save</button>
             <button v-if="post.status !== 'published'" @click="publish(post)" :disabled="post._busy" class="flex-1 px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-60"
-              style="background:linear-gradient(135deg,#00BFFF,#00E6B0);color:#05070b">
+              style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-teal));color:var(--bg-base)">
               {{ post._busy ? 'Publishing…' : 'Approve & Publish' }}
             </button>
             <a v-else :href="post.ig_permalink || '#'" target="_blank" class="flex-1 text-center px-3 py-2 rounded-lg text-xs font-bold"
-              style="background:rgba(0,230,176,0.12);color:#00E6B0">View on Instagram ↗</a>
-            <button @click="remove(post)" class="px-2.5 py-2 rounded-lg text-xs" style="background:rgba(239,68,68,0.08);color:#ef4444" title="Delete">✕</button>
+              style="background:rgba(0,230,176,0.12);color:var(--accent-teal)">View on Instagram ↗</a>
+            <button @click="remove(post)" class="px-2.5 py-2 rounded-lg text-xs" style="background:rgba(var(--danger-rgb),0.08);color:var(--danger)" title="Delete">✕</button>
           </div>
-          <p v-if="post.error" class="text-xs" style="color:#ef4444">{{ post.error }}</p>
+          <p v-if="post.error" class="text-xs" style="color:var(--danger)">{{ post.error }}</p>
         </div>
       </div>
     </div>
@@ -99,10 +99,10 @@ const filters = [
 
 function badgeStyle(s: string) {
   const map: Record<string, string> = {
-    draft: 'background:rgba(255,255,255,0.12);color:#c9d3e0',
+    draft: 'background:var(--border-subtle);color:var(--text-secondary)',
     published: 'background:rgba(0,230,176,0.85);color:#05241c',
-    publishing: 'background:rgba(0,191,255,0.85);color:#05070b',
-    failed: 'background:rgba(239,68,68,0.85);color:#fff',
+    publishing: 'background:rgba(0,191,255,0.85);color:var(--bg-base)',
+    failed: 'background:rgba(var(--danger-rgb),0.85);color:#fff',
   }
   return map[s] || map.draft
 }

@@ -26,8 +26,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(111,255,210,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(111,255,210,0.035) 1px, transparent 1px);
+    linear-gradient(rgba(var(--accent-teal-rgb),0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--accent-teal-rgb),0.035) 1px, transparent 1px);
   background-size: 52px 52px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
 }
@@ -40,20 +40,20 @@
 }
 .orb-1 {
   width: 560px; height: 560px;
-  background: radial-gradient(circle, #6fffd2, transparent 70%);
+  background: radial-gradient(circle, var(--accent-teal), transparent 70%);
   top: -200px; left: -100px;
   animation-duration: 20s;
 }
 .orb-2 {
   width: 420px; height: 420px;
-  background: radial-gradient(circle, #56d8ff, transparent 70%);
+  background: radial-gradient(circle, var(--accent-cyan), transparent 70%);
   top: 20%; right: -120px;
   animation-duration: 25s;
   animation-delay: -8s;
 }
 .orb-3 {
   width: 320px; height: 320px;
-  background: radial-gradient(circle, #a78bfa, transparent 70%);
+  background: radial-gradient(circle, var(--accent-violet), transparent 70%);
   bottom: 15%; left: 30%;
   animation-duration: 30s;
   animation-delay: -15s;
@@ -62,7 +62,7 @@
   position: absolute;
   left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(111,255,210,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-teal-rgb),0.3), transparent);
   animation: scan 6s linear infinite;
   opacity: 0.5;
 }

@@ -9,7 +9,7 @@
       <p class="text-4xl mb-3">❤️</p>
       <p class="font-semibold" style="color:var(--text-primary)">No saved listings</p>
       <p class="text-sm mt-1 mb-5" style="color:var(--text-muted)">Heart listings you like to save them here</p>
-      <RouterLink to="/cars" class="px-5 py-2.5 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Browse Listings</RouterLink>
+      <RouterLink to="/cars" class="px-5 py-2.5 text-sm font-semibold rounded-xl" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Browse Listings</RouterLink>
     </div>
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       <div v-for="l in favs" :key="l.id" class="rounded-2xl overflow-hidden" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -19,7 +19,7 @@
           <p class="text-xs mb-3" style="color:var(--text-muted)">{{ l.city }}</p>
           <div class="flex items-center justify-between">
             <span class="font-bold text-sm" style="color:var(--accent-teal)">{{ fmt(l.price, l.currency) }}</span>
-            <RouterLink :to="'/listings/'+l.slug" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(111,255,210,0.08);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.2)">View</RouterLink>
+            <RouterLink :to="'/listings/'+l.slug" class="px-3 py-1.5 text-xs rounded-lg" style="background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)">View</RouterLink>
           </div>
         </div>
       </div>

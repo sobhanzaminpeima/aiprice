@@ -5,18 +5,18 @@
 
     <div v-if="loading" class="h-40 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
 
-    <div v-else-if="error" class="rounded-2xl p-6 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">
+    <div v-else-if="error" class="rounded-2xl p-6 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">
       {{ error }}
     </div>
 
     <template v-else>
-      <div class="rounded-2xl p-6 mb-6" style="background:var(--bg-surface);border:1px solid rgba(111,255,210,0.15)">
+      <div class="rounded-2xl p-6 mb-6" style="background:var(--bg-surface);border:1px solid rgba(var(--accent-teal-rgb),0.15)">
         <div class="flex items-center justify-between mb-4">
           <div>
             <p class="text-xs font-medium mb-1" style="color:var(--text-muted)">Current Plan</p>
             <p class="text-2xl font-black" style="color:var(--accent-teal)">{{ sub?.plan?.name || 'Free' }}</p>
           </div>
-          <span class="text-xs px-3 py-1.5 rounded-full font-medium" :style="isActive?'background:rgba(111,255,210,0.1);color:var(--accent-teal)':'background:var(--surface-overlay);color:var(--text-muted)'">
+          <span class="text-xs px-3 py-1.5 rounded-full font-medium" :style="isActive?'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal)':'background:var(--surface-overlay);color:var(--text-muted)'">
             {{ sub?.status || 'No plan' }}
           </span>
         </div>
@@ -40,17 +40,17 @@
             </p>
           </div>
           <div v-if="usage.listing_limit" class="h-1.5 rounded-full overflow-hidden" style="background:var(--surface-overlay)">
-            <div class="h-full rounded-full" :style="{ width: usagePercent + '%', background: usagePercent >= 100 ? '#ef4444' : 'linear-gradient(90deg,#6fffd2,#56d8ff)' }"></div>
+            <div class="h-full rounded-full" :style="{ width: usagePercent + '%', background: usagePercent >= 100 ? 'var(--danger)' : 'linear-gradient(90deg,var(--accent-teal),var(--accent-cyan))' }"></div>
           </div>
         </div>
 
-        <p v-if="isActive && sub?.cancelled_at" class="mt-4 text-xs" style="color:#fbbf24">Cancelled — you keep access until {{ fmtDate(sub.current_period_end) }}.</p>
-        <button v-else-if="isActive" @click="cancel" :disabled="cancelling" class="mt-4 text-xs font-medium disabled:opacity-50" style="color:#ef4444">
+        <p v-if="isActive && sub?.cancelled_at" class="mt-4 text-xs" style="color:var(--warning)">Cancelled — you keep access until {{ fmtDate(sub.current_period_end) }}.</p>
+        <button v-else-if="isActive" @click="cancel" :disabled="cancelling" class="mt-4 text-xs font-medium disabled:opacity-50" style="color:var(--danger)">
           {{ cancelling ? 'Cancelling…' : 'Cancel subscription' }}
         </button>
       </div>
 
-      <RouterLink to="/pricing" class="flex items-center justify-between p-4 rounded-2xl font-semibold mb-8" style="background:linear-gradient(135deg,rgba(111,255,210,0.08),rgba(86,216,255,0.08));border:1px solid rgba(111,255,210,0.2);color:var(--accent-teal)">
+      <RouterLink to="/pricing" class="flex items-center justify-between p-4 rounded-2xl font-semibold mb-8" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.08),rgba(var(--accent-cyan-rgb),0.08));border:1px solid rgba(var(--accent-teal-rgb),0.2);color:var(--accent-teal)">
         <span>{{ isActive ? 'Change Plan' : 'Upgrade Plan' }}</span><span>→</span>
       </RouterLink>
 
@@ -62,7 +62,7 @@
             <span class="text-xs font-mono flex-1" style="color:var(--text-secondary)">{{ inv.invoice_number }}</span>
             <span class="text-xs" style="color:var(--text-muted)">{{ fmtDate(inv.created_at) }}</span>
             <span class="text-xs font-bold w-24 text-right" style="color:var(--text-primary)">{{ inv.currency }} {{ Number(inv.total).toFixed(2) }}</span>
-            <span class="text-[10px] uppercase font-bold w-16 text-right" :style="inv.status === 'paid' ? 'color:var(--accent-teal)' : 'color:#ef4444'">{{ inv.status === 'void' ? 'refunded' : inv.status }}</span>
+            <span class="text-[10px] uppercase font-bold w-16 text-right" :style="inv.status === 'paid' ? 'color:var(--accent-teal)' : 'color:var(--danger)'">{{ inv.status === 'void' ? 'refunded' : inv.status }}</span>
           </RouterLink>
         </div>
       </div>

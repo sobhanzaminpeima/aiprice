@@ -10,13 +10,13 @@
           <p class="text-3xl mb-3">✅</p>
           <p class="font-bold mb-2" style="color:var(--accent-teal)">Email verified</p>
           <p class="text-sm mb-6" style="color:var(--text-secondary)">You can now publish listings and contact sellers.</p>
-          <RouterLink :to="auth.isAuthenticated ? auth.homeRoute : '/login'" class="inline-block px-6 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">Continue</RouterLink>
+          <RouterLink :to="auth.isAuthenticated ? auth.homeRoute : '/login'" class="inline-block px-6 py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">Continue</RouterLink>
         </template>
         <template v-else>
           <p class="text-3xl mb-3">⚠️</p>
-          <p class="font-bold mb-2" style="color:#ef4444">Link invalid or expired</p>
+          <p class="font-bold mb-2" style="color:var(--danger)">Link invalid or expired</p>
           <p class="text-sm mb-6" style="color:var(--text-secondary)">{{ error }}</p>
-          <button v-if="auth.isAuthenticated" @click="resend" :disabled="resending" class="px-6 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+          <button v-if="auth.isAuthenticated" @click="resend" :disabled="resending" class="px-6 py-3 rounded-xl font-bold text-sm disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
             {{ resent ? 'Sent — check your inbox' : resending ? 'Sending…' : 'Send a new link' }}
           </button>
           <RouterLink v-else to="/login" class="text-sm" style="color:var(--accent-teal)">Sign in to request a new link</RouterLink>

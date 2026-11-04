@@ -5,11 +5,11 @@
 
     <div v-if="loading" class="h-40 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
 
-    <div v-else-if="loadError" class="rounded-2xl p-6 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">
+    <div v-else-if="loadError" class="rounded-2xl p-6 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">
       {{ loadError }}
     </div>
 
-    <div v-else-if="status === 'approved'" class="rounded-2xl p-6" style="background:rgba(111,255,210,0.06);border:1px solid rgba(111,255,210,0.2)">
+    <div v-else-if="status === 'approved'" class="rounded-2xl p-6" style="background:rgba(var(--accent-teal-rgb),0.06);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
       <div class="flex items-center gap-3">
         <span class="text-3xl">✅</span>
         <div>
@@ -19,11 +19,11 @@
       </div>
     </div>
 
-    <div v-else-if="status === 'pending'" class="rounded-2xl p-6" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2)">
+    <div v-else-if="status === 'pending'" class="rounded-2xl p-6" style="background:rgba(var(--warning-rgb),0.06);border:1px solid rgba(var(--warning-rgb),0.2)">
       <div class="flex items-center gap-3">
         <span class="text-3xl">⏳</span>
         <div>
-          <p class="font-bold" style="color:#fbbf24">Under Review</p>
+          <p class="font-bold" style="color:var(--warning)">Under Review</p>
           <p class="text-sm" style="color:var(--text-secondary)">
             Submitted {{ fmtDate(kyc?.created_at) }}. We will email you when a reviewer has looked at it.
           </p>
@@ -32,17 +32,17 @@
     </div>
 
     <div v-else class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-      <div v-if="status === 'rejected'" class="flex items-center gap-3 mb-6 p-4 rounded-xl" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2)">
+      <div v-if="status === 'rejected'" class="flex items-center gap-3 mb-6 p-4 rounded-xl" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2)">
         <span class="text-2xl">⚠️</span>
         <div>
-          <p class="font-semibold text-sm" style="color:#ef4444">Previous submission rejected</p>
+          <p class="font-semibold text-sm" style="color:var(--danger)">Previous submission rejected</p>
           <p class="text-xs" style="color:var(--text-secondary)">{{ kyc?.rejection_reason || 'Please re-submit with clearer documents.' }}</p>
         </div>
       </div>
-      <div v-else class="flex items-center gap-3 mb-6 p-4 rounded-xl" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2)">
+      <div v-else class="flex items-center gap-3 mb-6 p-4 rounded-xl" style="background:rgba(var(--warning-rgb),0.06);border:1px solid rgba(var(--warning-rgb),0.2)">
         <span class="text-2xl">📄</span>
         <div>
-          <p class="font-semibold text-sm" style="color:#fbbf24">Not Verified Yet</p>
+          <p class="font-semibold text-sm" style="color:var(--warning)">Not Verified Yet</p>
           <p class="text-xs" style="color:var(--text-secondary)">Submit your documents for review</p>
         </div>
       </div>
@@ -80,9 +80,9 @@
           </label>
         </div>
 
-        <div v-if="msg" class="text-xs py-2 px-3 rounded-lg" :style="msg.ok?'background:rgba(111,255,210,0.08);color:var(--accent-teal)':'background:rgba(239,68,68,0.08);color:#ef4444'">{{ msg.text }}</div>
+        <div v-if="msg" class="text-xs py-2 px-3 rounded-lg" :style="msg.ok?'background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal)':'background:rgba(var(--danger-rgb),0.08);color:var(--danger)'">{{ msg.text }}</div>
 
-        <button type="submit" :disabled="submitting" class="w-full py-3 font-semibold text-sm rounded-xl disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">
+        <button type="submit" :disabled="submitting" class="w-full py-3 font-semibold text-sm rounded-xl disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
           {{ submitting ? 'Submitting...' : 'Submit for Review' }}
         </button>
       </form>

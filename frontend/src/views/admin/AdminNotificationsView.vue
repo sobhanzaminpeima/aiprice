@@ -5,7 +5,7 @@
       <p class="text-sm" style="color:var(--text-muted)">Message a group of users in-app, and optionally by email. Sending runs in the background.</p>
     </div>
 
-    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444">{{ error }}</div>
+    <div v-if="error" class="rounded-2xl p-4 mb-4 text-sm" style="background:rgba(var(--danger-rgb),0.06);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       <div v-for="s in statCards" :key="s.label" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
@@ -23,13 +23,13 @@
         <div>
           <label class="block text-xs mb-1.5" style="color:var(--text-muted)">Audience</label>
           <div class="grid grid-cols-2 gap-2">
-            <button v-for="a in audiences" :key="a.key" type="button" @click="form.audience = a.key" class="px-3 py-2 rounded-lg text-xs font-semibold text-left" :style="form.audience === a.key ? 'background:rgba(111,255,210,0.1);color:var(--accent-teal);border:1px solid rgba(111,255,210,0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid transparent'">{{ a.label }}</button>
+            <button v-for="a in audiences" :key="a.key" type="button" @click="form.audience = a.key" class="px-3 py-2 rounded-lg text-xs font-semibold text-left" :style="form.audience === a.key ? 'background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.25)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid transparent'">{{ a.label }}</button>
           </div>
           <p class="text-xs mt-2" style="color:var(--text-muted)">{{ audienceSize === null ? 'Counting…' : `${audienceSize} active users will receive this.` }}</p>
         </div>
         <label class="flex items-center gap-2 text-xs" style="color:var(--text-secondary)"><input type="checkbox" v-model="form.send_email" /> Also send by email</label>
         <p v-if="sent" class="text-xs" style="color:var(--accent-teal)">Queued — it will appear in the history once delivered.</p>
-        <button type="submit" :disabled="busy" class="w-full py-3 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ busy ? 'Queuing…' : 'Send announcement' }}</button>
+        <button type="submit" :disabled="busy" class="w-full py-3 rounded-xl text-sm font-bold disabled:opacity-50" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ busy ? 'Queuing…' : 'Send announcement' }}</button>
       </form>
 
       <div :class="canSend ? 'lg:col-span-3' : 'lg:col-span-5'" class="space-y-6">
@@ -40,7 +40,7 @@
             <div v-for="a in announcements" :key="a.id" class="p-3 rounded-xl" style="background:var(--surface-overlay-soft)">
               <div class="flex justify-between gap-3">
                 <p class="text-sm font-semibold" style="color:var(--text-primary)">{{ a.title }}</p>
-                <span class="text-xs capitalize" :style="a.status === 'sent' ? 'color:var(--accent-teal)' : a.status === 'failed' ? 'color:#ef4444' : 'color:#fbbf24'">{{ a.status }}</span>
+                <span class="text-xs capitalize" :style="a.status === 'sent' ? 'color:var(--accent-teal)' : a.status === 'failed' ? 'color:var(--danger)' : 'color:var(--warning)'">{{ a.status }}</span>
               </div>
               <p class="text-xs mt-1 line-clamp-2" style="color:var(--text-secondary)">{{ a.body }}</p>
               <p class="text-xs mt-1" style="color:var(--text-muted)">{{ a.audience }} · {{ a.recipients_count }} recipients · {{ a.channels.join(' + ') }} · {{ a.sender?.name }} · {{ fmt(a.sent_at || a.created_at) }}</p>
@@ -90,10 +90,10 @@ const form = ref({ title: '', body: '', link: '', audience: 'all', send_email: f
 let poll: number | undefined
 
 const statCards = computed(() => [
-  { label: 'Announcements (30d)', value: stats.value.sent_30d ?? 0, color: '#6fffd2' },
-  { label: 'Recipients reached (30d)', value: stats.value.recipients_30d ?? 0, color: '#56d8ff' },
-  { label: 'All notifications (30d)', value: stats.value.notifications_30d ?? 0, color: '#a78bfa' },
-  { label: 'Read rate (30d)', value: stats.value.read_rate_30d === null || stats.value.read_rate_30d === undefined ? '—' : `${stats.value.read_rate_30d}%`, color: '#fbbf24' },
+  { label: 'Announcements (30d)', value: stats.value.sent_30d ?? 0, color: 'var(--accent-teal)' },
+  { label: 'Recipients reached (30d)', value: stats.value.recipients_30d ?? 0, color: 'var(--accent-cyan)' },
+  { label: 'All notifications (30d)', value: stats.value.notifications_30d ?? 0, color: 'var(--accent-violet)' },
+  { label: 'Read rate (30d)', value: stats.value.read_rate_30d === null || stats.value.read_rate_30d === undefined ? '—' : `${stats.value.read_rate_30d}%`, color: 'var(--warning)' },
 ])
 
 async function load() {

@@ -23,7 +23,7 @@
       </nav>
       <div class="p-4" style="border-top:1px solid var(--border-subtle)">
         <div class="flex items-center gap-3 mb-3">
-          <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,#6fffd2,#56d8ff);color:var(--on-accent)">{{ auth.user?.name?.charAt(0) }}</div>
+          <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ auth.user?.name?.charAt(0) }}</div>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-semibold truncate" style="color:var(--text-primary)">{{ auth.user?.name }}</p>
             <p class="text-xs truncate" style="color:var(--text-muted)">{{ auth.user?.role }}</p>
