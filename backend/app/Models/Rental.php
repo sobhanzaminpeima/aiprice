@@ -15,6 +15,9 @@ class Rental extends Model
         'furnishing', 'amenities', 'meta',
     ];
 
+    /** Import provenance and internal notes are never serialized to the public API. */
+    protected $hidden = ['meta'];
+
     protected function casts(): array
     {
         return [

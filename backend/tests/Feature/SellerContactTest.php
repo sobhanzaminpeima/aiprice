@@ -62,6 +62,10 @@ class SellerContactTest extends TestCase
             .$this->getJson('/api/v1/listings?type=vehicle')->assertOk()->getContent();
         $this->assertStringNotContainsString('kktcarabam', $body);
         $this->assertStringNotContainsString('0009999', $body);
+
+        // The vehicle row carries its own meta (import provenance): also never public.
+        $listing->listable->update(['meta' => ['source_url' => 'https://www.kktcarabam.com/2-y']]);
+        $this->assertStringNotContainsString('kktcarabam', $this->getJson('/api/v1/listings/'.$listing->slug)->assertOk()->getContent());
     }
 
     public function test_signed_in_users_get_the_full_number_and_the_reveal_is_logged(): void
