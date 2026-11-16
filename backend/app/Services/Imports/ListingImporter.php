@@ -212,7 +212,7 @@ class ListingImporter
         return $meta;
     }
 
-    private function brand(string $name): VehicleBrand
+    public function brand(string $name): VehicleBrand
     {
         $norm = fn (string $s) => preg_replace('/[^a-z0-9]/', '', Str::lower(Str::ascii($s)));
         foreach (VehicleBrand::withTrashed()->get(['id', 'name', 'deleted_at']) as $b) {

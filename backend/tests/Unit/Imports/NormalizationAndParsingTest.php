@@ -93,6 +93,14 @@ class NormalizationAndParsingTest extends TestCase
         $this->assertSame([], $m['conflicts']);
     }
 
+    public function test_mileage_advertised_in_miles_is_converted_and_kept(): void
+    {
+        $html = str_replace('<th>Kilometre:</th>', '<th>Mil:</th>', KktFixture::listingHtml(['km' => '168000']));
+        $d = (new KktcarabamMapper)->map((new KktcarabamParser)->parseListing($html, 'https://www.kktcarabam.com/900001-x'))['data'];
+        $this->assertSame(270370, $d['mileage']);
+        $this->assertSame(['value' => 168000, 'unit' => 'mi'], $d['mileage_as_advertised']);
+    }
+
     public function test_index_parser_skips_new_vehicle_links(): void
     {
         $html = '<a href="https://www.kktcarabam.com/272325-toyota-yaris-cross-guzelyurt">x</a>'

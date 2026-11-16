@@ -167,6 +167,7 @@
           <p><b>Completeness:</b> {{ detail.completeness_score }}% · <b>Extraction confidence:</b> {{ detail.extraction_confidence }}%</p>
           <p><b>Seller:</b> {{ detail.seller.type || 'unknown' }} · contact {{ permLabel(detail.seller.contact_publication_status) }}
             {{ detail.seller.has_phone ? '' : '· no phone stored' }}</p>
+          <p v-if="detail.rejection_reasons?.length && detail.status === 'needs_review'" style="color:var(--warning)"><b>Needs manual review:</b> {{ detail.rejection_reasons.join('; ') }}</p>
           <p v-if="detail.blockers.length"><b>Publication blocked:</b> {{ detail.blockers.map(reasonLabel).join(', ') }}</p>
         </div>
 
@@ -178,6 +179,8 @@
         <div class="flex flex-wrap gap-2">
           <button class="btn btn-primary" :disabled="busy || detail.blockers.length > 0" @click="act(detail, 'approve')">Approve &amp; publish</button>
           <button class="btn" :disabled="busy || detail.status !== 'published'" @click="act(detail, 'unpublish', true)">Unpublish</button>
+          <button v-if="detail.status === 'needs_review'" class="btn" :disabled="busy" @click="resolveReview(detail)">Mark review done</button>
+          <button class="btn" :disabled="busy" @click="setRights(detail)">Rights: {{ detail.rights_status?.replace(/_/g, ' ') || 'clearance required' }}</button>
           <button class="btn" :disabled="busy" @click="act(detail, 'recheck')">Re-check source</button>
           <button class="btn" :disabled="busy || !detail.listing_id" @click="act(detail, 'analyze')">Queue price analysis</button>
           <button class="btn" style="color:var(--danger)" :disabled="busy || detail.status === 'removed'" @click="act(detail, 'remove', true)">Remove (takedown)</button>
@@ -209,7 +212,7 @@ const sources = ref<Source[]>([])
 const runs = ref<Run[]>([])
 const listings = ref<any[]>([])
 const detail = ref<any | null>(null)
-const filter = ref('selected,imported,published,failed')
+const filter = ref('selected,imported,needs_review,published,failed')
 const busy = ref(false)
 const error = ref('')
 const editing = ref<string | null>(null)
@@ -221,7 +224,8 @@ const permissionFields = [
   { key: 'contact_permission', label: 'Seller contacts' },
 ] as const
 const statusFilters = [
-  { value: 'selected,imported,published,failed', label: 'Selected & imported' },
+  { value: 'selected,imported,needs_review,published,failed', label: 'Selected & imported' },
+  { value: 'needs_review', label: 'Needs review' },
   { value: 'published', label: 'Published' },
   { value: 'eligible', label: 'Eligible, not selected' },
   { value: 'rejected', label: 'Rejected' },
@@ -233,6 +237,7 @@ const reasonText: Record<string, string> = {
   listing_data_permission_denied: 'listing data permission denied',
   image_permission_denied: 'photo permission denied',
   not_imported: 'not imported yet', no_longer_active_at_source: 'no longer active at source',
+  rights_clearance_required: 'rights clearance required', rights_denied: 'rights denied', needs_manual_review: 'needs manual review',
   no_stored_images: 'no photos stored', permission_listing_limit_reached: 'permission limit reached',
   missing_price: 'no price', implausible_price: 'implausible price', missing_mileage: 'no mileage',
   insufficient_images: 'too few photos', missing_core_identity: 'make/model/year missing',
@@ -348,6 +353,26 @@ async function open(l: any) {
     detail.value = (await client.get(`/admin/imports/listings/${l.id}`)).data.source_listing
   })
 }
+
+const resolveReview = (l: any) =>
+  guard(async () => {
+    const note = window.prompt('What did you check or correct? (required)')
+    if (!note) return
+    await client.post(`/admin/imports/listings/${l.id}/resolve-review`, { note })
+    await refresh()
+    await open(l)
+  })
+
+const setRights = (l: any) =>
+  guard(async () => {
+    const status = window.prompt('Rights status: clearance_required, cleared or denied', l.rights_status || 'clearance_required')
+    if (!status) return
+    const note = window.prompt('Reference to the written permission or reason (required)')
+    if (!note) return
+    await client.post(`/admin/imports/listings/${l.id}/rights`, { rights_status: status.trim(), note })
+    await refresh()
+    await open(l)
+  })
 
 const act = (l: any, action: string, needsReason = false) =>
   guard(async () => {

@@ -49,7 +49,12 @@ final class KktcarabamMapper
             $conflicts[] = 'transmission_title_vs_specs';
         }
 
-        $mileage = Normalizer::mileage($specs['Kilometre'] ?? null);
+        // Some adverts state distance in miles ("Mil") instead of "Kilometre".
+        $advertised = isset($specs['Kilometre']) ? ['value' => Normalizer::intOrNull($specs['Kilometre'], 0), 'unit' => 'km']
+            : (isset($specs['Mil']) ? ['value' => Normalizer::intOrNull($specs['Mil'], 0), 'unit' => 'mi'] : null);
+        $mileage = $advertised && $advertised['value'] !== null
+            ? Normalizer::mileage($advertised['value'].($advertised['unit'] === 'mi' ? ' miles' : ''))
+            : null;
         if ($mileage !== null && $description) {
             $mentioned = $this->mileageMentions($description);
             if ($mentioned && $mileage > 1000 && ! array_filter($mentioned, fn ($km) => abs($km - $mileage) <= max(1000, $mileage * 0.1))) {
@@ -92,6 +97,7 @@ final class KktcarabamMapper
             'normalized_price_gbp' => ($primary['currency'] ?? null) === 'GBP' ? $primary['amount'] : null,
             'mileage' => $mileage,
             'mileage_unit' => $mileage !== null ? 'km' : null,
+            'mileage_as_advertised' => $advertised && $advertised['value'] !== null ? $advertised : null,
             'transmission' => $transmission,
             'fuel_type' => Normalizer::fuel($specs['Yakıt Türü'] ?? null),
             'engine_cc' => $engine,

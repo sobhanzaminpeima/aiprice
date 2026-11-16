@@ -21,7 +21,7 @@ class SourceListing extends Model
         'import_source_id', 'last_run_id', 'listing_id', 'source_listing_id', 'source_url', 'canonical_url',
         'status', 'selection_score', 'completeness_score', 'extraction_confidence', 'score_breakdown',
         'rejection_reasons', 'data', 'source_description', 'content_hash', 'duplicate_fingerprint',
-        'source_published_at', 'last_seen_at', 'source_active', 'imported_at',
+        'source_published_at', 'last_seen_at', 'source_checked_at', 'rights_status', 'source_active', 'imported_at',
         'image_publication_status', 'contact_publication_status',
         'seller_type', 'seller_display_name', 'seller_phone', 'seller_phone_e164', 'attempts', 'last_error',
     ];
@@ -37,11 +37,14 @@ class SourceListing extends Model
             'data' => 'array',
             'source_published_at' => 'date',
             'last_seen_at' => 'datetime',
+            'source_checked_at' => 'datetime',
             'imported_at' => 'datetime',
             'source_active' => 'boolean',
             'seller_phone' => 'encrypted',
         ];
     }
+
+    public const RIGHTS_STATES = ['clearance_required', 'cleared', 'denied'];
 
     public function source(): BelongsTo
     {

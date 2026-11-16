@@ -59,6 +59,8 @@ class SourceImportTest extends TestCase
     private function authorize(array $perms = ['listing_data_permission', 'image_permission']): void
     {
         $this->source->update(array_fill_keys($perms, ImportSource::AUTHORIZED) + ['permission_reference' => 'Test agreement #1']);
+        // Per-record rights are a separate, explicit decision.
+        SourceListing::query()->update(['rights_status' => 'cleared']);
     }
 
     public function test_dry_run_selects_without_writing_listings_or_media(): void
@@ -186,7 +188,7 @@ class SourceImportTest extends TestCase
         $sl = SourceListing::whereNotNull('listing_id')->firstOrFail();
 
         $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/imports/listings/{$sl->id}/approve")
-            ->assertStatus(422)->assertJsonFragment(['blockers' => ['listing_data_permission_pending_authorization', 'image_permission_pending_authorization']]);
+            ->assertStatus(422)->assertJsonFragment(['blockers' => ['listing_data_permission_pending_authorization', 'image_permission_pending_authorization', 'rights_clearance_required']]);
         $this->getJson('/api/v1/listings/'.$sl->listing->slug)->assertNotFound();
 
         $this->actingAs($admin, 'sanctum')->patchJson("/api/v1/admin/imports/sources/{$this->source->id}", [
@@ -197,6 +199,11 @@ class SourceImportTest extends TestCase
             'permission_reference' => 'Signed agreement 2026-11-01', 'permission_granted_at' => '2026-11-01',
         ])->assertOk();
         $this->assertTrue(AuditLog::where('action', 'import.source_updated')->exists());
+        // Source permission alone is not enough: this record's rights must be cleared too.
+        $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/imports/listings/{$sl->id}/approve")
+            ->assertStatus(422)->assertJsonFragment(['blockers' => ['rights_clearance_required']]);
+        $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/imports/listings/{$sl->id}/rights", ['rights_status' => 'cleared'])->assertStatus(422);
+        $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/imports/listings/{$sl->id}/rights", ['rights_status' => 'cleared', 'note' => 'Agreement 2026-11-01 covers this advert'])->assertOk();
 
         $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/imports/listings/{$sl->id}/approve")->assertOk();
         Queue::assertPushed(AnalyzeListingPrice::class);
@@ -257,7 +264,8 @@ class SourceImportTest extends TestCase
         $this->actingAs($this->user('buyer'), 'sanctum')->getJson('/api/v1/admin/imports')->assertForbidden();
         $this->actingAs($this->user('moderator'), 'sanctum')->getJson('/api/v1/admin/imports')->assertForbidden();
         $admin = $this->user('admin');
-        $this->actingAs($admin, 'sanctum')->getJson('/api/v1/admin/imports')->assertOk()->assertJsonPath('sources.0.key', 'kktcarabam');
+        $keys = $this->actingAs($admin, 'sanctum')->getJson('/api/v1/admin/imports')->assertOk()->json('sources.*.key');
+        $this->assertEqualsCanonicalizing(['kktcar', 'kktcarabam'], $keys);
 
         $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/imports/sources/{$this->source->id}/runs", ['mode' => 'dry_run', 'target' => 10])->assertStatus(422);
         $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/imports/sources/{$this->source->id}/runs", ['mode' => 'dry_run'])->assertStatus(202);

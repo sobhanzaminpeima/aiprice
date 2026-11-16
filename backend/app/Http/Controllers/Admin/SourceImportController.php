@@ -198,6 +198,51 @@ class SourceImportController extends Controller
         return response()->json(['queued' => $this->listings->queueValuation(SourceListing::findOrFail($id))], 202);
     }
 
+    /** Record the rights state of one imported record (written permission reference required). */
+    public function setRights(Request $request, string $id): JsonResponse
+    {
+        $v = $request->validate([
+            'rights_status' => ['required', Rule::in(SourceListing::RIGHTS_STATES)],
+            'note' => 'required|string|max:1000',
+        ]);
+        $sl = SourceListing::with('source')->findOrFail($id);
+        $old = ['rights_status' => $sl->rights_status];
+        $sl->update(['rights_status' => $v['rights_status']]);
+        if ($sl->listing) {
+            $meta = $sl->listing->meta ?? [];
+            $meta['import']['rights_status'] = $v['rights_status'];
+            $sl->listing->update(['meta' => $meta]);
+        }
+        if ($v['rights_status'] !== 'cleared' && $sl->status === 'published') {
+            $this->listings->unpublish($sl, 'Rights status changed to '.$v['rights_status'], $request->user());
+        }
+        $this->audit($request, 'import.rights_updated', $sl, $old, ['rights_status' => $v['rights_status'], 'note' => $v['note']]);
+
+        return response()->json(['source_listing' => $this->present($sl->fresh(['source', 'listing']), false)]);
+    }
+
+    /** Close a manual review of flagged data (after correcting the listing if needed). */
+    public function resolveReview(Request $request, string $id): JsonResponse
+    {
+        $note = $request->validate(['note' => 'required|string|max:1000'])['note'];
+        $sl = SourceListing::with('source')->findOrFail($id);
+        if ($sl->status !== 'needs_review') {
+            return response()->json(['message' => 'This record is not waiting for review.'], 409);
+        }
+        $sl->update(['status' => 'imported']);
+        if ($sl->listing) {
+            $meta = $sl->listing->meta ?? [];
+            $meta['review'] ??= [];
+            $meta['review']['needs_manual_review'] = false;
+            $meta['review']['resolved_note'] = $note;
+            $meta['review']['resolved_at'] = now()->toIso8601String();
+            $sl->listing->update(['meta' => $meta]);
+        }
+        $this->audit($request, 'import.review_resolved', $sl, ['status' => 'needs_review'], ['status' => 'imported', 'note' => $note]);
+
+        return response()->json(['source_listing' => $this->present($sl->fresh(['source', 'listing']), false)]);
+    }
+
     /** Correction or removal of seller contact details. */
     public function updateContact(Request $request, string $id): JsonResponse
     {

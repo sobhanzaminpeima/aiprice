@@ -23,8 +23,14 @@ final class PublicationPolicy
         if (! $source->imagesAuthorized()) {
             $reasons[] = 'image_permission_'.$source->image_permission;
         }
-        if (! $sl->listing_id || ! in_array($sl->status, ['imported', 'published'], true)) {
+        if (! $sl->listing_id || ! in_array($sl->status, ['imported', 'published', 'needs_review'], true)) {
             $reasons[] = 'not_imported';
+        }
+        if (($sl->rights_status ?? 'clearance_required') !== 'cleared') {
+            $reasons[] = 'rights_'.($sl->rights_status ?? 'clearance_required');
+        }
+        if ($sl->status === 'needs_review') {
+            $reasons[] = 'needs_manual_review';
         }
         if (! $sl->source_active) {
             $reasons[] = 'no_longer_active_at_source';

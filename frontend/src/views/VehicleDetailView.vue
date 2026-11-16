@@ -73,7 +73,7 @@
               <SpecItem v-if="vehicle?.transmission" icon="settings" :label="$t('Transmission')" :value="$t(capitalize(vehicle.transmission))" />
               <SpecItem v-if="vehicle?.body_type" icon="car" :label="$t('Body Type')" :value="$t(capitalize(vehicle.body_type))" />
               <SpecItem v-if="vehicle?.color" icon="palette" :label="$t('Color')" :value="vehicle.color" />
-              <SpecItem v-if="vehicle?.engine_size" icon="wrench" :label="$t('Engine')" :value="Number(vehicle.engine_size) > 20 ? Number(vehicle.engine_size).toLocaleString() + ' cc' : vehicle.engine_size + ' L'" />
+              <SpecItem v-if="vehicle?.engine_size" icon="wrench" :label="$t('Engine')" :value="engineLabel(vehicle.engine_size)" />
               <SpecItem v-if="vehicle?.condition" icon="check" :label="$t('Condition')" :value="capitalize(vehicle.condition)" />
               <SpecItem icon="globe" :label="$t('Location')" :value="listing.city" />
             </div>
@@ -230,6 +230,14 @@ const activeImage = ref<string | null>(null)
 const activeImageError = ref(false)
 const sellerContact = ref<SellerContact | null>(null)
 const sourceAttribution = ref<{ source_name: string | null; original_url: string | null; note: string } | null>(null)
+
+/** Plain numbers get a unit (>20 means cc, otherwise litres); text such as "1.6 L" is shown as entered. */
+function engineLabel(v: string | number): string {
+  const s = String(v).trim()
+  if (!/^\d+(\.\d+)?$/.test(s)) return s
+  const n = Number(s)
+  return n > 20 ? `${n.toLocaleString()} cc` : `${s} L`
+}
 
 const vehicle = computed(() => listing.value?.listable as Vehicle | null)
 const images = computed(() => {

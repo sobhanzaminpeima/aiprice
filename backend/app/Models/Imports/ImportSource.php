@@ -48,6 +48,12 @@ class ImportSource extends Model
             'notes' => 'Public pages only. Seller phone numbers are masked behind a click-to-reveal on the source and are never extracted. '
                 .'Source member terms prohibit copying platform content without permission.',
         ]);
+        self::firstOrCreate(['key' => 'kktcar'], [
+            'name' => 'KKTCar', 'base_url' => 'https://kktcar.com', 'status' => 'active',
+            'attribution_required' => true, 'request_delay_ms' => 2500,
+            'notes' => 'Imported from a prepared export package (AIPRICE_KKTCAR_IMPORT). Not cleared for commercial republication: '
+                .'no written permission from KKTCar or advertisers; no images or seller contacts exported.',
+        ]);
     }
 
     public function runs(): HasMany

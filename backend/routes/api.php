@@ -501,6 +501,8 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
             Route::post('/listings/{id}/recheck', 'recheck');
             Route::post('/listings/{id}/analyze', 'analyze');
             Route::patch('/listings/{id}/contact', 'updateContact');
+            Route::post('/listings/{id}/rights', 'setRights');
+            Route::post('/listings/{id}/resolve-review', 'resolveReview');
         });
 
         // Listing management

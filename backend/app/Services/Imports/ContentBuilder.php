@@ -57,7 +57,8 @@ final class ContentBuilder
         $lines[] = $intro;
 
         $specs = array_filter([
-            'Mileage' => $d['mileage'] !== null ? number_format($d['mileage']).' km' : null,
+            'Mileage' => $d['mileage'] !== null ? number_format($d['mileage']).' km'
+                .((($d['mileage_as_advertised']['unit'] ?? 'km') === 'mi') ? ' ('.number_format($d['mileage_as_advertised']['value']).' miles as advertised)' : '') : null,
             'Fuel' => self::fuelLabel($d['fuel_type']),
             'Transmission' => self::transmissionLabel($d['transmission']),
             'Engine' => $d['engine_cc'] ? number_format($d['engine_cc']).' cc' : null,

@@ -41,8 +41,13 @@ class PriceIntelligenceService
 
         $result = $this->buildResult((float) $listing->price, (string) $listing->currency, $listing->city, $traits, $pool);
 
-        return $result['has_estimate'] ? $result
-            : ($this->aiFallback($listing->type, (float) $listing->price, (string) $listing->currency, $listing->city, $this->facts($listing)) ?? $result);
+        // Imported listings get an estimate only from real comparables: no
+        // AI-generated fallback range (stays "insufficient_data" instead).
+        if ($result['has_estimate'] || $listing->import_source_key) {
+            return $result;
+        }
+
+        return ($this->aiFallback($listing->type, (float) $listing->price, (string) $listing->currency, $listing->city, $this->facts($listing)) ?? $result);
     }
 
     /** Pre-listing estimate: no Listing row exists yet. */

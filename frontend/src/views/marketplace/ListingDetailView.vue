@@ -39,6 +39,7 @@ const loading = ref(true)
 const notFound = ref(false)
 const listingType = ref<string | null>(null)
 const listing = ref<any>(null)
+const seo = ref<{ meta_title?: string | null; meta_description?: string | null } | null>(null)
 
 const detailComponent = computed(() => {
   if (listingType.value === 'vehicle') return VehicleDetailView
@@ -62,8 +63,9 @@ usePageMeta(() => {
   if (!l) return null
   const image = l.thumbnail || l.images?.[0] || null
   return {
-    title: l.title,
-    description: describe(l),
+    // The page template appends the site name, so drop any "| AIPrice" suffix.
+    title: seo.value?.meta_title?.replace(/\s*\|\s*AIPrice(\.app)?\s*$/i, '') || l.title,
+    description: seo.value?.meta_description || describe(l),
     image,
     type: 'product',
     canonical: `/listings/${l.slug}`,
@@ -98,6 +100,7 @@ async function detectType() {
   try {
     const { data } = await client.get(`/listings/${route.params.slug}`)
     listing.value = data.listing ?? data
+    seo.value = data.seo ?? null
     listingType.value = listing.value.type ?? 'other'
   } catch (e: any) {
     listing.value = null

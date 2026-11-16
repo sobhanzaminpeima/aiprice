@@ -89,6 +89,8 @@ class ExportFeedAdapter implements SourceAdapter
         $cond = Normalizer::condition($r['condition'] ?? '2.El');
         $desc = isset($r['description']) ? (string) $r['description'] : null;
         $engine = Normalizer::intOrNull($r['engine_cc'] ?? null, 50, 10000);
+        $unit = ($r['mileage_unit'] ?? 'km') === 'mi' ? 'mi' : 'km';
+        $advertised = is_numeric($r['mileage'] ?? null) ? ['value' => (int) $r['mileage'], 'unit' => $unit] : null;
 
         $data = [
             'source_website' => 'kktcarabam.com', 'source_url' => KktcarabamParser::canonicalUrl($r['source_url']),
@@ -98,7 +100,8 @@ class ExportFeedAdapter implements SourceAdapter
             'asking_price' => $price && $price > 0 ? $price : null, 'currency' => $currency,
             'source_try_equivalent' => is_numeric($r['try_equivalent'] ?? null) ? (float) $r['try_equivalent'] : null,
             'normalized_price_gbp' => $currency === 'GBP' ? $price : null,
-            'mileage' => Normalizer::mileage($r['mileage'] ?? null), 'mileage_unit' => isset($r['mileage']) ? 'km' : null,
+            'mileage' => $advertised ? Normalizer::mileage($advertised['value'].($unit === 'mi' ? ' miles' : '')) : null,
+            'mileage_unit' => $advertised ? 'km' : null, 'mileage_as_advertised' => $advertised,
             'transmission' => $known($r['transmission'] ?? null, [Normalizer::class, 'transmission'], ['automatic', 'manual', 'semi_automatic', 'cvt']),
             'fuel_type' => $known($r['fuel_type'] ?? null, [Normalizer::class, 'fuel'], ['petrol', 'diesel', 'hybrid', 'electric', 'lpg', 'petrol_lpg', 'plug_in_hybrid']),
             'engine_cc' => $engine, 'engine_displacement' => $engine ? number_format($engine / 1000, 1).'L' : null,
@@ -115,6 +118,8 @@ class ExportFeedAdapter implements SourceAdapter
             'seller_type' => in_array($r['seller']['type'] ?? null, ['dealer', 'individual'], true) ? $r['seller']['type'] : null,
             'source_published_at' => isset($r['published_at']) && strtotime((string) $r['published_at']) ? date('Y-m-d', strtotime((string) $r['published_at'])) : null,
             'images' => array_values(array_map(fn ($f) => 'feed://'.ltrim((string) $f, '/'), array_filter((array) ($r['images'] ?? []), 'is_string'))),
+            // Provenance: the original source address of each supplied photo, in gallery order.
+            'image_source_urls' => array_values(array_filter((array) ($r['image_source_urls'] ?? []), fn ($u) => is_string($u) && str_starts_with($u, 'https://www.kktcarabam.com/uploads/'))),
         ];
 
         return ['status' => 'ok', 'http_status' => null, 'error' => null, 'mapped' => [

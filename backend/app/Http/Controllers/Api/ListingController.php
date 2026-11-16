@@ -158,6 +158,8 @@ class ListingController extends Controller
             'listing' => $listing,
             'seller_contact' => $sellerContact,
             'source_attribution' => \App\Services\Imports\SourceAttribution::for($listing),
+            // Curated SEO title/description (imported listings); meta itself stays hidden.
+            'seo' => is_array($listing->meta['seo'] ?? null) ? array_intersect_key($listing->meta['seo'], array_flip(['meta_title', 'meta_description'])) : null,
             'comparable_listings' => $comparables,
             'is_favorited' => $user
                 ? ListingFavorite::where('user_id', $user->id)->where('listing_id', $listing->id)->exists()
