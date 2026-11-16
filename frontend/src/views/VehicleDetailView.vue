@@ -49,6 +49,7 @@
             <div class="flex flex-wrap items-start gap-3 mb-3">
               <h1 class="text-3xl font-black" style="color:var(--text-primary)">{{ listing.title }}</h1>
               <span v-if="listing.ai_price_status" class="px-3 py-1 rounded-full text-sm font-bold mt-1" :style="aiStatusStyle">{{ $t(aiStatusLabel) }}</span>
+              <span v-else-if="sourceAttribution" class="px-3 py-1 rounded-full text-sm font-bold mt-1" style="background:var(--surface-overlay);color:var(--text-muted)">{{ $t('AI analysis pending') }}</span>
             </div>
             <div class="flex flex-wrap items-center gap-3 text-sm" style="color:var(--text-muted)">
               <span class="flex items-center gap-1"><AppIcon name="mapPin" :size="14" /> {{ listing.city }}, North Cyprus</span>
@@ -150,7 +151,11 @@
           <!-- Price card -->
           <div class="rounded-2xl p-6 sticky top-20" style="background:var(--bg-card);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
             <div class="mb-4">
+              <p v-if="sourceAttribution" class="text-xs mb-1" style="color:var(--text-muted)">{{ $t("Seller's asking price") }}</p>
               <p class="text-3xl font-black mb-1" style="color:var(--text-primary)">{{ formatPrice(listing.price, listing.currency) }}</p>
+              <p v-if="sourceAttribution && listing.market_avg_price" class="text-xs" style="color:var(--text-muted)">
+                {{ $t('AIPrice estimated market value: {price} (an estimate, separate from the asking price)', { price: formatPrice(listing.market_avg_price, listing.currency) }) }}
+              </p>
               <p v-if="listing.price_negotiable" class="text-sm" style="color:var(--accent-teal)">{{ $t('✓ Price is negotiable') }}</p>
             </div>
 
@@ -173,6 +178,18 @@
                 </button>
               </template>
             </SellerContactCard>
+          </div>
+
+          <!-- Imported listing: provenance and verification notice -->
+          <div v-if="sourceAttribution" class="rounded-2xl p-5" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+            <h3 class="text-sm font-bold mb-2 flex items-center gap-2" style="color:var(--text-primary)"><AppIcon name="globe" :size="18" /> {{ $t('About this listing') }}</h3>
+            <p class="text-xs mb-2" style="color:var(--text-secondary)">
+              <template v-if="sourceAttribution.source_name">{{ $t('Originally advertised on {site}.', { site: sourceAttribution.source_name }) }} </template>
+              {{ $t(sourceAttribution.note) }}
+            </p>
+            <a v-if="sourceAttribution.original_url" :href="sourceAttribution.original_url" target="_blank" rel="noopener nofollow" class="text-xs font-semibold" style="color:var(--accent-cyan)">
+              {{ $t('View the original advert and seller contact') }} →
+            </a>
           </div>
 
           <!-- Safety tips -->
@@ -212,6 +229,7 @@ const isFavorited = ref(false)
 const activeImage = ref<string | null>(null)
 const activeImageError = ref(false)
 const sellerContact = ref<SellerContact | null>(null)
+const sourceAttribution = ref<{ source_name: string | null; original_url: string | null; note: string } | null>(null)
 
 const vehicle = computed(() => listing.value?.listable as Vehicle | null)
 const images = computed(() => {
@@ -289,6 +307,7 @@ async function load() {
     comparables.value = data.comparable_listings ?? []
     isFavorited.value = data.is_favorited ?? false
     sellerContact.value = data.seller_contact ?? null
+    sourceAttribution.value = data.source_attribution ?? null
     const imgs = (listing.value as any).images
     activeImage.value = imgs?.[0] ?? (listing.value as any).thumbnail ?? null
   } catch {

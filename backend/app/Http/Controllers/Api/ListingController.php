@@ -157,6 +157,7 @@ class ListingController extends Controller
         return response()->json([
             'listing' => $listing,
             'seller_contact' => $sellerContact,
+            'source_attribution' => \App\Services\Imports\SourceAttribution::for($listing),
             'comparable_listings' => $comparables,
             'is_favorited' => $user
                 ? ListingFavorite::where('user_id', $user->id)->where('listing_id', $listing->id)->exists()

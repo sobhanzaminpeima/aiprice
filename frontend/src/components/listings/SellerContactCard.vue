@@ -27,9 +27,12 @@
     <p v-if="phoneError" class="text-xs mt-2" role="alert" style="color:var(--danger)">{{ phoneError }}</p>
 
     <div class="space-y-3 mt-4">
-      <button type="button" class="btn-cta w-full" :aria-expanded="showForm" @click="openForm">
+      <button v-if="contact?.can_message !== false" type="button" class="btn-cta w-full" :aria-expanded="showForm" @click="openForm">
         <AppIcon name="send" :size="18" /> {{ $t(sendLabel) }}
       </button>
+      <p v-else class="text-xs" style="color:var(--text-muted)">
+        {{ $t('This seller is not an AIPrice member. Contact them through the original advert linked below.') }}
+      </p>
       <slot name="secondary" />
     </div>
 
@@ -66,6 +69,7 @@ export interface SellerContact {
   has_phone: boolean
   phone_masked: string | null
   can_message: boolean
+  imported?: boolean
 }
 
 const props = defineProps<{ listingId: string; contact: SellerContact | null; kind: 'vehicle' | 'property' | 'rental' | string }>()

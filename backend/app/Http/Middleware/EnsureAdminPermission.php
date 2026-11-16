@@ -55,6 +55,9 @@ class EnsureAdminPermission
 
         'competitor-*' => 'manage_competitors',
 
+        'imports' => 'manage_imports',
+        'imports/*' => 'manage_imports',
+
         'ai-insights' => 'manage_ai',
         'ai-models' => 'manage_ai',
         'ai-models/*' => 'manage_ai',

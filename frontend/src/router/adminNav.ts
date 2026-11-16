@@ -34,6 +34,7 @@ export const adminNav: AdminNavSection[] = [
     items: [
       { path: 'listings', label: 'All listings', permission: 'manage_listings' },
       { path: 'vehicles', label: 'Brands, models & property types', permission: 'manage_vehicles' },
+      { path: 'imports', label: 'Listing imports', permission: 'manage_imports' },
     ],
   },
   {

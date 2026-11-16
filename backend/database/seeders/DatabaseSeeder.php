@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             'manage_properties', 'manage_rentals', 'manage_subscriptions', 'manage_payments',
             'manage_ai', 'manage_competitors', 'manage_cms', 'manage_settings',
             'manage_support', 'view_analytics', 'manage_advertisements',
-            'approve_listings', 'approve_kyc', 'manage_fraud',
+            'approve_listings', 'approve_kyc', 'manage_fraud', 'manage_imports',
         ];
 
         foreach ($permissions as $perm) {

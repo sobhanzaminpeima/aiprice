@@ -1,35 +1,53 @@
-# Authorized KKTCarabam Import
+# Vehicle listing imports (KKTCarabam)
 
-The user supplied a publication authorization dated 2026-10-29. The requested batch is 20-30 real vehicles with their actual galleries. No data or photographs should be fabricated.
+## Status (2026-11-16)
 
-## Current access result
+- **Blocked at the source.** The importer's HTTP client receives a Cloudflare managed challenge ("Just a moment…", HTTP 403) on listing and category pages. The importer treats this as an access restriction and stops. It does not switch clients, impersonate a browser, or solve challenges. The formal dry run (target 35) therefore discovered **0** candidates and wrote no listings, media or contacts.
+- **Permission scope is not on file.** A publication authorization dated 2026-10-29 was reported, but its text and scope are not in the repository. The source's member terms prohibit copying platform content without permission. All three permissions for the source therefore start as `pending_authorization`.
+- **Seller phones are masked** on the source behind a click-to-reveal call. The importer never calls the reveal and never stores masked or partial numbers.
 
-Direct HTTPS requests from this environment are refused by Cloudflare ("Sorry, you have been blocked"). Public search text can be read, but does not expose the actual vehicle galleries. No real inventory has been imported. The existing KKT crawler no longer generates sample prices when requests fail.
+### To unblock (any one)
 
-To complete the import, obtain an authorized JSON export and image directory from the source, or have the source operator enable access for the importer. No challenge bypass or credential copying is needed.
+1. The source operator allowlists the importer's user agent `AIPriceListingImporter/1.0` (for example a Cloudflare WAF skip rule). The live adapter then works unchanged.
+2. The operator supplies an authorized export (JSON + image directory). Run it through the same pipeline with `--feed`; see below.
 
-## Export format
+Then record the permission scope in **Admin → Listing imports → Record permission**. You must enter a reference to the written permission before anything can be marked authorized.
 
-A JSON object containing `listings`, an array of up to 100 records:
+## Pipeline
 
-- `external_id`: numeric source listing ID, supplied as a string
-- `source_url`: HTTPS KKTCarabam listing URL matching that ID
-- `brand`, `model`, `year`, `price`, `currency`, `city`
-- Optional `mileage`, `fuel_type`, `transmission`
-- `images`: relative filenames under the supplied image directory, with the complete gallery for that car
+`discover → fetch (robots.txt checked, 2.5 s between requests, honest UA) → parse → normalize → score → de-duplicate → select (20–50, target 35) → [import] private media + draft listings → [approve] publish`
 
-Prices must be numeric with the original GBP/EUR/USD/TRY currency; placeholder 0/1 prices are rejected. Images must be genuine JPG, PNG or WEBP files, at most 10 MB each. All images and records are validated before database writes. Image hashes deduplicate stored files. A unique source key prevents repeated imports even when an existing listing is soft deleted.
+| Stage | Behaviour |
+|---|---|
+| Normalization | Unknown values are stored as `null`, never guessed. Prices keep their original currency. The GBP equivalent is derived only from the TL equivalents the source prints. |
+| Scoring (0–100) | Completeness 30, photos 20, price clarity 15, identity 15, freshness 10, description 5, authorized contact 5. A low price never raises the score. |
+| Hard rejections | Missing or implausible price, missing make/model/year/mileage, new vehicle, non-car category, fewer than 4 photos, title/spec/description conflicts, duplicate vehicle. |
+| Selection | Deterministic and greedy by score, with caps per make, per model and per GBP price band. It never pads the result: fewer eligible listings means fewer selected. |
+| Media | Saved to the **private** disk with SHA-256 de-duplication, plus a WebP (≤1280 px) and a thumbnail (480 px) that keep the aspect ratio. Gallery order and source URLs are preserved, and watermarks are left alone. Files are copied to the public disk only on approval when the photo permission is authorized. |
+| Listings | Always created as `draft`, owned by an inactive system account. The text is original and factual and includes an "unverified seller information" note. The seller's description stays internal. |
+| Contacts | A private individual's name and any phone are stored only under contact permission, and only if the page printed the number in full. Public payloads never fall back to the owner account's phone. |
+| Valuation | Queued (`AnalyzeListingPrice`, `ai` queue) on publish, or on demand from the dashboard. It is separate from ingestion and shows "insufficient data" when there are fewer than 3 comparables. |
+| Attribution | When `attribution_required` is set (the default), the public page shows the source name, a link to the original advert, and the unverified-information note. |
 
-## Run
+**Update policy.** Each source listing maps to one AIPrice listing (`listings.import_source_key = kktcarabam:<id>`, checked including soft-deleted rows, plus a unique `(source, source_listing_id)` and a unique canonical URL). Re-runs never overwrite an AIPrice listing. A recheck records price or mileage changes in `source_listings.data.source_changes` for review, and unpublishes listings that are gone at the source.
 
-From `backend`:
+## Commands (from `backend`)
 
 ```powershell
-rtk php artisan migrate
-rtk php artisan vehicles:import-authorized C:\exports\kktcarabam.json --images=C:\exports\images --owner=EXISTING_USER_UUID --dry-run
-rtk php artisan vehicles:import-authorized C:\exports\kktcarabam.json --images=C:\exports\images --owner=EXISTING_USER_UUID
-rtk php artisan storage:link
-rtk php artisan queue:work --queue=default,ai --stop-when-empty
+php artisan migrate
+php artisan imports:run kktcarabam --dry-run --target=35 --report=storage/app/private/import-reports/dry-run.json
+php artisan imports:run kktcarabam --from-run=<DRY_RUN_ID>          # re-confirm selection, store media, create drafts
+php artisan imports:run kktcarabam --feed=C:\exports\kkt.json --images=C:\exports\images --dry-run
+php artisan imports:run kktcarabam --publish-approved                # only rows passing PublicationPolicy
+php artisan queue:work --queue=default,ai,crawl
 ```
 
-The command publishes imported listings locally, adds newly written factual English descriptions, source attribution and provenance metadata, and queues AI analysis after commit. Source prices are preserved. It never contacts a protected source or silently substitutes stock photos. This command does not deploy to aiprice.app; run it in the intended deployment database after review.
+Nothing is scheduled. A recurring import needs explicit approval.
+
+## Admin API (`/api/v1/admin/imports`, permission `manage_imports`)
+
+`GET /` overview · `PATCH /sources/{id}` permissions, pause/resume · `POST /sources/{id}/runs` dry run / import · `GET /runs`, `/runs/{id}` · `GET /listings?status=&run=` · `GET /listings/{id}` (with signed private image previews) · `POST /listings/{id}/approve|unpublish|remove|recheck|analyze` · `PATCH /listings/{id}/contact` (correction/removal, audited without storing values in the log).
+
+## Legacy
+
+`vehicles:import-authorized` (the older JSON command) publishes immediately and supports AI-edited images. It predates these rules and should not be used for new batches. The existing 2012 Volkswagen Passat (source 269704) was imported that way with watermark-removed images and should be reviewed against the current watermark policy.

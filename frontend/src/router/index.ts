@@ -72,6 +72,7 @@ const router = createRouter({
         { path: "content",          name: "admin-content",       component: () => import("@/views/admin/AdminContentView.vue") },
         { path: "notifications",    name: "admin-notifications", component: () => import("@/views/admin/AdminNotificationsView.vue") },
         { path: "competitors",      name: "admin-competitors",   component: () => import("@/views/admin/AdminCompetitorsView.vue") },
+        { path: "imports",          name: "admin-imports",       component: () => import("@/views/admin/AdminImportsView.vue") },
         { path: "subscriptions",    name: "admin-subscriptions", component: () => import("@/views/admin/AdminSubscriptionsView.vue") },
         { path: "agencies",         name: "admin-agencies",      component: () => import("@/views/admin/AdminAgenciesView.vue") },
         { path: "advertisements",   name: "admin-advertisements",component: () => import("@/views/admin/AdminAdvertisementsView.vue") },

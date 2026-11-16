@@ -20,7 +20,11 @@ class SellerContactService
     public function phoneFor(Listing $listing): ?string
     {
         $listing->loadMissing('user:id,name,phone,created_at');
-        $phone = $listing->meta['contact_phone'] ?? $listing->user?->phone;
+        // Imported listings belong to a system account: only a contact number
+        // explicitly authorized for republication may be shown, never the owner's.
+        $phone = $listing->import_source_key
+            ? ($listing->meta['contact_phone'] ?? null)
+            : ($listing->meta['contact_phone'] ?? $listing->user?->phone);
         $phone = is_string($phone) ? trim($phone) : '';
 
         return preg_match_all('/\d/', $phone) >= 6 ? $phone : null;
@@ -31,6 +35,9 @@ class SellerContactService
     {
         $listing->loadMissing('user:id,name,phone,created_at');
         $phone = $this->phoneFor($listing);
+        if ($listing->import_source_key) {
+            return $this->importedSummary($listing, $phone);
+        }
         $name = trim((string) $listing->user?->name);
 
         return [
@@ -40,6 +47,28 @@ class SellerContactService
             'has_phone' => $phone !== null,
             'phone_masked' => $phone ? self::mask($phone) : null,
             'can_message' => true,
+        ];
+    }
+
+    /**
+     * Imported listing: the seller is not an AIPrice member, so in-app
+     * messages would reach nobody. The seller name is shown only when its
+     * republication is authorized; buyers are pointed to the original listing.
+     */
+    private function importedSummary(Listing $listing, ?string $phone): array
+    {
+        $record = isset($listing->meta['import']['source_listing_record'])
+            ? \App\Models\Imports\SourceListing::find($listing->meta['import']['source_listing_record'])
+            : null;
+        $authorized = $record && $record->contact_publication_status === \App\Models\Imports\ImportSource::AUTHORIZED;
+
+        return [
+            'display_name' => $authorized && $record->seller_display_name ? $record->seller_display_name : 'Seller (imported listing)',
+            'member_since' => null,
+            'has_phone' => $phone !== null,
+            'phone_masked' => $phone ? self::mask($phone) : null,
+            'can_message' => false,
+            'imported' => true,
         ];
     }
 

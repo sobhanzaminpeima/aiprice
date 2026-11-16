@@ -478,9 +478,30 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
         return response()->json(['ok' => true]);
     });
 
+    // Short-lived signed preview of privately stored import images (URLs are issued by the admin imports API).
+    Route::get('/import-images/{id}', [\App\Http\Controllers\Admin\SourceImportController::class, 'image'])
+        ->middleware(['signed', 'throttle:300,1'])->name('imports.image');
+
     // Admin routes
     Route::middleware(['auth:sanctum', 'password.fresh', 'admin.permission'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'overview']);
+
+        // Third-party listing imports (permission manage_imports)
+        Route::prefix('imports')->controller(\App\Http\Controllers\Admin\SourceImportController::class)->group(function () {
+            Route::get('/', 'overview');
+            Route::patch('/sources/{id}', 'updateSource');
+            Route::post('/sources/{id}/runs', 'startRun');
+            Route::get('/runs', 'runs');
+            Route::get('/runs/{id}', 'run');
+            Route::get('/listings', 'listings');
+            Route::get('/listings/{id}', 'listing');
+            Route::post('/listings/{id}/approve', 'approve');
+            Route::post('/listings/{id}/unpublish', 'unpublish');
+            Route::post('/listings/{id}/remove', 'remove');
+            Route::post('/listings/{id}/recheck', 'recheck');
+            Route::post('/listings/{id}/analyze', 'analyze');
+            Route::patch('/listings/{id}/contact', 'updateContact');
+        });
 
         // Listing management
         Route::get('/listings', [ListingManagementController::class, 'index']);
