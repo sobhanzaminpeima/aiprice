@@ -22,8 +22,10 @@ class ListingManagementController extends Controller
     public function approve(string $id): JsonResponse
     {
         $listing = Listing::with('user')->findOrFail($id);
+        // How long a listing stays up depends on the seller's plan.
+        $days = $listing->user ? app(\App\Services\Billing\PlanEntitlements::class)->limits($listing->user)['listing_duration_days'] : 90;
         $listing->update([
-            'status' => 'active', 'published_at' => now(), 'expires_at' => now()->addDays(90), 'rejection_reason' => null,
+            'status' => 'active', 'published_at' => now(), 'expires_at' => now()->addDays($days), 'rejection_reason' => null,
         ]);
 
         // Scoring calls the LLM for its insight sentence — run it on the queue.

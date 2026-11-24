@@ -13,7 +13,7 @@ class Subscription extends Model
     protected $fillable = [
         'user_id', 'plan_id', 'status', 'billing_cycle', 'amount', 'currency',
         'trial_ends_at', 'current_period_start', 'current_period_end',
-        'cancelled_at', 'payment_gateway', 'gateway_subscription_id',
+        'cancelled_at', 'payment_gateway', 'gateway_subscription_id', 'notes', 'reminder_sent_at',
     ];
 
     protected function casts(): array
@@ -23,7 +23,17 @@ class Subscription extends Model
             'current_period_start' => 'datetime',
             'current_period_end' => 'datetime',
             'cancelled_at' => 'datetime',
+            'reminder_sent_at' => 'datetime',
         ];
+    }
+
+    /** Statuses that grant the plan's limits. 'pending' means waiting for a manual payment. */
+    public const LIVE = ['active', 'trial'];
+
+    public function isLive(): bool
+    {
+        return in_array($this->status, self::LIVE, true)
+            && (!$this->current_period_end || $this->current_period_end->isFuture());
     }
 
     public function user()

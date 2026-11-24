@@ -287,48 +287,33 @@
       </div>
     </section>
 
-    <!-- SUBSCRIPTION PLANS -->
-    <section class="px-4 pb-24 max-w-7xl mx-auto">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-black mb-3" style="color:var(--text-primary)">{{ $t('Start Selling') }} <span class="gradient-text">{{ $t('Today') }}</span></h2>
-        <p class="text-base max-w-lg mx-auto" style="color:var(--text-muted)">{{ $t('Choose a plan to list your car or property. AI price analysis included on all paid plans.') }}</p>
+    <!-- SELL ON AIPRICE: one card per kind of seller, details on /pricing -->
+    <section class="px-4 pb-24 max-w-7xl mx-auto" aria-labelledby="sell-heading">
+      <div class="text-center mb-10">
+        <h2 id="sell-heading" class="text-3xl font-black mb-3" style="color:var(--text-primary)">{{ $t('Start Selling') }} <span class="gradient-text">{{ $t('Today') }}</span></h2>
+        <p class="text-base max-w-xl mx-auto" style="color:var(--text-muted)">{{ $t('Private sellers list free. Dealers and agencies get their first month free — no card needed.') }}</p>
       </div>
-      <div v-if="loadingPlans" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div v-for="i in 4" :key="i" class="h-64 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
+      <div v-if="loadingPlans" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div v-for="i in 3" :key="i" class="h-56 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
       </div>
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div v-for="(plan, i) in plans" :key="plan.id" class="rounded-2xl p-6 flex flex-col" :style="i===1?'background:var(--bg-surface);border:2px solid rgba(var(--accent-teal-rgb),0.4)':'background:var(--bg-surface);border:1px solid var(--border-subtle)'">
-          <div v-if="i===1" class="text-center mb-3">
-            <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(var(--accent-teal-rgb),0.1);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.3)">{{ $t('Most Popular') }}</span>
-          </div>
-          <h3 class="font-black text-lg mb-1" style="color:var(--text-primary)">{{ plan.name }}</h3>
-          <p class="text-xs mb-4" style="color:var(--text-muted)">{{ plan.description || planTagline(plan) }}</p>
-          <div class="mb-4">
-            <span class="text-3xl font-black" :style="{color: i===1?'var(--accent-teal)':'var(--text-primary)'}">£{{ plan.price_monthly }}</span>
-            <span class="text-sm" style="color:var(--text-muted)">{{ $t('/month') }}</span>
-          </div>
-          <ul class="space-y-2 text-xs mb-6 flex-1" style="color:var(--text-secondary)">
-            <li class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="teal" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-              {{ plan.max_listings }} listings
-            </li>
-            <li v-if="plan.ai_price_analysis" class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="teal" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-              {{ $t('AI price analysis') }}
-            </li>
-            <li v-if="plan.featured_listing" class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="teal" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-              {{ $t('Featured placement') }}
-            </li>
-            <li v-if="plan.priority_support" class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="teal" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-              {{ $t('Priority support') }}
-            </li>
-          </ul>
-          <RouterLink :to="auth.isAuthenticated ? '/dashboard' : '/register'" class="block text-center py-3 rounded-xl font-bold text-sm" :style="i===1?'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)':'background:var(--border-subtle);color:var(--text-secondary);border:1px solid var(--border-strong)'">
-            {{ plan.price_monthly === 0 ? 'Get Started Free' : 'Choose ' + plan.name }}
-          </RouterLink>
-        </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <RouterLink v-for="g in sellerGroups" :key="g.type" :to="{ path: '/pricing', query: { audience: g.type } }" class="rounded-2xl p-6 flex flex-col transition-transform hover:-translate-y-0.5"
+          :style="g.type === 'dealer' ? 'background:var(--bg-surface);border:2px solid rgba(var(--accent-teal-rgb),0.4)' : 'background:var(--bg-surface);border:1px solid var(--border-subtle)'">
+          <h3 class="font-black text-lg mb-1" style="color:var(--text-primary)">{{ $t(g.title) }}</h3>
+          <p class="text-xs mb-4" style="color:var(--text-muted)">{{ $t(g.blurb) }}</p>
+          <p class="mb-1">
+            <span v-if="g.from === 0" class="text-3xl font-black" style="color:var(--text-primary)">{{ $t('Free') }}</span>
+            <template v-else-if="g.from !== null">
+              <span class="text-xs" style="color:var(--text-muted)">{{ $t('from') }} </span>
+              <span class="text-3xl font-black" style="color:var(--text-primary)">£{{ g.from }}</span>
+              <span class="text-sm" style="color:var(--text-muted)">{{ $t('/month') }}</span>
+            </template>
+          </p>
+          <p class="text-xs mb-6 flex-1" style="color:var(--accent-teal)">{{ g.from === 0 ? $t('{n} listings live at a time', { n: g.listings }) : $t('First month free · up to {n} listings', { n: g.listings }) }}</p>
+          <span class="block text-center py-3 rounded-xl font-bold text-sm" :style="g.type === 'dealer' ? 'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)' : 'background:var(--border-subtle);color:var(--text-secondary);border:1px solid var(--border-strong)'">
+            {{ g.from === 0 ? $t('Post a free ad') : $t('See plans') }}
+          </span>
+        </RouterLink>
       </div>
     </section>
   </MainLayout>
@@ -445,6 +430,19 @@ const newestVehicles = ref<any[]>([])
 const bestProperties = ref<any[]>([])
 const newestProperties = ref<any[]>([])
 const plans = ref<any[]>([])
+// Cheapest price and largest listing allowance per kind of seller, for the "Start selling" cards.
+const sellerGroups = computed(() => ([
+  { type: 'seller', title: 'Private seller', blurb: 'Sell your own car or home.' },
+  { type: 'dealer', title: 'Car dealer', blurb: 'Put your whole showroom online with AI price checks.' },
+  { type: 'agency', title: 'Real estate agency', blurb: 'List your portfolio and stand out with featured listings.' },
+]).map((g) => {
+  const ps = plans.value.filter((p) => p.type === g.type)
+  return {
+    ...g,
+    from: ps.length ? Math.min(...ps.map((p) => Number(p.price_monthly))) : null,
+    listings: ps.length ? Math.max(...ps.map((p) => Number(p.max_listings))) : 0,
+  }
+}))
 const ads = ref<any[]>([])
 const loadingVehicles = ref(true)
 const loadingProperties = ref(true)
@@ -452,13 +450,6 @@ const loadingPlans = ref(true)
 
 const activeCount = ref<number | null>(null)
 const sellLink = computed(() => (auth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }))
-function planTagline(plan: any) {
-  const limit = Number(plan.max_listings)
-  if (Number(plan.price_monthly) <= 0) return 'Try it free — no card needed'
-  if (limit >= 999) return 'For dealers and agencies at scale'
-  if (limit >= 50) return 'For active sellers and small dealers'
-  return 'For private sellers'
-}
 const stats = ref([
   { label: 'Active Listings', value: '...', color: 'var(--accent-teal)' },
   { label: 'Cars Listed', value: '...', color: 'var(--accent-cyan)' },

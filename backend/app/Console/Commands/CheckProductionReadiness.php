@@ -37,6 +37,10 @@ class CheckProductionReadiness extends Command
                     array_keys(app('migrator')->getMigrationFiles(database_path('migrations'))),
                     app('migration.repository')->getRan(),
                 )) === 0;
+            // Sellers who request a paid plan are shown these; without them they see only a generic message.
+            $checks['Payment instructions set (admin → Subscription plans)'] = app(\App\Services\Payments\PaymentGateway::class)->isConfigured()
+                || filled(\App\Models\Setting::get(\App\Services\Billing\SubscriptionManager::INSTRUCTIONS_KEY));
+            $checks['Free seller plan active'] = \App\Services\Billing\PlanEntitlements::freePlan() !== null;
         } catch (Throwable) {
             $checks['Database connection and migrations'] = false;
         }

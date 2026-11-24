@@ -24,6 +24,16 @@
       </div>
     </div>
 
+    <!-- Plan limit reached: say so before the seller fills in five steps -->
+    <div v-if="planUsage && planUsage.listing_limit !== null && planUsage.listings >= planUsage.listing_limit && step < 6" class="mb-6 p-5 rounded-2xl" style="background:rgba(var(--accent-teal-rgb),0.06);border:1px solid rgba(var(--accent-teal-rgb),0.25)">
+      <p class="font-bold mb-1" style="color:var(--text-primary)">{{ $t('You have used all {n} listing slots on your {plan} plan.', { n: planUsage.listing_limit, plan: $t(planUsage.plan_name || 'Private') }) }}</p>
+      <p class="text-sm mb-3" style="color:var(--text-muted)">{{ $t('Mark a listing as sold or delete one to free a slot, or upgrade — dealer and agency plans are free for the first month.') }}</p>
+      <div class="flex flex-wrap gap-2">
+        <RouterLink to="/pricing" class="px-4 py-2 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('See plans') }}</RouterLink>
+        <RouterLink to="/dashboard/listings" class="px-4 py-2 rounded-xl text-sm" style="border:1px solid var(--border-strong);color:var(--text-secondary)">{{ $t('My listings') }}</RouterLink>
+      </div>
+    </div>
+
     <!-- Error banner -->
     <div v-if="error" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
@@ -323,6 +333,7 @@ import { RouterLink } from 'vue-router'
 import client from '@/api/client'
 import AiListingComposer from '@/components/listings/AiListingComposer.vue'
 import { listingMultipart, type ListingDraft } from '@/types/listingDraft'
+import { t } from '@/i18n'
 
 interface PhotoFile { file: File; preview: string }
 interface AiResult {
@@ -421,7 +432,10 @@ const types = [
 
 // Load brands + property types on mount
 import { onMounted } from 'vue'
+const planUsage = ref<{ listings: number; listing_limit: number | null; photos_per_listing: number; plan_name: string | null } | null>(null)
+const maxPhotos = computed(() => planUsage.value?.photos_per_listing ?? 20)
 onMounted(async () => {
+  client.get('/my-subscription').then((r) => (planUsage.value = r.data?.usage ?? null)).catch(() => {})
   const [b, p] = await Promise.all([
     client.get('/vehicle-brands').catch(() => ({ data: [] })),
     client.get('/property-types').catch(() => ({ data: [] })),
@@ -523,7 +537,7 @@ function handleDrop(e: DragEvent) {
 function addFiles(files: File[]) {
   for (const file of files) {
     if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size>10*1024*1024) { error.value='Use JPG, PNG or WebP images under 10 MB.'; continue }
-    if (photoFiles.value.length>=20) { error.value='A listing supports up to 20 photos.'; break }
+    if (photoFiles.value.length>=maxPhotos.value) { error.value=t('Your plan allows {n} photos per listing.', { n: maxPhotos.value }); break }
     photoFiles.value.push({ file, preview: URL.createObjectURL(file) })
   }
 }

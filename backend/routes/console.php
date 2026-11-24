@@ -5,6 +5,8 @@ use App\Jobs\CrawlCompetitorSource;
 use App\Models\CompetitorSource;
 use App\Models\Listing;
 use App\Models\Subscription;
+use App\Notifications\SubscriptionUpdated;
+use App\Services\Billing\PlanEntitlements;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
@@ -26,12 +28,46 @@ Artisan::command('listings:expire', function () {
 })->purpose('Mark active listings past their expiry date as expired');
 
 Artisan::command('subscriptions:expire', function () {
-    $n = Subscription::where('status', 'active')
+    $ended = Subscription::with('plan', 'user')
+        ->whereIn('status', Subscription::LIVE)
         ->whereNotNull('current_period_end')
         ->where('current_period_end', '<', now())
-        ->update(['status' => 'expired']);
-    $this->info("Expired {$n} subscriptions.");
-})->purpose('End subscriptions whose paid period is over');
+        ->get();
+
+    foreach ($ended as $sub) {
+        $sub->update(['status' => 'expired']);
+        $user = $sub->user;
+        if (!$user || app(PlanEntitlements::class)->subscription($user)) {
+            continue; // already moved to another live plan
+        }
+        // Featured slots are a paid perk; listings themselves stay up until their own expiry.
+        $keep = app(PlanEntitlements::class)->limits($user)['max_featured'];
+        Listing::where('user_id', $user->id)->where('is_featured', true)
+            ->orderByDesc('published_at')->get()->slice($keep)
+            ->each(fn (Listing $l) => $l->update(['is_featured' => false]));
+        $user->notify(new SubscriptionUpdated($sub, 'ended'));
+    }
+
+    $this->info("Expired {$ended->count()} subscriptions.");
+})->purpose('End subscriptions and free trials whose period is over');
+
+Artisan::command('subscriptions:remind', function () {
+    // Manual billing has no automatic renewal, so remind sellers before the end.
+    $due = Subscription::with('plan', 'user')
+        ->whereIn('status', Subscription::LIVE)
+        ->whereNull('gateway_subscription_id')
+        ->whereNull('reminder_sent_at')
+        ->whereNull('cancelled_at')
+        ->whereBetween('current_period_end', [now(), now()->addDays(3)])
+        ->get();
+
+    foreach ($due as $sub) {
+        $sub->user?->notify(new SubscriptionUpdated($sub, 'ending_soon'));
+        $sub->update(['reminder_sent_at' => now()]);
+    }
+
+    $this->info("Sent {$due->count()} renewal reminders.");
+})->purpose('Remind sellers three days before a trial or manually-paid plan ends');
 
 Artisan::command('listings:score-unscored', function () {
     $ids = Listing::where('status', 'active')->whereNull('ai_trust_score')->limit(200)->pluck('id');
@@ -53,6 +89,7 @@ Artisan::command('competitors:crawl-due', function () {
 
 Schedule::command('listings:expire')->hourly()->withoutOverlapping();
 Schedule::command('subscriptions:expire')->hourly()->withoutOverlapping();
+Schedule::command('subscriptions:remind')->hourly()->withoutOverlapping();
 Schedule::command('listings:score-unscored')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('competitors:crawl-due')->hourly()->withoutOverlapping();
 
