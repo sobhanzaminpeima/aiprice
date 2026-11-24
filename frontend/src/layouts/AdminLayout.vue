@@ -158,4 +158,7 @@ async function logout() { await auth.logout(); router.push('/') }
   .admin-sidebar { position:fixed;top:0;bottom:0;left:0;z-index:70;transform:translateX(-100%);transition:transform .2s;box-shadow:var(--shadow-lg) }
   .admin-sidebar--open { transform:none }
 }
+@media (min-width: 768px) {
+  .admin-topbar { display:none }
+}
 </style>
