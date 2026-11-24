@@ -32,8 +32,12 @@ class ProviderRegistry
         return array_map(function ($provider) use ($active) {
             $config = $this->resolve($provider);
             $row = AiProviderConnection::where('provider', $provider)->first();
+            $storedKey = $row?->api_key ?? (string) config("services.$provider.key", '');
             return [
-                'provider' => $provider, 'configured' => $config['key'] !== '', 'enabled' => $config['enabled'],
+                'provider' => $provider, 'configured' => $storedKey !== '', 'enabled' => $config['enabled'],
+                'key_source' => $storedKey === '' ? 'none' : ($row?->api_key !== null ? 'database' : 'environment'),
+                'key_fingerprint' => $storedKey !== '' ? substr(hash('sha256', $storedKey), 0, 12) : null,
+                'saved_at' => $row?->updated_at?->toIso8601String(),
                 'model' => $config['model'], 'models' => config("services.$provider.models", [$config['model']]),
                 'base_url' => $config['base_url'], 'active' => $active === $provider,
                 'last_http_status' => $row?->last_http_status, 'last_test_result' => $row?->last_test_result,
