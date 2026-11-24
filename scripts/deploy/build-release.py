@@ -34,8 +34,13 @@ shutil.copytree(root / 'frontend' / 'dist', stage / 'public', dirs_exist_ok=True
 (stage / 'public' / 'index.html').rename(stage / 'public' / 'spa.html')
 (stage / 'RELEASE').write_text(sha + '\n', encoding='ascii')
 target = build / f'aiprice-release-{sha}.tar.gz'
+def portable_permissions(info):
+    # Windows reports writable mode bits that shared hosts must not receive.
+    info.mode = 0o755 if info.isdir() else 0o644
+    return info
+
 with tarfile.open(target, 'w:gz') as package:
     for child in stage.iterdir():
         if child.name not in ('tests', 'phpunit.xml'):
-            package.add(child, arcname='./' + child.name)
+            package.add(child, arcname='./' + child.name, filter=portable_permissions)
 print('Release:', target)

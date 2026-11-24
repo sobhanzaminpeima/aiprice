@@ -58,6 +58,9 @@ echo "→ Maintenance mode"
 echo "→ Replacing code (keeping .env, storage, public/storage)"
 STAGE="$(mktemp -d)"
 tar -xzf "$TARBALL" -C "$STAGE"
+# The transfer tar includes '.', so a private mktemp directory would make
+# the app root mode 0700 and prevent the web server following public_html.
+chmod 755 "$STAGE"
 mv vendor vendor.prev
 # Drop code dirs so deleted files don't linger, then lay down the release.
 rm -rf app bootstrap/cache/*.php config database/migrations routes resources public/assets
