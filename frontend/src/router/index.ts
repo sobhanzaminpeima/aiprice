@@ -78,7 +78,7 @@ const router = createRouter({
         { path: "advertisements",   name: "admin-advertisements",component: () => import("@/views/admin/AdminAdvertisementsView.vue") },
         { path: "ai-status",        name: "admin-ai-status",     component: () => import("@/views/admin/AdminAiStatusView.vue") },
         // Old bookmarks for removed AI pages land on the working status page.
-        { path: "llm-management", redirect: "/admin/ai-status" },
+        { path: "llm-management", name: "admin-api-management", component: () => import("@/views/admin/AdminApiManagementView.vue") },
         { path: "ai-intelligence", redirect: "/admin/ai-status" },
         { path: "social",           name: "admin-social",        component: () => import("@/views/admin/AdminSocialView.vue") },
         { path: "support",          name: "admin-support",       component: () => import("@/views/admin/AdminSupportView.vue") },

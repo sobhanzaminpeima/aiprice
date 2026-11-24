@@ -249,12 +249,8 @@ class ListingController extends Controller
     public function update(Request $request, string $id): JsonResponse
     {
         $listing = Listing::where('user_id', $request->user()->id)->findOrFail($id);
-        $validated = $request->validate(['title' => 'sometimes|string', 'description' => 'nullable|string', 'price' => 'sometimes|numeric']);
-        if (isset($validated['price']) && $validated['price'] != $listing->price) {
-            PriceHistory::create(['listing_id' => $listing->id, 'price' => $validated['price'], 'currency' => $listing->currency, 'changed_by' => 'seller']);
-        }
-        $listing->update($validated);
-        return response()->json(['listing' => $listing->fresh(), 'message' => 'Updated.']);
+        $saved=app(\App\Services\ListingEditor::class)->save($request,false,$listing);
+        return response()->json(['listing'=>$saved,'message'=>'Updated and submitted for review.']);
     }
 
     public function destroy(Request $request, string $id): JsonResponse

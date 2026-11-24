@@ -15,13 +15,16 @@ class ChatService
 {
     private string $apiKey;
     private string $model;
+    private string $baseUrl;
 
     public function __construct(
         private IntentExtractionService $intentService,
         private MatchScoreService $matchService,
     ) {
-        $this->apiKey = config('services.openai.key', '');
-        $this->model = config('services.openai.model', 'gpt-4o-mini');
+        $connection = app(ProviderRegistry::class)->resolve();
+        $this->apiKey = $connection['key'];
+        $this->model = $connection['model'];
+        $this->baseUrl = $connection['base_url'];
     }
 
     public function respond(string $message): array
@@ -122,7 +125,7 @@ class ChatService
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type' => 'application/json',
-            ])->timeout(10)->post('https://api.openai.com/v1/chat/completions', [
+            ])->timeout(10)->post($this->baseUrl.'/chat/completions', [
                 'model' => $this->model,
                 'messages' => [['role' => 'user', 'content' => $prompt]],
                 'temperature' => 0.4,

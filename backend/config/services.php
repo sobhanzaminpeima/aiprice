@@ -31,7 +31,16 @@ return [
     'openai' => [
         'key'   => env('OPENAI_API_KEY', ''),
         'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+        'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
     ],
+
+    'runcrate' => [
+        'key' => env('RUNCRATE_API_KEY', ''),
+        'base_url' => env('RUNCRATE_BASE_URL', 'https://api.runcrate.ai/v1'),
+        'model' => env('RUNCRATE_MODEL', 'Qwen/Qwen3.8-Flash'),
+        'models' => ['Qwen/Qwen3.8-Flash', 'deepseek-ai/DeepSeek-V4.1-Flash-1017', 'deepseek-ai/DeepSeek-V4.1-Flash', 'zai-org/GLM-5.3', 'openai/gpt-oss-120b', 'zai-org/GLM-5.3-Flash'],
+    ],
+    'ai_provider' => env('AI_PROVIDER', 'openai'),
 
     'nvidia' => [
         'key'   => env('NVIDIA_API_KEY', ''),

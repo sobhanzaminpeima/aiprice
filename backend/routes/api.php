@@ -305,74 +305,8 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
 
         // Create listing with brand/model name resolution
         Route::post('/listings/create', function (Request $req) {
-            $req->validate([
-                'type' => 'required|in:vehicle,property,rental',
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'price' => 'required|numeric|min:0',
-                'currency' => 'nullable|string|size:3',
-                'city' => 'nullable|string',
-                'district' => 'nullable|string',
-                'brand_name' => 'required_if:type,vehicle|string',
-                'model_name' => 'required_if:type,vehicle|string',
-                'year' => 'required_if:type,vehicle|integer',
-                'mileage' => 'nullable|integer',
-                'fuel_type' => 'nullable|string',
-                'transmission' => 'nullable|string',
-                'body_type' => 'nullable|string',
-                'color' => 'nullable|string',
-                'engine_size' => 'nullable|string',
-                'condition' => 'nullable|string',
-                'property_type_name' => 'required_if:type,property|string',
-                'listing_for' => 'nullable|string',
-                'bedrooms' => 'nullable|integer',
-                'bathrooms' => 'nullable|integer',
-                'area_sqm' => 'nullable|numeric',
-                'build_year' => 'nullable|integer',
-                'has_parking' => 'nullable|boolean',
-                'has_garden' => 'nullable|boolean',
-                'has_pool' => 'nullable|boolean',
-                'has_elevator' => 'nullable|boolean',
-                'price_negotiable' => 'nullable|boolean',
-                'video_url' => 'nullable|url',
-            ]);
-            return \Illuminate\Support\Facades\DB::transaction(function () use ($req) {
-                $listable = null;
-                if ($req->type === 'vehicle') {
-                    $brand = \App\Models\VehicleBrand::firstOrCreate(['name' => $req->brand_name], ['is_active' => true]);
-                    $model = \App\Models\VehicleModel::firstOrCreate(['brand_id' => $brand->id, 'name' => $req->model_name], ['is_active' => true]);
-                    $listable = \App\Models\Vehicle::create([
-                        'brand_id' => $brand->id, 'model_id' => $model->id,
-                        'year' => $req->year, 'mileage' => $req->mileage,
-                        'fuel_type' => $req->fuel_type, 'transmission' => $req->transmission,
-                        'body_type' => $req->body_type, 'color' => $req->color,
-                        'engine_size' => $req->engine_size, 'condition' => $req->condition ?? 'Good',
-                    ]);
-                } elseif ($req->type === 'property') {
-                    $propType = \App\Models\PropertyType::firstOrCreate(['name' => $req->property_type_name], ['is_active' => true]);
-                    $listable = \App\Models\Property::create([
-                        'property_type_id' => $propType->id, 'title' => $req->title,
-                        'bedrooms' => $req->bedrooms, 'bathrooms' => $req->bathrooms,
-                        'area_sqm' => $req->area_sqm, 'build_year' => $req->build_year,
-                        'has_parking' => (bool)$req->has_parking, 'has_garden' => (bool)$req->has_garden,
-                        'has_pool' => (bool)$req->has_pool, 'has_elevator' => (bool)$req->has_elevator,
-                        'listing_for' => $req->listing_for ?? 'sale',
-                    ]);
-                } else {
-                    $listable = \App\Models\Rental::create(['title' => $req->title, 'rental_type' => 'monthly', 'bedrooms' => $req->bedrooms]);
-                }
-                $listing = \App\Models\Listing::create([
-                    'user_id' => $req->user()->id, 'type' => $req->type,
-                    'listable_type' => get_class($listable), 'listable_id' => $listable->id,
-                    'title' => $req->title, 'description' => $req->description,
-                    'price' => $req->price, 'currency' => $req->currency ?? 'GBP',
-                    'city' => $req->city, 'district' => $req->district,
-                    'price_negotiable' => (bool)$req->price_negotiable,
-                    'video_url' => $req->video_url, 'status' => 'pending',
-                ]);
-                \App\Models\PriceHistory::create(['listing_id' => $listing->id, 'price' => $listing->price, 'currency' => $listing->currency, 'changed_by' => 'seller']);
-                return response()->json(['listing' => $listing->fresh(['listable']), 'message' => 'Submitted for review.'], 201);
-            });
+            $listing=app(\App\Services\ListingEditor::class)->save($req);
+            return response()->json(['listing'=>$listing,'message'=>'Submitted for review.'],201);
         })->middleware('verified');
 
         // Upload images for a listing (multipart)
@@ -653,9 +587,11 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
         // Honest health view of the AI price check for the admin "AI Status" page.
         Route::get('/ai/status', function () {
             $active = \App\Models\Listing::where('status', 'active');
+            $connection = app(\App\Services\AI\ProviderRegistry::class)->resolve();
             return response()->json([
-                'openai_configured' => filled(config('services.openai.key')),
-                'openai_model' => config('services.openai.model', 'gpt-4o-mini'),
+                'active_provider' => $connection['provider'],
+                'openai_configured' => filled($connection['key']),
+                'openai_model' => $connection['model'],
                 'queue_connection' => config('queue.default'),
                 'active_listings' => (clone $active)->count(),
                 'with_estimate' => (clone $active)->whereNotNull('price_battery_percent')->count(),
@@ -668,40 +604,9 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
                 'market_sources' => \App\Models\CompetitorSource::get(['name', 'is_active', 'last_scraped_at']),
             ]);
         });
-        Route::get('/llm/providers', function () {
-            return response()->json([
-                ['provider' => 'openai', 'configured' => !empty(config('services.openai.key')), 'model' => config('services.openai.model')],
-                ['provider' => 'nvidia', 'configured' => !empty(config('services.nvidia.key')), 'model' => config('services.nvidia.model')],
-            ]);
-        });
-        Route::post('/llm/test', function (Request $req) {
-            $req->validate(['prompt' => 'required|string|max:500', 'provider' => 'nullable|in:openai,nvidia']);
-            $provider = $req->input('provider', 'openai');
-            if ($provider === 'nvidia') {
-                $apiKey = config('services.nvidia.key', '');
-                $baseUrl = rtrim(config('services.nvidia.base_url', 'https://integrate.api.nvidia.com/v1'), '/');
-                $model = $req->input('model', config('services.nvidia.model', 'meta/llama-3.2-11b-vision-instruct'));
-            } else {
-                $apiKey = config('services.openai.key', '');
-                $baseUrl = 'https://api.openai.com/v1';
-                $model = $req->input('model', config('services.openai.model', 'gpt-4o-mini'));
-            }
-            if (empty($apiKey)) {
-                return response()->json(['error' => ucfirst($provider) . ' API key not configured.'], 422);
-            }
-            $resp = \Illuminate\Support\Facades\Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-            ])->timeout(20)->post($baseUrl . '/chat/completions', [
-                'model'       => $model,
-                'messages'    => [['role' => 'user', 'content' => $req->prompt]],
-                'temperature' => 0.7,
-                'max_tokens'  => 200,
-            ]);
-            if (!$resp->successful()) {
-                return response()->json(['error' => ucfirst($provider) . ' error: ' . $resp->status() . ' — ' . $resp->body()], 422);
-            }
-            return response()->json(['response' => $resp->json('choices.0.message.content')]);
-        });
+        Route::get('/llm/providers', [\App\Http\Controllers\Admin\AiProviderController::class, 'index']);
+        Route::put('/llm/providers/{provider}', [\App\Http\Controllers\Admin\AiProviderController::class, 'update']);
+        Route::post('/llm/test', [\App\Http\Controllers\Admin\AiProviderController::class, 'test'])->middleware('throttle:6,1');
 
         // Batch AI analyze pending listings
         // ?all=1 re-scores every active listing (needed after the pricing
@@ -753,60 +658,19 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
 
         // Listing CRUD (create/edit/update)
         Route::get('/listings/{id}', function (string $id) {
-            return response()->json(\App\Models\Listing::with(['user:id,name,email,role', 'listable'])->findOrFail($id));
+            $listing=\App\Models\Listing::with(['user:id,name,email,role','listable'])->findOrFail($id);
+            return response()->json($listing->toArray()+['seo'=>$listing->meta['seo']??null]);
         });
         Route::post('/listings', function (Request $req) {
-            $v = $req->validate([
-                'user_id' => 'required|uuid|exists:users,id',
-                'type' => 'required|in:vehicle,property,rental',
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'price' => 'required|numeric|min:0',
-                'currency' => 'sometimes|string|size:3',
-                'city' => 'nullable|string|max:100',
-                'country' => 'nullable|string|max:3',
-                'status' => 'sometimes|in:pending,active,rejected,sold,expired',
-                'brand_id' => 'required_if:type,vehicle',
-                'model_id' => 'required_if:type,vehicle',
-                'year' => 'required_if:type,vehicle|integer',
-                'property_type_id' => 'required_if:type,property',
-            ]);
-            return \Illuminate\Support\Facades\DB::transaction(function () use ($v) {
-                $listable = match ($v['type']) {
-                    'vehicle' => \App\Models\Vehicle::create([
-                        'brand_id' => $v['brand_id'], 'model_id' => $v['model_id'], 'year' => $v['year'],
-                        'condition' => $v['condition'] ?? 'used',
-                    ]),
-                    'property' => \App\Models\Property::create([
-                        'property_type_id' => $v['property_type_id'],
-                    ]),
-                    'rental' => \App\Models\Rental::create(['title' => $v['title']]),
-                };
-                $listing = \App\Models\Listing::create([
-                    'user_id' => $v['user_id'], 'type' => $v['type'],
-                    'listable_type' => get_class($listable), 'listable_id' => $listable->id,
-                    'title' => $v['title'], 'description' => $v['description'] ?? null,
-                    'price' => $v['price'], 'currency' => $v['currency'] ?? 'GBP',
-                    'city' => $v['city'] ?? null, 'country' => $v['country'] ?? null,
-                    'status' => $v['status'] ?? 'active',
-                    'published_at' => ($v['status'] ?? 'active') === 'active' ? now() : null,
-                ]);
-                return response()->json(['listing' => $listing->fresh(['listable', 'user:id,name,email'])], 201);
-            });
+            $listing=app(\App\Services\ListingEditor::class)->save($req,true);
+            return response()->json(['listing'=>$listing->load('user:id,name,email')],201);
         });
-        Route::put('/listings/{id}', function (Request $req, string $id) {
-            $listing = \App\Models\Listing::with('listable')->findOrFail($id);
-            $listing->update($req->only(['title', 'description', 'price', 'currency', 'city', 'district', 'status', 'is_featured', 'is_premium', 'price_negotiable']));
+        Route::put('/listings/{id}', function (Request $req,string $id) {
+            $listing=\App\Models\Listing::findOrFail($id);
+            return response()->json(app(\App\Services\ListingEditor::class)->save($req,true,$listing)->load('user:id,name,email'));
+        });
+        Route::post('/listings/extract', [\App\Http\Controllers\Api\ListingExtractionController::class,'extract'])->middleware('throttle:10,1');
 
-            if ($listing->listable) {
-                if ($listing->type === 'vehicle') {
-                    $listing->listable->update($req->only(['year', 'mileage', 'fuel_type', 'transmission', 'body_type', 'color', 'condition', 'engine_size']));
-                } elseif ($listing->type === 'property') {
-                    $listing->listable->update($req->only(['bedrooms', 'bathrooms', 'area_sqm', 'floor_number', 'build_year', 'furnishing', 'has_parking', 'has_garden', 'has_pool', 'has_elevator']));
-                }
-            }
-            return response()->json($listing->fresh(['listable', 'user:id,name,email']));
-        });
         // Admin image management — no ownership check, admin can edit any listing's gallery.
         Route::post('/listings/{id}/upload-images', function (Request $req, string $id) {
             $listing = \App\Models\Listing::findOrFail($id);

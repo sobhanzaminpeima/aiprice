@@ -60,6 +60,7 @@ export const adminNav: AdminNavSection[] = [
     icon: 'sparkles',
     items: [
       { path: 'ai-status', label: 'AI price check status', permission: 'manage_ai' },
+      { path: 'llm-management', label: 'API Management', permission: 'manage_ai' },
       { path: 'ai-insights', label: 'AI insights', permission: 'manage_ai' },
       { path: 'market-analytics', label: 'Market analytics', permission: 'view_analytics' },
       { path: 'competitors', label: 'Market data sources', permission: 'manage_competitors' },

@@ -10,6 +10,8 @@
       <span>AI filled this form from your description but couldn't determine: <strong>{{ missingFields.join(', ') }}</strong>. Please check and complete those fields.</span>
     </div>
 
+    <div v-if="step>=1 && step<=5 && (seoTitle || seoDescription)" class="mb-5 rounded-xl p-4" style="background:var(--bg-surface);border:1px solid var(--border-subtle)"><h2 class="font-bold mb-2">Search preview</h2><label class="block text-xs">SEO title<input v-model="seoTitle" maxlength="70" class="field-input" /></label><label class="block text-xs mt-3">SEO description<textarea v-model="seoDescription" maxlength="160" class="field-input" rows="2"></textarea></label></div>
+    <div v-if="step===2 && (form.type==='property' || form.type==='rental')" class="grid grid-cols-2 gap-3 mb-5"><label class="text-xs">Furnishing<select v-model="furnishing" class="field-input"><option value="">Not stated</option><option value="furnished">Furnished</option><option value="semi-furnished">Semi-furnished</option><option value="unfurnished">Unfurnished</option></select></label><label class="text-xs">Floor number<input v-model.number="floorNumber" type="number" class="field-input" /></label><label v-if="form.type==='rental'" class="text-xs">Rental period<select v-model="rentalType" class="field-input"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></label></div>
     <!-- Progress -->
     <div v-if="step >= 1" class="flex items-center gap-2 mb-10">
       <div v-for="i in 5" :key="i" class="flex items-center gap-2 flex-1">
@@ -25,32 +27,7 @@
     <!-- Error banner -->
     <div v-if="error" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</div>
 
-    <!-- STEP 0: AI free-text import -->
-    <div v-if="step === 0" class="mb-10">
-      <div class="rounded-2xl p-6 mb-4" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.06),rgba(var(--accent-cyan-rgb),0.03));border:2px solid rgba(var(--accent-teal-rgb),0.25)">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">AI</div>
-          <div>
-            <p class="font-bold" style="color:var(--text-primary)">Describe it in your own words</p>
-            <p class="text-xs" style="color:var(--text-muted)">Write it as one paragraph — brand, year, price, location, condition, anything you'd tell a buyer. AI fills the form for you; you review every field before it's submitted.</p>
-          </div>
-        </div>
-        <textarea v-model="freeText" rows="6" placeholder="e.g. 2019 BMW 3 Series, 45000 km, automatic, diesel, silver, excellent condition, asking £18,500 negotiable, located in Girne..."
-          class="field-input resize-none mb-3" style="min-height:140px"></textarea>
-        <p v-if="extractError" class="text-xs mb-3" style="color:#f87171">{{ extractError }}</p>
-        <div class="flex items-center gap-3">
-          <button @click="runExtraction" :disabled="freeText.trim().length < 20 || extracting"
-            class="px-6 py-3 rounded-xl font-bold text-sm disabled:opacity-40 flex items-center gap-2" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">
-            <svg v-if="extracting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            {{ extracting ? 'Reading your description...' : 'Fill form with AI' }}
-          </button>
-          <span class="text-xs" style="color:var(--text-muted)">{{ freeText.trim().length }}/5000</span>
-        </div>
-      </div>
-      <div class="text-center">
-        <button @click="step = 1" class="text-sm font-semibold underline" style="color:var(--text-muted)">Skip — I'll fill the form manually</button>
-      </div>
-    </div>
+    <div v-if="step === 0"><AiListingComposer @apply="useDraft" @photos="setDraftPhotos" /><button type="button" class="text-sm underline mb-6" @click="step=1">Continue manually →</button></div>
 
     <!-- STEP 1: Type -->
     <div v-if="step === 1">
@@ -343,6 +320,8 @@
 import { ref, computed, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import client from '@/api/client'
+import AiListingComposer from '@/components/listings/AiListingComposer.vue'
+import { listingMultipart, type ListingDraft } from '@/types/listingDraft'
 
 interface PhotoFile { file: File; preview: string }
 interface AiResult {
@@ -398,9 +377,8 @@ const aiLoading = ref(false)
 const submitting = ref(false)
 const error = ref('')
 const aiResult = ref<AiResult | null>(null)
-const freeText = ref('')
-const extracting = ref(false)
-const extractError = ref('')
+const seoTitle=ref(''), seoDescription=ref('')
+const furnishing=ref(''),floorNumber=ref<number|null>(null),rentalType=ref('monthly')
 const missingFields = ref<string[]>([])
 const lastAnalyzedPrice = ref<number | ''>('')
 const fileInputRef = ref<HTMLInputElement | null>(null)
@@ -422,7 +400,7 @@ const form = ref<ListingForm>({
 })
 
 const stepLabels = ['Select Type', 'Details', 'Photos', 'Location', 'Price & AI']
-const years = Array.from({ length: 35 }, (_, i) => 2025 - i)
+const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() + 1 - i)
 const fuels = ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'LPG', 'CNG']
 const bodies = ['Sedan', 'Hatchback', 'SUV', 'Crossover', 'MPV', 'Coupe', 'Pickup', 'Van', 'Wagon', 'Convertible']
 const conditions = ['Excellent', 'Very Good', 'Good', 'Fair', 'Needs Work']
@@ -483,85 +461,49 @@ function titleCase(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
 }
 
-interface ExtractedListing {
-  type: 'vehicle' | 'property' | null
-  title: string | null
-  description: string | null
-  price: number | null
-  currency: string | null
-  city: string | null
-  district: string | null
-  brand_match?: string
-  model_match?: string
-  year: number | null
-  mileage: number | null
-  fuel_type: string | null
-  transmission: string | null
-  body_type: string | null
-  color: string | null
-  condition: string | null
-  property_type_match?: string
-  bedrooms: number | null
-  bathrooms: number | null
-  area_sqm: number | null
-  build_year: number | null
-  has_parking: boolean | null
-  has_garden: boolean | null
-  has_pool: boolean | null
-  missing_required?: string[]
-}
-
-async function runExtraction() {
-  if (freeText.value.trim().length < 20) return
-  extracting.value = true
-  extractError.value = ''
-  try {
-    const r = await client.post('/listings/extract', { text: freeText.value.trim() })
-    const x = r.data.extracted as ExtractedListing
-
-    if (x.type === 'vehicle' || x.type === 'property') form.value.type = x.type
+function setDraftPhotos(files:File[]){photoFiles.value.forEach(p=>URL.revokeObjectURL(p.preview));photoFiles.value=files.map(file=>({file,preview:URL.createObjectURL(file)}))}
+async function useDraft(x:ListingDraft){
+seoTitle.value=x.seo_title??'';seoDescription.value=x.seo_description??'';furnishing.value=x.furnishing??'';floorNumber.value=x.floor_number??null;rentalType.value=x.rental_type??'monthly';
+    if (x.type === 'vehicle' || (x.type === 'property' || x.type === 'rental')) form.value.type = x.type
     if (x.title) form.value.title = x.title
     if (x.description) form.value.description = x.description
-    if (x.price) form.value.price = x.price
+    if (x.price !== null && x.price !== undefined) form.value.price = x.price
     if (x.currency && ['TRY', 'GBP', 'USD', 'EUR'].includes(x.currency)) form.value.currency = x.currency
     if (x.city) form.value.city = x.city
     if (x.district) form.value.district = x.district
 
     if (x.type === 'vehicle') {
-      if (x.brand_match) form.value.brand_name = x.brand_match
+      if (x.brand_match || x.brand) form.value.brand_name = (x.brand_match || x.brand)!
       if (x.year) form.value.year = x.year
-      if (x.mileage) form.value.mileage = x.mileage
+      if (x.mileage !== null && x.mileage !== undefined) form.value.mileage = x.mileage
       if (x.fuel_type) form.value.fuel_type = titleCase(x.fuel_type)
       if (x.transmission) form.value.transmission = titleCase(x.transmission)
       if (x.body_type) form.value.body_type = titleCase(x.body_type)
       if (x.color) form.value.color = titleCase(x.color)
+      if (x.engine_size) form.value.engine_size = x.engine_size
+      if (x.condition) form.value.condition = titleCase(x.condition)
       // Model select depends on the brand's option list being loaded — wait a tick.
-      if (x.model_match) {
+      if (x.model_match || x.model) {
         await new Promise(res => setTimeout(res, 0))
-        const known = modelsForBrand.value.some(m => m.name === x.model_match)
-        if (known) form.value.model_name = x.model_match!
-        else { form.value.model_name = '_other'; form.value.model_name_custom = x.model_match! }
+        const known = modelsForBrand.value.some(m => m.name === (x.model_match || x.model))
+        if (known) form.value.model_name = (x.model_match || x.model)!
+        else { form.value.model_name = '_other'; form.value.model_name_custom = (x.model_match || x.model)! }
       }
     }
-    if (x.type === 'property') {
-      if (x.property_type_match) form.value.property_type_name = x.property_type_match
-      if (x.bedrooms !== null) form.value.bedrooms = x.bedrooms
-      if (x.bathrooms !== null) form.value.bathrooms = x.bathrooms
-      if (x.area_sqm !== null) form.value.area_sqm = x.area_sqm
-      if (x.build_year !== null) form.value.build_year = x.build_year
-      if (x.has_parking !== null) form.value.has_parking = x.has_parking
-      if (x.has_garden !== null) form.value.has_garden = x.has_garden
-      if (x.has_pool !== null) form.value.has_pool = x.has_pool
+    if ((x.type === 'property' || x.type === 'rental')) {
+      if (x.property_type_match || x.property_type) form.value.property_type_name = (x.property_type_match || x.property_type)!
+      if (x.bedrooms != null) form.value.bedrooms = x.bedrooms
+      if (x.bathrooms != null) form.value.bathrooms = x.bathrooms
+      if (x.area_sqm != null) form.value.area_sqm = x.area_sqm
+      if (x.build_year != null) form.value.build_year = x.build_year
+      if (x.has_parking != null) form.value.has_parking = x.has_parking
+      if (x.has_garden != null) form.value.has_garden = x.has_garden
+      if (x.has_pool != null) form.value.has_pool = x.has_pool
+      if (x.has_elevator != null) form.value.has_elevator = x.has_elevator
     }
 
     missingFields.value = x.missing_required ?? []
     step.value = x.type ? 2 : 1
-  } catch (e: unknown) {
-    const err = e as { response?: { data?: { message?: string } } }
-    extractError.value = err?.response?.data?.message || 'Could not read that description. Try adding more detail, or fill the form manually.'
-  } finally {
-    extracting.value = false
-  }
 }
 
 function handleFileSelect(e: Event) {
@@ -578,7 +520,8 @@ function handleDrop(e: DragEvent) {
 
 function addFiles(files: File[]) {
   for (const file of files) {
-    if (!file.type.startsWith('image/')) continue
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size>10*1024*1024) { error.value='Use JPG, PNG or WebP images under 10 MB.'; continue }
+    if (photoFiles.value.length>=20) { error.value='A listing supports up to 20 photos.'; break }
     photoFiles.value.push({ file, preview: URL.createObjectURL(file) })
   }
 }
@@ -604,7 +547,7 @@ async function runAi() {
       model_name: (form.value.model_name_custom || form.value.model_name) || undefined,
       year: form.value.year || undefined,
       property_type_name: form.value.property_type_name || undefined,
-      bedrooms: form.value.bedrooms || undefined,
+      bedrooms: form.value.bedrooms === '' ? undefined : form.value.bedrooms,
       area_sqm: form.value.area_sqm || undefined,
     })
     aiResult.value = r.data as AiResult
@@ -635,11 +578,12 @@ async function submitListing() {
       district: form.value.district,
       price_negotiable: form.value.price_negotiable,
       video_url: form.value.video_url || undefined,
+      seo_title:seoTitle.value,seo_description:seoDescription.value,furnishing:furnishing.value,floor_number:floorNumber.value,rental_type:rentalType.value,
       // vehicle
       brand_name: form.value.brand_name || undefined,
       model_name: modelName || undefined,
       year: form.value.year || undefined,
-      mileage: form.value.mileage || undefined,
+      mileage: form.value.mileage === '' ? undefined : form.value.mileage,
       fuel_type: form.value.fuel_type || undefined,
       transmission: form.value.transmission || undefined,
       body_type: form.value.body_type || undefined,
@@ -649,7 +593,7 @@ async function submitListing() {
       // property
       property_type_name: form.value.property_type_name || undefined,
       listing_for: form.value.listing_for || undefined,
-      bedrooms: form.value.bedrooms || undefined,
+      bedrooms: form.value.bedrooms === '' ? undefined : form.value.bedrooms,
       bathrooms: form.value.bathrooms || undefined,
       area_sqm: form.value.area_sqm || undefined,
       build_year: form.value.build_year || undefined,
@@ -658,17 +602,7 @@ async function submitListing() {
       has_pool: form.value.has_pool,
       has_elevator: form.value.has_elevator,
     }
-    const r = await client.post('/listings/create', payload)
-    const listingId: string = r.data.listing.id
-
-    // Upload images if any
-    if (photoFiles.value.length > 0) {
-      const fd = new FormData()
-      photoFiles.value.forEach(f => fd.append('images[]', f.file))
-      await client.post('/listings/' + listingId + '/upload-images', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      }).catch(() => {}) // non-fatal
-    }
+    await client.post('/listings/create', listingMultipart(payload, photoFiles.value.map(p=>p.file)), {headers:{'Content-Type':'multipart/form-data'}})
 
     step.value = 6
   } catch (e: unknown) {

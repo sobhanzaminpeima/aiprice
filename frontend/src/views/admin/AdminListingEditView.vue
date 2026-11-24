@@ -19,6 +19,7 @@
       <p v-if="error" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ error }}</p>
       <p v-if="saved" class="mb-4 p-3 rounded-xl text-sm" style="background:rgba(var(--accent-teal-rgb),0.1);border:1px solid rgba(var(--accent-teal-rgb),0.2);color:var(--accent-teal)">Saved.</p>
 
+      <AiListingComposer admin @apply="useEditDraft" @photos="files=>draftPhotos=files" />
       <!-- Gallery -->
       <div class="rounded-2xl p-6 mb-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <h2 class="font-bold mb-4" style="color:var(--text-primary)">Photo Gallery</h2>
@@ -82,6 +83,7 @@
         </div>
       </div>
 
+      <div class="rounded-2xl p-6 mb-6 space-y-3" style="background:var(--bg-surface);border:1px solid var(--border-subtle)"><h2 class="font-bold">SEO</h2><label class="field-label">SEO title<input v-model="form.seo_title" maxlength="70" class="field-input" /></label><label class="field-label">SEO description<textarea v-model="form.seo_description" maxlength="160" class="field-input"></textarea></label></div>
       <!-- Vehicle-specific -->
       <div v-if="listing.type==='vehicle'" class="rounded-2xl p-6 mb-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <h2 class="font-bold mb-4" style="color:var(--text-primary)">Vehicle Details</h2>
@@ -127,6 +129,10 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import client from '@/api/client'
+import AiListingComposer from '@/components/listings/AiListingComposer.vue'
+import { applyDraftFields,listingMultipart,type ListingDraft } from '@/types/listingDraft'
+const draftPhotos=ref<File[]>([])
+function useEditDraft(draft:ListingDraft){if(draft.type && draft.type!==listing.value.type){error.value='The draft type differs from this listing. Create a new listing instead.';return}applyDraftFields(form.value,draft)}
 
 const route = useRoute()
 const router = useRouter()
@@ -147,7 +153,7 @@ async function load() {
     const r = await client.get('/admin/listings/' + id)
     listing.value = r.data
     images.value = Array.isArray(listing.value.images) ? listing.value.images : []
-    form.value = { ...listing.value, ...listing.value.listable }
+    form.value = { ...listing.value, ...listing.value.listable,seo_title:listing.value.seo?.meta_title??'',seo_description:listing.value.seo?.meta_description??'' }
   } catch {
     error.value = 'Failed to load listing.'
   } finally {
@@ -161,7 +167,8 @@ async function save() {
   error.value = ''
   saved.value = false
   try {
-    await client.put('/admin/listings/' + id, form.value)
+    await client.post('/admin/listings/' + id, listingMultipart(form.value,draftPhotos.value,true),{headers:{'Content-Type':'multipart/form-data'}})
+    draftPhotos.value=[]
     saved.value = true
     setTimeout(() => saved.value = false, 2500)
   } catch (e: any) {

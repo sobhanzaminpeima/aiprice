@@ -17,11 +17,14 @@ class AIInsightService
 {
     private string $apiKey;
     private string $model;
+    private string $baseUrl;
 
     public function __construct()
     {
-        $this->apiKey = config('services.openai.key', '');
-        $this->model = config('services.openai.model', 'gpt-4o-mini');
+        $connection = app(ProviderRegistry::class)->resolve();
+        $this->apiKey = $connection['key'];
+        $this->model = $connection['model'];
+        $this->baseUrl = $connection['base_url'];
     }
 
     public function summarize(Listing $listing, array $price, array $trust, array $demand, array $investment): string
@@ -32,15 +35,20 @@ class AIInsightService
 
         $prompt = $this->buildPrompt($listing, $price, $trust, $demand, $investment);
 
-        $response = Http::withHeaders([
+        try {
+            $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey,
             'Content-Type' => 'application/json',
-        ])->timeout(12)->post('https://api.openai.com/v1/chat/completions', [
+        ])->timeout(12)->post($this->baseUrl.'/chat/completions', [
             'model' => $this->model,
             'messages' => [['role' => 'user', 'content' => $prompt]],
             'temperature' => 0.4,
             'max_tokens' => 80,
-        ]);
+            ]);
+        } catch (\Illuminate\Http\Client\ConnectionException) {
+            Log::warning('AI insight connection unavailable');
+            return $this->fallbackSummary($price, $trust, $demand);
+        }
 
         if (!$response->successful()) {
             Log::warning('AIInsightService: OpenAI call failed with status ' . $response->status());

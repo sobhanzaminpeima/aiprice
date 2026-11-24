@@ -86,7 +86,8 @@ class SocialPostService
             ? ['#NorthCyprus', '#CarsForSale', '#CyprusCars', '#CarDeals', '#AIPriceApp']
             : ['#NorthCyprus', '#CyprusProperty', '#RealEstate', '#PropertyForSale', '#AIPriceApp'];
 
-        $key = (string) config('services.openai.key', '');
+        $connection = app(\App\Services\AI\ProviderRegistry::class)->resolve();
+        $key = $connection['key'];
         if ($key === '') {
             return [$this->fallbackCaption($listing), $fallbackTags];
         }
@@ -115,8 +116,8 @@ Respond ONLY as JSON: {"caption":"...","hashtags":["#a","#b","#c","#d","#e"]}
 P;
 
         try {
-            $res = Http::withToken($key)->timeout(20)->post('https://api.openai.com/v1/chat/completions', [
-                'model'       => config('services.openai.model', 'gpt-4o-mini'),
+            $res = Http::withToken($key)->timeout(20)->post($connection['base_url'].'/chat/completions', [
+                'model'       => $connection['model'],
                 'messages'    => [['role' => 'user', 'content' => $prompt]],
                 'temperature' => 0.8,
                 'max_tokens'  => 300,

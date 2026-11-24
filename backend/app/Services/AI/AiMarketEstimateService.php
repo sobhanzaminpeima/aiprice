@@ -19,13 +19,14 @@ class AiMarketEstimateService
 {
     public function estimate(string $type, string $currency, ?string $city, array $facts, float $askingPrice): ?array
     {
-        $key = (string) config('services.openai.key', '');
+        $connection = app(ProviderRegistry::class)->resolve();
+        $key = $connection['key'];
         if ($key === '' || $askingPrice <= 0) {
             return null;
         }
 
         $facts = array_filter($facts, fn ($v) => $v !== null && $v !== '');
-        $cacheKey = 'ai-est:'.md5(json_encode([$type, $currency, $city, $facts]));
+        $cacheKey = 'ai-est:'.md5(json_encode([$connection['provider'], $connection['model'], $type, $currency, $city, $facts]));
 
         try {
             $range = Cache::remember($cacheKey, now()->addDays(3), fn () => $this->ask($key, $type, $currency, $city, $facts));
@@ -63,8 +64,9 @@ If you cannot judge, reply {"low":0,"typical":0,"high":0,"note":"unknown"}.
 {$rules}
 PROMPT;
 
-        $res = Http::withToken($key)->timeout(15)->post('https://api.openai.com/v1/chat/completions', [
-            'model' => config('services.openai.model', 'gpt-4o-mini'),
+        $connection = app(ProviderRegistry::class)->resolve();
+        $res = Http::withToken($key)->timeout(15)->post($connection['base_url'].'/chat/completions', [
+            'model' => $connection['model'],
             'messages' => [['role' => 'user', 'content' => $prompt]],
             'temperature' => 0.2,
             'max_tokens' => 120,

@@ -32,6 +32,10 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="AI_PROVIDER" value="openai" force="true"/>
+        <env name="OPENAI_API_KEY" value="" force="true"/>
+        <env name="NVIDIA_API_KEY" value="" force="true"/>
+        <env name="RUNCRATE_API_KEY" value="" force="true"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>
 </phpunit>

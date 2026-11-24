@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-black mb-1" style="color:var(--text-primary)">AI <span class="gradient-text">Status</span></h1>
     <p class="text-sm mb-8" style="color:var(--text-muted)">
       How the AI price check is working right now. Price estimates are computed from comparable listings
-      (same currency, similar model/year or property type/size). OpenAI is only used to write the short summary sentence.
+      (same currency, similar model/year or property type/size). The configured LLM prepares listing drafts and summary text.
     </p>
 
     <div v-if="error" class="mb-6 p-4 rounded-xl text-sm" role="alert" style="background:rgba(var(--danger-rgb),0.08);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.2)">{{ error }}</div>
@@ -22,7 +22,7 @@
       <section class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <h2 class="font-bold mb-4" style="color:var(--text-primary)">Configuration</h2>
         <ul class="space-y-3 text-sm">
-          <li class="flex justify-between gap-4"><span style="color:var(--text-secondary)">OpenAI key (summary text)</span>
+          <li class="flex justify-between gap-4"><span style="color:var(--text-secondary)">{{ status.active_provider || 'openai' }} (server-side connection)</span>
             <span :style="{ color: status.openai_configured ? 'var(--success)' : 'var(--warning)' }">{{ status.openai_configured ? 'Configured · ' + status.openai_model : 'Not set: rule-based summaries used' }}</span></li>
           <li class="flex justify-between gap-4"><span style="color:var(--text-secondary)">Queue</span>
             <span :style="{ color: ['sync', 'null'].includes(status.queue_connection) ? 'var(--warning)' : 'var(--success)' }">{{ status.queue_connection }}</span></li>
@@ -52,7 +52,8 @@
         </div>
         <p v-if="rescoreMsg" class="text-xs mt-3" role="status" style="color:var(--success)">{{ rescoreMsg }}</p>
 
-        <h2 class="font-bold mt-8 mb-2" style="color:var(--text-primary)">Test the OpenAI connection</h2>
+        <h2 class="font-bold mt-8 mb-2" style="color:var(--text-primary)">Test the AI connection</h2>
+        <label v-if="status.active_provider==='runcrate'" class="block text-sm mb-3">Runcrate model<select v-model="testModel" class="w-full p-3 rounded-xl mt-2" style="background:var(--surface-overlay);color:var(--text-primary);border:1px solid var(--border-strong)"><option v-for="model in runcrateModels" :key="model">{{ model }}</option></select></label>
         <form class="flex gap-2" @submit.prevent="testLlm">
           <label class="sr-only" for="llm-prompt">Test prompt</label>
           <input id="llm-prompt" v-model="prompt" maxlength="500" class="flex-1 px-3 py-2 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
@@ -71,6 +72,7 @@ import client from '@/api/client'
 import { apiErrorMessage } from '@/api/errors'
 
 interface AiStatus {
+  active_provider?: string
   openai_configured: boolean
   openai_model: string
   queue_connection: string
@@ -92,6 +94,8 @@ const rescoreMsg = ref('')
 const prompt = ref('Reply with the single word: OK')
 const testReply = ref('')
 const testError = ref('')
+const testModel=ref('Qwen/Qwen3.8-Flash')
+const runcrateModels=['Qwen/Qwen3.8-Flash','deepseek-ai/DeepSeek-V4.1-Flash-1017','deepseek-ai/DeepSeek-V4.1-Flash','zai-org/GLM-5.3','openai/gpt-oss-120b','zai-org/GLM-5.3-Flash']
 
 const cards = computed(() => {
   const s = status.value
@@ -137,7 +141,7 @@ async function testLlm() {
   testReply.value = ''
   testError.value = ''
   try {
-    testReply.value = (await client.post('/admin/llm/test', { prompt: prompt.value, provider: 'openai' })).data.response
+    testReply.value = (await client.post('/admin/llm/test', { prompt: prompt.value, provider: status.value?.active_provider || 'openai', model:status.value?.active_provider==='runcrate'?testModel.value:undefined }, { timeout: 35000 })).data.response
   } catch (e) {
     testError.value = apiErrorMessage(e, 'The test call failed.')
   } finally {

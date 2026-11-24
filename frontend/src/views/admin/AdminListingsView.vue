@@ -17,6 +17,7 @@
         <h2 class="font-bold text-lg mb-5" style="color:var(--text-primary)">Add Listing (on behalf of a user)</h2>
         <div v-if="addError" class="mb-3 p-3 rounded-xl text-xs" style="background:rgba(var(--danger-rgb),0.1);border:1px solid rgba(var(--danger-rgb),0.2);color:var(--danger)">{{ addError }}</div>
         <div class="space-y-3">
+          <AiListingComposer admin :key="composerKey" @apply="useAdminDraft" @photos="files=>draftPhotos=files" />
           <div>
             <label class="text-xs mb-1 block" style="color:var(--text-muted)">Owner (search by email) *</label>
             <input v-model="ownerSearch" @input="searchOwners" placeholder="Type email or name..." class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)" />
@@ -84,6 +85,7 @@
             <label class="text-xs mb-1 block" style="color:var(--text-muted)">Description</label>
             <textarea v-model="addForm.description" rows="3" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)"></textarea>
           </div>
+          <div v-if="addForm.seo_title || addForm.seo_description" class="space-y-3"><label class="block text-xs">SEO title<input v-model="addForm.seo_title" maxlength="70" class="w-full p-3 rounded-xl" style="background:var(--surface-overlay);border:1px solid var(--border-strong)" /></label><label class="block text-xs">SEO description<textarea v-model="addForm.seo_description" maxlength="160" class="w-full p-3 rounded-xl" style="background:var(--surface-overlay);border:1px solid var(--border-strong)"></textarea></label><div class="grid grid-cols-2 gap-3"><label v-for="key in (addForm.type==='vehicle'?['mileage','fuel_type','transmission','body_type','color','engine_size','condition']:['bedrooms','bathrooms','area_sqm','build_year','floor_number','furnishing'])" :key="key" class="text-xs">{{ key.replaceAll('_',' ') }}<input v-model="addForm[key]" class="w-full p-2 rounded-lg mt-1" style="background:var(--surface-overlay);border:1px solid var(--border-strong)" /></label></div></div>
           <div>
             <label class="text-xs mb-1 block" style="color:var(--text-muted)">Status</label>
             <select v-model="addForm.status" class="w-full px-4 py-3 rounded-xl text-sm" style="background:var(--surface-overlay);border:1px solid var(--border-strong);color:var(--text-primary)">
@@ -180,6 +182,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import client from '@/api/client'
+import AiListingComposer from '@/components/listings/AiListingComposer.vue'
+import { applyDraftFields, listingMultipart, type ListingDraft } from '@/types/listingDraft'
 const listings = ref<any[]>([])
 const loading = ref(true)
 const currentPage = ref(1)
@@ -209,6 +213,9 @@ function debounce() {
 
 // Add Listing (on behalf of a user)
 const showAddModal = ref(false)
+const composerKey=ref(0),draftPhotos=ref<File[]>([])
+function useAdminDraft(draft:ListingDraft){applyDraftFields(addForm.value,draft);addForm.value.brand_name=draft.brand_match||draft.brand||'';addForm.value.model_name=draft.model_match||draft.model||'';addForm.value.property_type_name=draft.property_type_match||draft.property_type||''}
+
 const addSaving = ref(false)
 const addError = ref('')
 const ownerSearch = ref('')
@@ -221,6 +228,7 @@ let ownerSearchTimer: any
 async function openAdd() {
   addForm.value = { user_id: '', owner_label: '', type: 'vehicle', title: '', description: '', price: '', currency: 'GBP', city: '', status: 'active', brand_id: '', model_id: '', year: '', property_type_id: '' }
   addError.value = ''
+  draftPhotos.value=[];composerKey.value++
   ownerSearch.value = ''
   ownerResults.value = []
   showAddModal.value = true
@@ -252,8 +260,8 @@ function selectOwner(o: any) {
 const canSubmitListing = computed(() => {
   const f = addForm.value
   if (!f.user_id || !f.title || !f.price) return false
-  if (f.type === 'vehicle') return !!(f.brand_id && f.model_id && f.year)
-  if (f.type === 'property') return !!f.property_type_id
+  if (f.type === 'vehicle') return !!((f.brand_id||f.brand_name) && (f.model_id||f.model_name) && f.year)
+  if (f.type === 'property') return !!(f.property_type_id||f.property_type_name)
   return true
 })
 
@@ -261,7 +269,7 @@ async function submitAddListing() {
   addError.value = ''
   addSaving.value = true
   try {
-    await client.post('/admin/listings', addForm.value)
+    await client.post('/admin/listings', listingMultipart(addForm.value,draftPhotos.value),{headers:{'Content-Type':'multipart/form-data'}})
     showAddModal.value = false
     fetchListings(1)
   } catch (e: any) {
