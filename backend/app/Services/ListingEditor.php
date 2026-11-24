@@ -24,6 +24,7 @@ class ListingEditor
             'price_negotiable'=>'sometimes|boolean','video_url'=>'nullable|url|max:2000',
             'brand_name'=>'nullable|string|max:100','model_name'=>'nullable|string|max:100',
             'property_type_name'=>'nullable|string|max:100',
+            'contact_phone'=>'nullable|string|max:40|regex:/^\+?[0-9 ()-]{6,40}$/',
             'brand_id'=>'nullable|uuid|exists:vehicle_brands,id','model_id'=>'nullable|uuid|exists:vehicle_models,id',
             'property_type_id'=>'nullable|uuid|exists:property_types,id',
             'year'=>'nullable|integer|min:1950|max:'.(date('Y')+2),'mileage'=>'nullable|integer|min:0|max:5000000',
@@ -69,6 +70,9 @@ class ListingEditor
                 elseif (!$admin) $core['status']='pending';
                 if (($core['status']??null)==='active') $core['published_at']=$listing?->published_at??now();
                 $meta=$listing?->meta??[];
+                if (array_key_exists('contact_phone', $data)) {
+                    $meta['contact_phone'] = trim($data['contact_phone'] ?? '');
+                }
                 foreach (['seo_title'=>'meta_title','seo_description'=>'meta_description'] as $input=>$output) if(array_key_exists($input,$data))$meta['seo'][$output]=strip_tags($data[$input]??'');
                 $core['meta']=$meta;
                 $previousPrice=$listing?->price;

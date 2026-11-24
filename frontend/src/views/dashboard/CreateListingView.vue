@@ -112,6 +112,7 @@
         </div>
         <div><label class="field-label">Title *</label><input v-model="form.title" placeholder="e.g. 2020 Toyota Corolla — Full Service History" class="field-input" /></div>
         <div><label class="field-label">Description</label><textarea v-model="form.description" rows="3" placeholder="Describe the vehicle..." class="field-input resize-none"></textarea></div>
+        <div><label class="field-label">Seller phone</label><input v-model="form.contact_phone" type="tel" placeholder="+90 5xx xxx xx xx" class="field-input" /></div>
       </div>
 
       <div v-if="form.type === 'property'" class="space-y-4 mb-8">
@@ -370,6 +371,7 @@ interface ListingForm {
   currency: string
   price_negotiable: boolean
   video_url: string
+  contact_phone: string
 }
 
 const step = ref(0)
@@ -396,14 +398,14 @@ const form = ref<ListingForm>({
   bedrooms: '', bathrooms: '', area_sqm: '', build_year: '',
   has_parking: false, has_garden: false, has_pool: false, has_elevator: false,
   city: '', district: '',
-  price: '', currency: 'GBP', price_negotiable: false, video_url: '',
+  price: '', currency: 'GBP', price_negotiable: false, video_url: '', contact_phone: '',
 })
 
 const stepLabels = ['Select Type', 'Details', 'Photos', 'Location', 'Price & AI']
 const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() + 1 - i)
 const fuels = ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'LPG', 'CNG']
 const bodies = ['Sedan', 'Hatchback', 'SUV', 'Crossover', 'MPV', 'Coupe', 'Pickup', 'Van', 'Wagon', 'Convertible']
-const conditions = ['Excellent', 'Very Good', 'Good', 'Fair', 'Needs Work']
+const conditions = ['Not specified', 'Excellent', 'Very Good', 'Good', 'Fair', 'Needs Work']
 const cities = ['Girne', 'Lefkosa', 'Gazimağusa', 'Iskele', 'Guzelyurt', 'Lefke']
 const amenities = [
   { key: 'has_parking', label: 'Parking' },
@@ -578,6 +580,7 @@ async function submitListing() {
       district: form.value.district,
       price_negotiable: form.value.price_negotiable,
       video_url: form.value.video_url || undefined,
+      contact_phone: form.value.contact_phone || undefined,
       seo_title:seoTitle.value,seo_description:seoDescription.value,furnishing:furnishing.value,floor_number:floorNumber.value,rental_type:rentalType.value,
       // vehicle
       brand_name: form.value.brand_name || undefined,
