@@ -35,7 +35,7 @@ class ListingEditor
             'floor_number'=>'nullable|integer|min:-10|max:200','furnishing'=>'nullable|string|max:60',
             'has_parking'=>'sometimes|boolean','has_garden'=>'sometimes|boolean','has_pool'=>'sometimes|boolean','has_elevator'=>'sometimes|boolean',
             'rental_type'=>'nullable|in:daily,weekly,monthly,yearly','seo_title'=>'nullable|string|max:70','seo_description'=>'nullable|string|max:160',
-            'images'=>'sometimes|array|max:20','images.*'=>'required|file|mimes:jpg,jpeg,png,webp|max:10240|dimensions:max_width=12000,max_height=12000',
+            'images'=>'sometimes|array|max:30','images.*'=>'required|file|mimes:jpg,jpeg,png,webp|max:10240|dimensions:max_width=12000,max_height=12000',
         ];
         if ($listing) {
             foreach (['type','title','price'] as $field) $rules[$field]=str_replace('required|','sometimes|',$rules[$field]);
@@ -43,9 +43,17 @@ class ListingEditor
         if ($admin) $rules += ['user_id'=>($listing?'sometimes':'required').'|uuid|exists:users,id','status'=>'sometimes|in:draft,pending,active,rejected,sold,expired','is_featured'=>'sometimes|boolean','is_premium'=>'sometimes|boolean'];
         if($listing && $request->has('type') && $request->input('type')!==$listing->type)throw ValidationException::withMessages(['type'=>'The listing type cannot be changed.']);
         $data=$request->validate($rules);
+        $entitlements=app(\App\Services\Billing\PlanEntitlements::class);
+        $owner=$admin?null:$request->user();
+        // Sellers are held to their plan. Resubmitting a sold/expired/rejected
+        // listing puts it back in review, so it needs a free slot as well.
+        if ($owner && (!$listing || !in_array($listing->status, \App\Services\Billing\PlanEntitlements::OCCUPYING, true))) {
+            $entitlements->assertCanAddListing($owner, $listing);
+        }
+        $maxPhotos=$owner?$entitlements->limits($owner)['max_photos_per_listing']:\App\Services\Billing\PlanEntitlements::ABSOLUTE_MAX_PHOTOS;
         $paths=[];
         try {
-            return DB::transaction(function () use ($request,$admin,$listing,$type,$data,&$paths) {
+            return DB::transaction(function () use ($request,$admin,$listing,$type,$data,$maxPhotos,&$paths) {
                 $traits=Arr::only($data,['year','mileage','fuel_type','transmission','body_type','color','engine_size','condition','bedrooms','bathrooms','area_sqm','build_year','floor_number','furnishing','has_parking','has_garden','has_pool','has_elevator','rental_type']);
                 if ($type==='vehicle' && (!$listing || isset($data['brand_id']) || isset($data['brand_name']) || isset($data['model_id']) || isset($data['model_name']))) {
                     $brand=isset($data['brand_id'])?VehicleBrand::findOrFail($data['brand_id']):(!empty($data['brand_name'])?VehicleBrand::firstOrCreate(['name'=>$data['brand_name']],['is_active'=>true]):$listing?->listable?->brand);
@@ -78,7 +86,7 @@ class ListingEditor
                 $previousPrice=$listing?->price;
                 if ($listing) $listing->update($core);else $listing=Listing::create($core);
                 $images=$listing->images??[];
-                if (count($images)+count($request->file('images',[]))>20) throw ValidationException::withMessages(['images'=>'A listing can have at most 20 photos.']);
+                if (count($images)+count($request->file('images',[]))>$maxPhotos) throw ValidationException::withMessages(['images'=>"Your plan allows {$maxPhotos} photos per listing."]);
                 foreach($request->file('images',[]) as $file){$path=$file->store('listings/'.$listing->id,'public');if(!$path)throw new \RuntimeException('Photo storage failed.');$paths[]=$path;$images[]='/storage/'.$path;}
                 if ($paths) $listing->update(['images'=>$images,'thumbnail'=>$listing->thumbnail?:$images[0]]);
                 if ($previousPrice===null || (float)$previousPrice!==(float)$listing->price) PriceHistory::create(['listing_id'=>$listing->id,'price'=>$listing->price,'currency'=>$listing->currency,'changed_by'=>$admin?'admin':'seller']);

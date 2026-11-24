@@ -109,7 +109,8 @@ class ListingController extends Controller
             'price_desc' => $query->orderByDesc('price'),
             'most_viewed' => $query->orderByDesc('view_count'),
             'trust_score' => $query->orderByDesc('ai_trust_score'),
-            default => $query->orderByDesc('published_at'),
+            // Featured listings (a paid-plan perk) lead the default ordering.
+            default => $query->orderByDesc('is_featured')->orderByDesc('published_at'),
         };
         return response()->json($query->paginate($request->per_page ?? 12));
     }
@@ -212,6 +213,8 @@ class ListingController extends Controller
             'furnishing' => 'nullable|string',
             'rental_type' => 'required_if:type,rental|string',
         ]);
+        app(\App\Services\Billing\PlanEntitlements::class)->assertCanAddListing($request->user());
+
         return DB::transaction(function () use ($validated, $request) {
             $listable = match ($validated['type']) {
                 'vehicle' => Vehicle::create([
@@ -259,6 +262,27 @@ class ListingController extends Controller
         return response()->json(['message' => 'Deleted.']);
     }
 
+    /** Sellers spend their plan's featured slots on their own live listings. */
+    public function toggleFeatured(Request $request, string $id): JsonResponse
+    {
+        $user = $request->user();
+        $listing = Listing::where('user_id', $user->id)->findOrFail($id);
+
+        if ($listing->is_featured) {
+            $listing->update(['is_featured' => false]);
+            return response()->json(['is_featured' => false, 'usage' => app(\App\Services\Billing\PlanEntitlements::class)->usage($user)]);
+        }
+
+        abort_unless($listing->status === 'active', 422, 'Only live listings can be featured.');
+        $entitlements = app(\App\Services\Billing\PlanEntitlements::class);
+        $limit = $entitlements->limits($user)['max_featured'];
+        abort_if($limit <= 0, 422, 'Featured listings are included in the Pro and higher plans.');
+        abort_if($entitlements->usedFeatured($user) >= $limit, 422, "Your plan includes {$limit} featured listings and all are in use. Unfeature one first.");
+
+        $listing->update(['is_featured' => true]);
+        return response()->json(['is_featured' => true, 'usage' => $entitlements->usage($user)]);
+    }
+
     public function toggleFavorite(Request $request, string $id): JsonResponse
     {
         $userId = $request->user()->id;
@@ -271,6 +295,18 @@ class ListingController extends Controller
 
     public function myListings(Request $request): JsonResponse
     {
-        return response()->json(Listing::with('listable')->where('user_id', $request->user()->id)->orderByDesc('created_at')->paginate(10));
+        $perPage = min(100, max(5, (int) $request->input('per_page', 20)));
+
+        return response()->json(Listing::with('listable')->where('user_id', $request->user()->id)->orderByDesc('created_at')->paginate($perPage));
+    }
+
+    /** Sellers close a listing themselves (sold/rented/withdrawn), which frees a plan slot. */
+    public function close(Request $request, string $id): JsonResponse
+    {
+        $v = $request->validate(['status' => 'required|in:sold,rented,archived']);
+        $listing = Listing::where('user_id', $request->user()->id)->findOrFail($id);
+        $listing->update(['status' => $v['status'], 'is_featured' => false]);
+
+        return response()->json(['listing' => $listing, 'usage' => app(\App\Services\Billing\PlanEntitlements::class)->usage($request->user())]);
     }
 }

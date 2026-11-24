@@ -8,5 +8,7 @@ const en: Record<string, string> = {
   'map.empty': 'No listings with a location yet.',
   'map.open': 'Open full map →',
   'map.view': 'View details →',
+  'pricing.title.lead': 'Plans for every',
+  'pricing.title.accent': 'seller',
 }
 export default en

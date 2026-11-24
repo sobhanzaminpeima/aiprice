@@ -31,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'trial_used_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_verified' => 'boolean',
@@ -58,7 +59,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function activeSubscription()
     {
-        return $this->hasOne(Subscription::class)->where('status', 'active')->latest();
+        // A free trial grants the plan just like a paid period does.
+        return $this->hasOne(Subscription::class)->whereIn('status', Subscription::LIVE)->latest();
     }
 
     public function favorites()

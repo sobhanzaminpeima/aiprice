@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Listing;
 use App\Models\Subscription;
+use App\Services\Billing\PlanEntitlements;
+use App\Services\Billing\SubscriptionManager;
 use App\Services\Payments\PaymentGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,26 +13,33 @@ use Illuminate\Http\Request;
 class SubscriptionController extends Controller
 {
     /**
-     * Falls back to the latest non-active subscription so a user whose plan
-     * lapsed still sees what they had, instead of an empty "Free" card.
+     * The live plan (paid or trial), any request awaiting payment, and usage
+     * against the plan's limits. Falls back to the latest ended subscription
+     * so a user whose plan lapsed still sees what they had.
      */
-    public function mine(Request $request): JsonResponse
+    public function mine(Request $request, PlanEntitlements $entitlements): JsonResponse
     {
         $user = $request->user();
+        $live = $entitlements->subscription($user);
 
-        $subscription = Subscription::with('plan')
+        $subscription = $live ?? Subscription::with('plan')
             ->where('user_id', $user->id)
-            ->orderByRaw("status = 'active' DESC")
+            ->whereIn('status', ['expired', 'cancelled'])
             ->latest()
             ->first();
 
+        $pending = Subscription::with('plan')->where('user_id', $user->id)->where('status', 'pending')->latest()->first();
+        $free = PlanEntitlements::freePlan();
+
         return response()->json([
             'subscription' => $subscription,
-            'is_active' => $subscription?->status === 'active',
-            'usage' => [
-                'listings' => Listing::where('user_id', $user->id)->whereNull('deleted_at')->count(),
-                'listing_limit' => $subscription?->plan?->max_listings,
-            ],
+            'is_active' => (bool) $live,
+            'is_trial' => $live?->status === 'trial',
+            'pending' => $pending,
+            'payment_instructions' => $pending ? SubscriptionManager::paymentInstructions() : null,
+            'trial_eligible' => !$user->trial_used_at && !\App\Models\Payment::where('user_id', $user->id)->where('status', 'completed')->exists(),
+            'free_plan' => $free?->only(['id', 'name', 'max_listings', 'max_photos_per_listing']),
+            'usage' => $entitlements->usage($user),
         ]);
     }
 
@@ -49,7 +57,13 @@ class SubscriptionController extends Controller
     {
         $subscription = Subscription::where('user_id', $request->user()->id)->findOrFail($id);
 
-        if ($subscription->status !== 'active' || $subscription->cancelled_at) {
+        // Withdrawing a request that was never paid simply closes it.
+        if ($subscription->status === 'pending') {
+            $subscription->update(['status' => 'cancelled', 'cancelled_at' => now()]);
+            return response()->json(['subscription' => $subscription->fresh('plan')]);
+        }
+
+        if (!in_array($subscription->status, Subscription::LIVE, true) || $subscription->cancelled_at) {
             return response()->json(['message' => 'This subscription is not active or is already set to end.'], 422);
         }
 

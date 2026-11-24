@@ -100,16 +100,7 @@ class DatabaseSeeder extends Seeder
             PropertyType::firstOrCreate(['name' => $type], ['is_active' => true]);
         }
 
-        $plans = [
-            ['name' => 'Free', 'type' => 'seller', 'price_monthly' => 0, 'price_yearly' => 0, 'max_listings' => 3, 'max_photos_per_listing' => 5, 'ai_price_analysis' => false, 'ai_trust_score' => false, 'ai_investment_score' => false],
-            ['name' => 'Starter', 'type' => 'seller', 'price_monthly' => 29, 'price_yearly' => 290, 'max_listings' => 10, 'max_photos_per_listing' => 15, 'ai_price_analysis' => true, 'ai_trust_score' => false, 'ai_investment_score' => false],
-            ['name' => 'Professional', 'type' => 'seller', 'price_monthly' => 79, 'price_yearly' => 790, 'max_listings' => 50, 'max_photos_per_listing' => 30, 'ai_price_analysis' => true, 'ai_trust_score' => true, 'ai_investment_score' => false, 'featured_listing' => true],
-            ['name' => 'Enterprise', 'type' => 'dealer', 'price_monthly' => 199, 'price_yearly' => 1990, 'max_listings' => 999, 'max_photos_per_listing' => 50, 'ai_price_analysis' => true, 'ai_trust_score' => true, 'ai_investment_score' => true, 'featured_listing' => true, 'priority_support' => true],
-        ];
-
-        foreach ($plans as $plan) {
-            SubscriptionPlan::firstOrCreate(['name' => $plan['name']], $plan + ['currency' => 'GBP', 'is_active' => true]);
-        }
+        // Subscription plans are created by the 2026_11_25_000001 migration.
 
         $aiModels = [
             ['name' => 'GPT-4o', 'provider' => 'openai', 'model_id' => 'gpt-4o', 'purpose' => 'price_analysis', 'is_default' => true, 'cost_per_1k_tokens' => 0.005],

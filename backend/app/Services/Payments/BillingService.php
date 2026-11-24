@@ -187,11 +187,14 @@ class BillingService
 
         // Switching plans: the previous gateway subscription stops renewing and
         // its local record is closed, so the user never holds two active plans.
-        Subscription::where('user_id', $user->id)->where('status', 'active')->get()->each(function (Subscription $old) {
-            try {
-                app(PaymentGateway::class)->cancelAtPeriodEnd($old);
-            } catch (\Throwable $ex) {
-                Log::error('Could not cancel superseded subscription', ['id' => $old->id, 'error' => $ex->getMessage()]);
+        // A free trial or an unpaid manual request is closed the same way.
+        Subscription::where('user_id', $user->id)->whereIn('status', [...Subscription::LIVE, 'pending'])->get()->each(function (Subscription $old) {
+            if ($old->gateway_subscription_id) {
+                try {
+                    app(PaymentGateway::class)->cancelAtPeriodEnd($old);
+                } catch (\Throwable $ex) {
+                    Log::error('Could not cancel superseded subscription', ['id' => $old->id, 'error' => $ex->getMessage()]);
+                }
             }
             $old->update(['status' => 'cancelled', 'cancelled_at' => now()]);
         });

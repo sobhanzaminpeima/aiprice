@@ -2,6 +2,29 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-11-25: Launch pricing, plan limits and offline payments
+
+### Added
+- Separate plan ladders on `/pricing` (Private seller / Car dealer / Real estate agency tabs), in English, Turkish and Persian:
+  - Private: free, 2 active listings, 10 photos, 60-day listings.
+  - Dealer Start £19 (15 listings) · **Dealer Pro £49** (60, 5 featured, most popular) · Dealer Max £99 (200, 15 featured).
+  - Agency Start £29 (25 listings) · **Agency Pro £69** (100, 5 featured, most popular) · Agency Elite £149 (300, 15 featured).
+  - Yearly = 10 × monthly ("2 months free"); per-listing price shown on every paid plan.
+- **One-month free trial** on every paid plan, once per account, no card. Sellers can switch plans during the trial; a reminder email goes out 3 days before it ends.
+- **Offline payments** while no gateway is set up: a seller requests a plan, sees the payment instructions, and staff press *Record payment* in admin, which activates or extends the plan (starting when the trial/current period ends), creates a payment and a paid invoice, and emails the seller. Stripe checkout is still used automatically once configured.
+- Admin **Plans & Subscriptions** page: edit every plan field (prices, limits, featured slots, listing lifetime, trial days, "most popular", on sale), waiting-for-payment queue, record payment / renew / change end date / cancel, give a plan by email, edit payment instructions, MRR and trial stats.
+- Seller dashboard: plan usage bars, trial countdown, pending request, *Feature* / *Mark sold* / *Relist* on My Listings, pagination beyond 10 listings.
+- `subscriptions:remind` scheduled command; `app:check-production` now also checks payment instructions and the free plan.
+
+### Changed
+- Listing limits, photo limits and featured slots are now **enforced** on every seller endpoint (they were only displayed before). Sold/rented/expired/rejected listings do not use a slot; relisting needs one.
+- Listing lifetime on approval comes from the seller's plan instead of a fixed 90 days.
+- Featured listings lead the default "newest" ordering.
+- The previous Free/Starter/Professional/Enterprise plans are switched off (existing subscribers keep them until they end).
+
+### Fixed
+- The pricing page had no site header or footer.
+
 ## 2026-11-05: Admin inbox, languages, light redesign, real data only
 
 ### Added

@@ -146,6 +146,8 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
         Route::put('/listings/{id}', [ListingController::class, 'update']);
         Route::delete('/listings/{id}', [ListingController::class, 'destroy']);
         Route::post('/listings/{id}/favorite', [ListingController::class, 'toggleFavorite']);
+        Route::post('/listings/{id}/feature', [ListingController::class, 'toggleFeatured'])->middleware('throttle:30,1');
+        Route::post('/listings/{id}/close', [ListingController::class, 'close']);
         Route::get('/my-listings', [ListingController::class, 'myListings']);
         // Full seller phone: signed-in users only, rate limited against scraping.
         Route::get('/listings/{id}/seller-phone', [ListingController::class, 'sellerPhone'])->middleware('throttle:30,60');
@@ -193,6 +195,7 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
 
         // Billing
         Route::post('/billing/checkout', [\App\Http\Controllers\Api\BillingController::class, 'checkout'])->middleware(['verified', 'throttle:10,60']);
+        Route::post('/billing/subscribe', [\App\Http\Controllers\Api\BillingController::class, 'subscribe'])->middleware(['verified', 'throttle:10,60']);
         Route::get('/billing/invoices', [\App\Http\Controllers\Api\BillingController::class, 'invoices']);
         Route::get('/billing/invoices/{id}', [\App\Http\Controllers\Api\BillingController::class, 'invoice']);
 
@@ -313,6 +316,8 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
         Route::post('/listings/{id}/upload-images', function (Request $req, string $id) {
             $listing = \App\Models\Listing::where('user_id', $req->user()->id)->findOrFail($id);
             $req->validate(['images' => 'required|array|min:1', 'images.*' => 'image|max:10240']);
+            $existingCount = count(is_array($listing->images) ? $listing->images : (json_decode((string) $listing->images, true) ?? []));
+            app(\App\Services\Billing\PlanEntitlements::class)->assertPhotoCount($req->user(), $existingCount + count($req->file('images')));
             $urls = [];
             foreach ($req->file('images') as $file) {
                 $path = $file->store('listings/'.$id, 'public');
@@ -675,6 +680,8 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
         Route::post('/listings/{id}/upload-images', function (Request $req, string $id) {
             $listing = \App\Models\Listing::findOrFail($id);
             $req->validate(['images' => 'required|array|min:1', 'images.*' => 'image|max:10240']);
+            $existingCount = count(is_array($listing->images) ? $listing->images : (json_decode((string) $listing->images, true) ?? []));
+            app(\App\Services\Billing\PlanEntitlements::class)->assertPhotoCount($req->user(), $existingCount + count($req->file('images')));
             $urls = [];
             foreach ($req->file('images') as $file) {
                 $path = $file->store('listings/'.$id, 'public');
@@ -702,64 +709,21 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
             return response()->json(['thumbnail' => $listing->thumbnail]);
         });
 
-        // Subscription Plans CRUD
-        Route::get('/subscription-plans', fn() => response()->json(\App\Models\SubscriptionPlan::orderBy('sort_order')->get()));
-        Route::post('/subscription-plans', function (Request $req) {
-            $v = $req->validate(['name'=>'required|string', 'price_monthly'=>'required|numeric', 'price_yearly'=>'nullable|numeric', 'max_listings'=>'required|integer', 'description'=>'nullable|string', 'is_active'=>'boolean']);
-            $plan = \App\Models\SubscriptionPlan::create($v + ['currency'=>'GBP', 'slug'=>\Str::slug($req->name)]);
-            return response()->json($plan, 201);
-        });
-        Route::put('/subscription-plans/{id}', function (Request $req, string $id) {
-            $plan = \App\Models\SubscriptionPlan::findOrFail($id);
-            $plan->update($req->only(['name','price_monthly','price_yearly','max_listings','description','is_active','sort_order','max_photos_per_listing','ai_price_analysis','featured_listing','priority_support']));
-            return response()->json($plan);
-        });
-        Route::delete('/subscription-plans/{id}', function (string $id) {
-            \App\Models\SubscriptionPlan::findOrFail($id)->delete();
-            return response()->json(['message' => 'Plan deleted.']);
-        });
+        // Subscription plans, subscribers and manual (offline) payments
+        Route::controller(\App\Http\Controllers\Admin\SubscriptionAdminController::class)->group(function () {
+            Route::get('/subscription-plans', 'plans');
+            Route::post('/subscription-plans', 'storePlan');
+            Route::put('/subscription-plans/{id}', 'updatePlan')->whereUuid('id');
+            Route::delete('/subscription-plans/{id}', 'destroyPlan')->whereUuid('id');
 
-        // Subscriptions management
-        Route::get('/subscriptions', function (Request $req) {
-            $q = \App\Models\Subscription::with(['user:id,name,email,role', 'plan:id,name,price_monthly,currency'])
-                ->when($req->status, fn($q) => $q->where('status', $req->status))
-                ->when($req->search, fn($q) => $q->whereHas('user', fn($u) => $u->where('name','like','%'.$req->search.'%')->orWhere('email','like','%'.$req->search.'%')))
-                ->orderByDesc('created_at');
-            return response()->json($q->paginate(20));
-        });
-        Route::post('/subscriptions', function (Request $req) {
-            $v = $req->validate(['user_id'=>'required|uuid', 'plan_id'=>'required|uuid', 'billing_cycle'=>'in:monthly,yearly', 'status'=>'in:active,trial,cancelled,expired']);
-            $plan = \App\Models\SubscriptionPlan::findOrFail($v['plan_id']);
-            $sub = \App\Models\Subscription::create([
-                'user_id' => $v['user_id'],
-                'plan_id' => $v['plan_id'],
-                'status' => $v['status'] ?? 'active',
-                'billing_cycle' => $v['billing_cycle'] ?? 'monthly',
-                'amount' => $plan->price_monthly,
-                'currency' => 'GBP',
-                'current_period_start' => now(),
-                'current_period_end' => now()->addMonth(),
-            ]);
-            return response()->json($sub->load(['user:id,name,email', 'plan:id,name,price_monthly']), 201);
-        });
-        Route::put('/subscriptions/{id}', function (Request $req, string $id) {
-            $sub = \App\Models\Subscription::findOrFail($id);
-            $sub->update($req->only(['status','plan_id','billing_cycle','current_period_end']));
-            return response()->json($sub->fresh(['user:id,name,email', 'plan:id,name,price_monthly']));
-        });
-        Route::delete('/subscriptions/{id}', function (string $id) {
-            $sub = \App\Models\Subscription::findOrFail($id);
-            $sub->update(['status' => 'cancelled', 'cancelled_at' => now()]);
-            return response()->json(['message' => 'Subscription cancelled.']);
-        });
-        Route::get('/subscriptions/stats', function () {
-            return response()->json([
-                'total_active' => \App\Models\Subscription::where('status','active')->count(),
-                'total_revenue' => \App\Models\Subscription::where('status','active')->sum('amount'),
-                'by_plan' => \App\Models\Subscription::where('status','active')->with('plan:id,name')->selectRaw('plan_id, count(*) as count')->groupBy('plan_id')->get(),
-                'new_this_month' => \App\Models\Subscription::where('created_at','>=',now()->startOfMonth())->count(),
-                'cancelled_this_month' => \App\Models\Subscription::whereNotNull('cancelled_at')->where('cancelled_at','>=',now()->startOfMonth())->count(),
-            ]);
+            Route::get('/subscriptions', 'index');
+            Route::get('/subscriptions/stats', 'stats');
+            Route::get('/subscriptions/payment-instructions', 'instructions');
+            Route::put('/subscriptions/payment-instructions', 'saveInstructions');
+            Route::post('/subscriptions', 'grant');
+            Route::post('/subscriptions/{id}/record-payment', 'recordPayment')->whereUuid('id');
+            Route::put('/subscriptions/{id}', 'update')->whereUuid('id');
+            Route::delete('/subscriptions/{id}', 'cancel')->whereUuid('id');
         });
 
         // Agency / Dealer management

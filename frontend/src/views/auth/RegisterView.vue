@@ -84,7 +84,9 @@ const roles = [
   { value: 'investor', label: 'Invest' },
 ]
 
-const form = ref({ name: '', email: '', password: '', password_confirmation: '', role: 'buyer' })
+// /register?role=dealer (from the pricing page) preselects the account type.
+const initialRole = roles.some((r) => r.value === route.query.role) ? String(route.query.role) : 'buyer'
+const form = ref({ name: '', email: '', password: '', password_confirmation: '', role: initialRole })
 const loading = ref(false)
 const error = ref('')
 const mismatch = computed(() => !!form.value.password_confirmation && form.value.password !== form.value.password_confirmation)
