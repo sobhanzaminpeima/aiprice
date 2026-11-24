@@ -32,12 +32,17 @@ class CompetitorCrawlerService
 
                 if ($existing) {
                     $existing->update($item);
+                    $existing->touch(); // "still listed" even when nothing changed
                     $results['updated']++;
                 } else {
                     CompetitorListing::create(array_merge($item, ['source_id' => $source->id]));
                     $results['imported']++;
                 }
             }
+
+            // Listings the site stopped showing must not keep feeding price comparisons.
+            CompetitorListing::where('source_id', $source->id)->where('is_active', true)
+                ->where('updated_at', '<', now()->subDays(14))->update(['is_active' => false]);
 
             $source->update(['last_scraped_at' => now()]);
 
@@ -165,9 +170,10 @@ class CompetitorCrawlerService
         return $listings;
     }
 
+    /** Any other site: the AI market research agent reads the public page and keeps only prices it can verify. */
     private function crawlGeneric(CompetitorSource $source): array
     {
-        throw new \RuntimeException('No parser exists for '.$source->url.'. Add a site-specific parser or use the authorized import command; no data was invented.');
+        return app(\App\Services\AI\MarketResearchAgent::class)->research($source);
     }
 
     // Extract text content matching a regex pattern

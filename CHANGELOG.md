@@ -2,6 +2,14 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-11-26: Market research agent and clearer price-check wording
+
+### Added
+- **AI market research agent** (`MarketResearchAgent`): for any source added under Admin → Competitors that has no dedicated parser, it reads the public listing page(s), asks the AI provider to list the priced ads, and stores them as market comparables for the fair-price check. Safeguards: honours `robots.txt` (a blocked or erroring robots file means no crawl), same host only, at most 5 pages per source at ≥1.5 s apart, private/local addresses refused, only facts stored (price, currency, city, a few attributes, link back; no photos, descriptions or phone numbers), and any AI row whose price or link is not actually printed on the page, or whose numbers are implausible, is discarded. Ads a site stops showing are retired after 14 days. Optional `config.pages` (extra page URLs, same host) and `config.request_delay_ms` per source.
+
+### Changed
+- "Not enough data" on listing cards now reads "Waiting for similar listings", with a tooltip explaining that the price check switches on as more similar listings appear (English, Turkish, Persian).
+
 ## 2026-11-25: Launch pricing, plan limits and offline payments
 
 ### Added

@@ -114,7 +114,7 @@
         </div>
 
         <!-- AI Price label -->
-        <div v-if="listing.ai_price_status" class="mt-2 text-xs font-semibold" :style="{ color: battery === null || listing.ai_price_status === 'insufficient_data' ? 'var(--text-muted)' : listing.ai_price_status === 'fair' ? 'var(--accent-teal)' : 'var(--warning)' }">
+        <div v-if="listing.ai_price_status" class="mt-2 text-xs font-semibold" :title="listing.ai_price_status === 'insufficient_data' ? $t('We compare each price with similar listings. There are not enough yet — the price check switches on as more listings are added.') : undefined" :style="{ color: battery === null || listing.ai_price_status === 'insufficient_data' ? 'var(--text-muted)' : listing.ai_price_status === 'fair' ? 'var(--accent-teal)' : 'var(--warning)' }">
           {{ aiStatusLabel }}
         </div>
       </div>
@@ -186,7 +186,7 @@ const trustColor = computed((): string => {
 const aiStatusLabel = computed((): string => {
   const status = props.listing.ai_price_status
   const b = battery.value
-  if (!status || status === 'insufficient_data' || b === null) return t('Not enough data')
+  if (!status || status === 'insufficient_data' || b === null) return t('Waiting for similar listings')
   const ai = (props.listing as { ai_score_breakdown?: { price_source?: string } }).ai_score_breakdown?.price_source === 'ai_model'
   if (ai) return '✦ ' + t('AI rough estimate')
   if (status === 'overpriced') return '▲ ' + t('High for this market')

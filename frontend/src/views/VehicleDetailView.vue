@@ -266,7 +266,7 @@ const aiStatusStyle = computed(() => {
   return 'background:rgba(var(--warning-rgb),0.12);color:var(--warning);border:1px solid rgba(var(--warning-rgb),0.3)'
 })
 const aiStatusLabel = computed(() => {
-  const map: Record<string, string> = { fair: '✓ Fair price (estimate)', slightly_overpriced: '⚠ Slightly high', overpriced: '✗ High for this market', insufficient_data: 'Not enough data yet' }
+  const map: Record<string, string> = { fair: '✓ Fair price (estimate)', slightly_overpriced: '⚠ Slightly high', overpriced: '✗ High for this market', insufficient_data: 'Waiting for similar listings' }
   return map[listing.value?.ai_price_status ?? ''] ?? ''
 })
 const aiColor = computed(() => listing.value?.ai_price_status === 'fair' ? 'var(--accent-teal)' : 'var(--warning)')
