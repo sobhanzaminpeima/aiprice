@@ -37,6 +37,8 @@
         <h1 class="text-3xl font-black mb-2 drop-shadow-xl" style="color:#fff">{{ listing.title }}</h1>
         <div class="flex items-center gap-3 text-sm" style="color:rgba(255,255,255,0.8)">
           <span class="flex items-center gap-1"><AppIcon name="mapPin" :size="14" /> {{ listing.city }}, North Cyprus</span>
+          <span>·</span>
+          <PostedAt :listing="listing" full />
           <span v-if="property?.bedrooms">· {{ property.bedrooms }} {{ $t('bed') }}</span>
           <span v-if="property?.bathrooms">· {{ property.bathrooms }} {{ $t('bath') }}</span>
           <span v-if="property?.area_sqm">· {{ property.area_sqm }}m²</span>
@@ -198,6 +200,7 @@
 
 <script setup lang="ts">
 import SpecItem from '@/components/listings/SpecItem.vue'
+import PostedAt from '@/components/listings/PostedAt.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import SellerContactCard, { type SellerContact } from '@/components/listings/SellerContactCard.vue'
 import ScoreGauge from '@/components/listings/ScoreGauge.vue'

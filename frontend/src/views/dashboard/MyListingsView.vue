@@ -44,6 +44,9 @@
             <p class="text-xs mt-0.5" style="color:var(--text-muted)">
               {{ l.city || '—' }} · {{ $t('Views') }}: {{ l.view_count || 0 }}<span v-if="l.status === 'active' && l.expires_at"> · {{ $t('until {date}', { date: fmtDate(l.expires_at) }) }}</span>
             </p>
+            <p class="text-xs mt-0.5" style="color:var(--text-muted)">
+              {{ $t('Uploaded') }} {{ timeAgo(l.created_at) }} · {{ exactTime(l.created_at) }}<template v-if="l.published_at"> · {{ $t('Live since') }} {{ exactTime(l.published_at) }}</template>
+            </p>
             <p v-if="l.status === 'rejected' && l.rejection_reason" class="text-xs mt-0.5" style="color:var(--danger)">{{ l.rejection_reason }}</p>
           </div>
         </div>
@@ -73,6 +76,7 @@ import { RouterLink } from 'vue-router'
 import client from '@/api/client'
 import { apiErrorMessage } from '@/api/errors'
 import { t, locale } from '@/i18n'
+import { timeAgo, exactTime } from '@/composables/useListingTime'
 
 const listings = ref<any[]>([])
 const usage = ref<any>(null)

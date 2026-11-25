@@ -54,7 +54,7 @@
             <div class="flex flex-wrap items-center gap-3 text-sm" style="color:var(--text-muted)">
               <span class="flex items-center gap-1"><AppIcon name="mapPin" :size="14" /> {{ listing.city }}, North Cyprus</span>
               <span>·</span>
-              <span>{{ $t('Listed {when}', { when: listedAgo }) }}</span>
+              <PostedAt :listing="listing" full />
               <span>·</span>
               <span class="flex items-center gap-1"><AppIcon name="eye" :size="14" /> {{ listing.view_count || 0 }} {{ $t('views') }}</span>
               <span v-if="listing.listing_number" class="ml-auto text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-overlay);color:var(--text-muted)">{{ listing.listing_number }}</span>
@@ -206,7 +206,7 @@
 </template>
 
 <script setup lang="ts">
-import { locale } from '@/i18n'
+import PostedAt from '@/components/listings/PostedAt.vue'
 import SpecItem from '@/components/listings/SpecItem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import SellerContactCard, { type SellerContact } from '@/components/listings/SellerContactCard.vue'
@@ -277,12 +277,6 @@ const trustColor = computed(() => {
 const batteryColor = computed(() => {
   const p = listing.value?.price_battery_percent ?? 0
   return p >= 85 ? 'var(--accent-teal)' : p >= 70 ? 'var(--accent-cyan)' : p >= 50 ? 'var(--warning)' : 'var(--danger)'
-})
-
-const listedAgo = computed(() => {
-  if (!listing.value?.published_at) return ''
-  const days = Math.floor((Date.now() - new Date(listing.value.published_at).getTime()) / 86400000)
-  return new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto' }).format(-days, 'day')
 })
 
 function setActiveImage(url: string) { activeImage.value = url; activeImageError.value = false }

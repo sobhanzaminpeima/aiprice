@@ -525,5 +525,8 @@ const fa: Record<string, string> = {
   '{used} of {limit} featured': '{used} از {limit} آگهی ویژه',
   'Waiting for similar listings': 'در انتظار آگهی‌های مشابه',
   'We compare each price with similar listings. There are not enough yet — the price check switches on as more listings are added.': 'قیمت هر آگهی را با آگهی‌های مشابه مقایسه می‌کنیم. هنوز آگهی مشابه کافی نیست — با ثبت آگهی‌های بیشتر، ارزیابی قیمت فعال می‌شود.',
+  'Cyprus time': 'به وقت قبرس',
+  'Uploaded': 'آپلود شده',
+  'Live since': 'منتشر از',
 }
 export default fa

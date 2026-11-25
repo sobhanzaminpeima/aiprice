@@ -525,5 +525,8 @@ const tr: Record<string, string> = {
   '{used} of {limit} featured': '{limit} öne çıkarma hakkından {used} kullanıldı',
   'Waiting for similar listings': 'Benzer ilan bekleniyor',
   'We compare each price with similar listings. There are not enough yet — the price check switches on as more listings are added.': 'Her fiyatı benzer ilanlarla karşılaştırıyoruz. Henüz yeterli benzer ilan yok — ilan sayısı arttıkça fiyat kontrolü otomatik açılır.',
+  'Cyprus time': 'Kıbrıs saati',
+  'Uploaded': 'Yüklendi',
+  'Live since': 'Yayında:',
 }
 export default tr

@@ -2,6 +2,11 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-11-26: Posting time on every listing
+
+### Added
+- Every listing now shows when it was posted: relative ("5 minutes ago", "3 hours ago", "yesterday", "3 weeks ago") on cards, and relative plus the exact date and time (Cyprus time, Europe/Nicosia) on the listing page. Works in English, Turkish and Persian. Sellers see "Uploaded … · Live since …" in My Listings; the admin listings table shows when each listing was uploaded.
+
 ## 2026-11-26: Market research agent and clearer price-check wording
 
 ### Added

@@ -145,7 +145,7 @@
             <div>
               <p class="font-semibold text-sm mb-0.5" style="color:var(--text-primary)">{{ l.title }}</p>
               <p class="text-xs" style="color:var(--text-muted)">{{ l.user?.name }} · {{ l.city || '-' }} · #{{ l.listing_number }}</p>
-              <p class="text-xs mt-0.5" style="color:var(--text-muted)">{{ l.type }} · {{ l.created_at ? new Date(l.created_at).toLocaleDateString('en-GB') : '' }}</p>
+              <p class="text-xs mt-0.5" style="color:var(--text-muted)">{{ l.type }} · {{ timeAgo(l.created_at) }} · {{ exactTime(l.created_at) }}</p>
             </div>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
@@ -180,6 +180,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { timeAgo, exactTime } from '@/composables/useListingTime'
 import { ref, onMounted, computed } from 'vue'
 import client from '@/api/client'
 import AiListingComposer from '@/components/listings/AiListingComposer.vue'

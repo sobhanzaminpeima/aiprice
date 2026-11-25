@@ -103,6 +103,9 @@
             <span class="text-xs" style="color:var(--text-muted)">{{ $t('ROI') }}</span>
           </div>
 
+          <!-- When it was posted -->
+          <PostedAt :listing="listing" class="text-xs shrink-0" style="color:var(--text-muted)" />
+
           <!-- View count -->
           <div class="shrink-0 flex items-center gap-1 ml-auto" style="color:var(--text-muted)">
             <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -123,6 +126,7 @@
 </template>
 
 <script setup lang="ts">
+import PostedAt from '@/components/listings/PostedAt.vue'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import type { Listing, Vehicle, Property } from '@/types'

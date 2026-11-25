@@ -145,7 +145,7 @@ class ListingController extends Controller
             $comparableQuery->whereBetween('price', [$price * 0.6, $price * 1.4]);
         }
         $comparables = $comparableQuery->inRandomOrder()->limit(6)
-            ->get(['id', 'title', 'price', 'currency', 'slug', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city']);
+            ->get(['id', 'title', 'price', 'currency', 'slug', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city', 'published_at', 'created_at']);
         // Fallback: if not enough results in band, widen to ±65%
         if ($comparables->count() < 3 && $price && $price > 0) {
             $comparables = Listing::where('type', $listing->type)
@@ -153,7 +153,7 @@ class ListingController extends Controller
                 ->where('status', 'active')
                 ->whereBetween('price', [$price * 0.35, $price * 1.65])
                 ->inRandomOrder()->limit(6)
-                ->get(['id', 'title', 'price', 'currency', 'slug', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city']);
+                ->get(['id', 'title', 'price', 'currency', 'slug', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city', 'published_at', 'created_at']);
         }
         return response()->json([
             'listing' => $listing,
