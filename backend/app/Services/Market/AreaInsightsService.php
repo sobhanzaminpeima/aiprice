@@ -13,6 +13,29 @@ class AreaInsightsService
 {
     private const MIN_FOR_CHANGE = 3;
 
+    /** Median asking-price change over the last 90 days across all active listings in one currency. */
+    public function overall(string $currency = 'GBP'): array
+    {
+        $trend = app(MarketTrendService::class);
+        $rows = Listing::where('status', 'active')->where('currency', $currency)->where('price', '>', 0)->get(['price', 'published_at', 'created_at', 'type']);
+        $change = null;
+        // Compare like with like: a type contributes only when both windows hold enough of it.
+        $parts = [];
+        foreach ($rows->groupBy('type') as $group) {
+            $recent = $group->filter(fn ($l) => ($l->published_at ?? $l->created_at)->gte(now()->subDays(90)))->pluck('price')->map(fn ($p) => (float) $p)->all();
+            $before = $group->filter(fn ($l) => ($l->published_at ?? $l->created_at)->between(now()->subDays(180), now()->subDays(90)))->pluck('price')->map(fn ($p) => (float) $p)->all();
+            if (count($recent) >= self::MIN_FOR_CHANGE && count($before) >= self::MIN_FOR_CHANGE && $trend->median($before) > 0) {
+                $parts[] = [($trend->median($recent) - $trend->median($before)) / $trend->median($before) * 100, count($recent) + count($before)];
+            }
+        }
+        if ($parts) {
+            $weight = array_sum(array_column($parts, 1));
+            $change = round(array_sum(array_map(fn ($p) => $p[0] * $p[1], $parts)) / $weight, 1);
+        }
+
+        return ['change_90d' => $change, 'listings' => $rows->count(), 'currency' => $currency];
+    }
+
     /** @return list<array{city: string, listings: int, median_price: float, currency: string, change_90d: float|null, density: string}> */
     public function summary(?string $type = null, string $currency = 'GBP'): array
     {

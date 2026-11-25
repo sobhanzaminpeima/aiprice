@@ -2,6 +2,21 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-11-28: Layout rebuilt to match the design mock-ups
+
+### Changed
+- Dark navy header on every public page with "Market Intelligence", a search button and a cyan "Post an ad".
+- Home page rebuilt in the mock-up's order: left-aligned hero over a coastline illustration (`public/hero-coast.svg`: Beşparmak mountains, Kyrenia harbour, a villa), the "AI Decision Engine" search panel (Cars / Properties / Rentals, make or type, year or bedrooms, price, location, quick actions), feature tiles, "How AI price intelligence works" with a real analysed listing, a dark market-map panel with density legend, town prices and the overall 90-day change, "Best opportunities" cards, "Why AIPrice?", plan cards and the closing band.
+- Listing cards: verdict badge on the photo (Good deal, Undervalued, Fair price, Slightly high, High price, AI estimate), price, specs and the AI fair range with confidence.
+- Car and property pages rebuilt: page band, gallery card with breadcrumb, spec chips and ID, dark price card (asking price, fair range, deal signal, confidence, Send to seller, Save listing), full-width AI Deal Analysis, a row with similar listings, "Why this score?" and the risk insight, a horizontal specification row, description tabs, similar-listing cards, "See better AI-rated options", and a seller card with safety tips.
+- `?mode=deal|find|invest` in the Cars and Properties URLs turns on AI ranking (used by the home search).
+
+### Added
+- `GET /api/v1/market/pulse`: typical asking-price change over the last 90 days across North Cyprus (null until both periods have enough listings).
+
+### Fixed
+- Similar-listing data now includes the listing type and fair range, so their cards render correctly.
+
 ## 2026-11-27: Redesign and market intelligence
 
 ### Added

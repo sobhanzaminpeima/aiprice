@@ -1,162 +1,39 @@
 <template>
   <MainLayout>
-    <!-- HERO -->
-    <section class="hero relative overflow-hidden pt-16 sm:pt-20 pb-20 px-4">
-      <div class="hero-glow" aria-hidden="true"></div>
-      <div class="max-w-7xl mx-auto relative z-10">
-        <div class="text-center mb-12">
-          <div class="hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-6">
-            <span class="w-1.5 h-1.5 rounded-full" style="background:#16C784;animation:pulse-glow 2s infinite"></span>
-            {{ $t('AI-Powered Marketplace · North Cyprus') }}
-          </div>
-          <h1 class="hero-title text-4xl sm:text-6xl font-black leading-tight mb-4">{{ $t('Find the best priced cars & properties') }}</h1>
-          <p class="hero-tagline text-xl sm:text-2xl font-extrabold mb-4">{{ $t('Know the Value. Not Just the Price.') }}</p>
-          <p class="hero-sub text-base sm:text-lg max-w-2xl mx-auto mb-10">
-            {{ $t('Instant AI price estimates for cars and property in North Cyprus, based on comparable listings.') }}
-          </p>
+    <!-- HERO: coastline scene, left-aligned headline -->
+    <section class="hero relative overflow-hidden px-4">
+      <div class="max-w-7xl mx-auto relative z-10 pt-14 sm:pt-20 pb-44 md:pb-48">
+        <div class="max-w-2xl">
+          <span class="hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-5">✦ {{ $t('AI-powered market intelligence for North Cyprus') }}</span>
+          <h1 class="hero-title text-4xl sm:text-6xl font-black leading-[1.05] mb-4">{{ $t('Find the best price') }} <span class="hero-accent">{{ $t('with AI') }}</span></h1>
+          <p class="hero-sub text-base sm:text-lg mb-5">{{ $t('Real-time AI valuation, fair-price checks, market trends and intelligent comparisons for cars, properties and rentals in North Cyprus.') }}</p>
+          <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm" style="color:#dce9f7">
+            <li v-for="c in heroChecks" :key="c" class="flex items-center gap-2"><span style="color:#4fe0b0;font-weight:900">✓</span>{{ $t(c) }}</li>
+          </ul>
 
-          <!-- Welcome back — AI Preference Graph memory. Only for signed-in
-               users with a real prior search on record. -->
-          <div v-if="lastPreference" class="max-w-lg mx-auto mb-6 rounded-2xl p-4 flex items-center justify-between gap-3"
-            style="background:rgba(var(--accent-teal-rgb),0.06);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
-            <div class="text-left">
-              <p class="text-xs font-bold" style="color:var(--text-primary)">{{ $t('Welcome back — your last search') }}</p>
-              <p class="text-xs" style="color:var(--text-muted)">
-                {{ lastPreference.asset_type }}<span v-if="lastPreference.budget_max"> under {{ Number(lastPreference.budget_max).toLocaleString() }}</span><span v-if="lastPreference.city"> in {{ lastPreference.city }}</span>
-                <template v-if="newMatchesCount > 0"> · <strong style="color:var(--accent-teal)">{{ newMatchesCount }} new match{{ newMatchesCount === 1 ? '' : 'es' }}</strong></template>
-              </p>
-            </div>
-            <button @click="rerunLastSearch" class="px-3 py-1.5 rounded-lg text-xs font-bold shrink-0" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('View →') }}</button>
-          </div>
-
-          <!-- AI Intent Composer — replaces a plain search bar. Choose what you're
-               after, what matters to you, and your budget; AI ranks results
-               instead of you scrolling through hundreds of listings. -->
-          <div class="composer max-w-2xl mx-auto rounded-3xl p-6">
-            <p class="text-sm font-bold mb-3" style="color:var(--text-primary)">{{ $t('I\'m looking for') }}</p>
-            <div class="flex flex-wrap justify-center gap-2 mb-5">
-              <button v-for="t in assetTypes" :key="t.value" @click="intent.type = t.value"
-                class="px-4 py-2 rounded-xl text-sm font-bold transition inline-flex items-center gap-2"
-                :style="intent.type === t.value
-                  ? 'background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)'
-                  : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)'">
-                <AssetIcon :type="t.value as any" :size="16" /> {{ $t(t.label) }}
-              </button>
-            </div>
-
-            <p class="text-sm font-bold mb-3" style="color:var(--text-primary)">{{ $t('What\'s important to you?') }}</p>
-            <div class="flex flex-wrap justify-center gap-2 mb-5">
-              <button v-for="p in priorityOptions" :key="p.value" @click="togglePriority(p.value)"
-                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition"
-                :style="intent.priorities.includes(p.value)
-                  ? 'background:rgba(var(--accent-teal-rgb),0.16);border:1px solid rgba(var(--accent-teal-rgb),0.5);color:var(--accent-teal)'
-                  : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">
-                {{ $t(p.label) }}
-              </button>
-            </div>
-
-            <p class="text-sm font-bold mb-3" style="color:var(--text-primary)">{{ $t('Budget') }}</p>
-            <div class="flex flex-wrap justify-center gap-2 mb-5">
-              <button v-for="b in budgetOptions" :key="b.label" @click="intent.budgetMax = b.value"
-                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition"
-                :style="intent.budgetMax === b.value
-                  ? 'background:rgba(var(--accent-cyan-rgb),0.16);border:1px solid rgba(var(--accent-cyan-rgb),0.5);color:var(--accent-cyan)'
-                  : 'background:var(--surface-overlay);color:var(--text-muted);border:1px solid var(--border-subtle)'">
-                {{ $t(b.label) }}
-              </button>
-              <input v-if="intent.budgetMax === 'custom'" v-model="intent.budgetCustom" type="number" :placeholder="$t('Max amount')"
-                class="px-3 py-1.5 rounded-lg text-xs w-32 outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-primary)" />
-              <select v-model="intent.city" :aria-label="$t('City')" class="px-3 py-1.5 rounded-lg text-xs outline-none" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-muted)">
-                <option value="">{{ $t('Any City') }}</option>
-                <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
-              </select>
-            </div>
-
-            <button @click="findMyMatch" class="btn-primary w-full py-3 rounded-xl text-sm font-bold">
-              {{ $t('✦ Find My Best Match →') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Stats bar -->
-        <div v-if="activeCount === 0" class="composer max-w-2xl mx-auto rounded-2xl p-5 text-center mt-8">
-          <p class="font-bold mb-1" style="color:var(--text-primary)">{{ $t('We\'re just launching in North Cyprus') }}</p>
-          <p class="text-sm mb-4" style="color:var(--text-muted)">{{ $t('List your car or property free and get an instant AI price check — early listings get the most visibility.') }}</p>
-          <RouterLink :to="sellLink" class="inline-block px-6 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('List for free') }}</RouterLink>
-        </div>
-        <div v-else-if="activeCount !== null" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mt-10">
-          <div v-for="s in stats" :key="s.label" class="hero-stat text-center p-4 rounded-2xl">
-            <p class="text-2xl font-black mb-1">{{ s.value }}</p>
-            <p class="text-xs">{{ $t(s.label) }}</p>
+          <!-- Welcome back: the visitor's last saved search -->
+          <div v-if="lastPreference" class="mt-6 inline-flex items-center gap-3 rounded-2xl px-4 py-3" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)">
+            <span class="text-xs" style="color:#dce9f7">{{ $t('Welcome back — your last search') }}: <strong>{{ $t(lastPreference.asset_type) }}</strong><span v-if="lastPreference.city"> · {{ lastPreference.city }}</span><template v-if="newMatchesCount > 0"> · <strong style="color:#4fe0b0">{{ $t('{n} new matches', { n: newMatchesCount }) }}</strong></template></span>
+            <button @click="rerunLastSearch" class="px-3 py-1.5 rounded-lg text-xs font-bold" style="background:linear-gradient(135deg,#12C5E8,#4fe0b0);color:#04111d">{{ $t('Show') }}</button>
           </div>
         </div>
       </div>
     </section>
 
-    <AiFeatureTiles />
-
-    <!-- BROWSE BY CATEGORY (bama-style taxonomy: type → body/use → price class → brand) -->
-    <section class="px-4 pt-14 pb-16 max-w-7xl mx-auto" aria-labelledby="browse-heading">
-      <h2 id="browse-heading" class="text-xl font-black mb-5" style="color:var(--text-primary)">{{ $t('Browse by') }} <span class="gradient-text">{{ $t('category') }}</span></h2>
-      <div class="grid gap-6 lg:grid-cols-2">
-        <div class="browse-card">
-          <div class="browse-head"><AppIcon name="car" :size="18" /> {{ $t('Cars') }}</div>
-          <p class="browse-label">{{ $t('Body type') }}</p>
-          <div class="tile-grid">
-            <RouterLink v-for="b in carBodies" :key="b" :to="{ path: '/cars', query: { body: b } }" class="tile">{{ $t(b) }}</RouterLink>
-          </div>
-          <p class="browse-label">{{ $t('Price class') }}</p>
-          <div class="chip-row">
-            <RouterLink v-for="p in carPriceClasses" :key="p.label" :to="{ path: '/cars', query: p.query }" class="chip">{{ $t(p.label) }}</RouterLink>
-          </div>
-          <p class="browse-label">{{ $t('Popular brands') }}</p>
-          <div class="chip-row">
-            <RouterLink v-for="b in carBrands" :key="b" :to="{ path: '/cars', query: { brand: b } }" class="chip">{{ b }}</RouterLink>
-          </div>
-          <p class="browse-label">{{ $t('Quick filters') }}</p>
-          <div class="chip-row">
-            <RouterLink v-for="q in carQuick" :key="q.label" :to="{ path: '/cars', query: q.query }" class="chip chip--soft">{{ $t(q.label) }}</RouterLink>
-          </div>
-        </div>
-        <div class="browse-card">
-          <div class="browse-head"><AppIcon name="home" :size="18" /> {{ $t('Property') }}</div>
-          <p class="browse-label">{{ $t('Property type') }}</p>
-          <div class="tile-grid">
-            <RouterLink v-for="t in propertyKinds" :key="t" :to="{ path: '/properties', query: { type: t } }" class="tile">{{ $t(t) }}</RouterLink>
-          </div>
-          <p class="browse-label">{{ $t('Price class') }}</p>
-          <div class="chip-row">
-            <RouterLink v-for="p in propertyPriceClasses" :key="p.label" :to="{ path: '/properties', query: p.query }" class="chip">{{ $t(p.label) }}</RouterLink>
-          </div>
-          <p class="browse-label">{{ $t('By city') }}</p>
-          <div class="chip-row">
-            <RouterLink v-for="c in propertyCities" :key="c.q" :to="{ path: '/properties', query: { city: c.q } }" class="chip">{{ c.label }}</RouterLink>
-          </div>
-          <p class="browse-label">{{ $t('Rent') }}</p>
-          <div class="chip-row">
-            <RouterLink to="/rentals" class="chip chip--soft">{{ $t('Rentals: long and short term') }}</RouterLink>
-          </div>
-        </div>
+    <!-- AI DECISION ENGINE (overlaps the hero) -->
+    <div class="px-4 max-w-7xl mx-auto relative z-20 -mt-36 md:-mt-40">
+      <DecisionEngine />
+      <div v-if="activeCount === 0" class="mt-4 rounded-2xl p-4 text-sm flex flex-wrap items-center justify-between gap-3" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+        <span style="color:var(--text-secondary)">{{ $t('We\'re just launching in North Cyprus') }} — {{ $t('List your car or property free and get an instant AI price check — early listings get the most visibility.') }}</span>
+        <RouterLink :to="sellLink" class="px-4 py-2 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('Post a free ad') }}</RouterLink>
       </div>
-    </section>
+    </div>
 
-    <!-- AI MARKETPLACE MAP -->
-    <section v-if="activeCount" class="px-4 pb-20 max-w-7xl mx-auto">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(var(--accent-cyan-rgb),0.1);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="cyan" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-          </div>
-          <div>
-            <h2 class="text-xl font-black" style="color:var(--text-primary)">{{ $t('AI Marketplace') }} <span style="color:var(--accent-cyan)">{{ $t('Map') }}</span></h2>
-            <p class="text-xs" style="color:var(--text-muted)">{{ $t('Every listing, live on the map of North Cyprus') }}</p>
-          </div>
-        </div>
-        <RouterLink to="/search?view=map" class="text-xs font-semibold" style="color:var(--accent-teal)">{{ $t('Open full map →') }}</RouterLink>
-      </div>
-      <ListingsMap :height="420" compact />
-      <div class="mt-6"><AreaInsights /></div>
-    </section>
+    <div class="pt-6"><AiFeatureTiles /></div>
+
+    <div class="pt-12"><HowAiWorks :example="example" /></div>
+
+    <MarketMapPanel />
 
     <!-- TOP 10 SPONSORED LISTINGS (Advertisements) -->
     <section v-if="ads.length > 0" class="px-4 pb-16 max-w-7xl mx-auto">
@@ -192,101 +69,26 @@
       </div>
     </section>
 
-    <!-- AI BEST PRICES — VEHICLES -->
-    <section class="px-4 pb-20 max-w-7xl mx-auto">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(var(--accent-teal-rgb),0.1);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="teal" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/></svg>
-          </div>
-          <div>
-            <h2 class="text-xl font-black" style="color:var(--text-primary)">{{ $t('Best Price') }} <span class="gradient-text">{{ $t('Cars') }}</span></h2>
-            <p class="text-xs" style="color:var(--text-muted)">{{ $t('Best value vehicles by AI estimate') }}</p>
-          </div>
-        </div>
-        <RouterLink to="/cars" class="text-xs font-semibold" style="color:var(--accent-teal)">{{ $t('View all →') }}</RouterLink>
-      </div>
-      <div v-if="loadingVehicles" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div v-for="i in 4" :key="i" class="h-64 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
-      </div>
-      <div v-else-if="bestVehicles.length===0" class="text-center py-16 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <p class="font-semibold mb-1" style="color:var(--text-primary)">{{ $t('No cars listed yet') }}</p>
-        <p class="text-sm mb-5" style="color:var(--text-muted)">{{ $t('Be the first — your listing gets an instant AI price check.') }}</p>
-        <RouterLink :to="sellLink" class="inline-block px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('List your car free') }}</RouterLink>
-      </div>
-      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <ListingCard v-for="l in bestVehicles" :key="l.id" :listing="l" />
-      </div>
-    </section>
 
-    <!-- NEWEST VEHICLES -->
-    <section v-if="loadingVehicles || newestVehicles.length" class="px-4 pb-20 max-w-7xl mx-auto">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(var(--accent-cyan-rgb),0.1);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="cyan" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-          <div>
-            <h2 class="text-xl font-black" style="color:var(--text-primary)">{{ $t('Newest') }} <span style="color:var(--accent-cyan)">{{ $t('Vehicles') }}</span></h2>
-            <p class="text-xs" style="color:var(--text-muted)">{{ $t('Latest car listings') }}</p>
-          </div>
+    <!-- AI-CURATED OPPORTUNITIES -->
+    <section class="px-4 pb-16 max-w-7xl mx-auto" aria-labelledby="opps-heading">
+      <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+        <div>
+          <p class="text-xs font-bold tracking-wider uppercase mb-1" style="color:var(--accent-cyan)">⚡ {{ $t('AI-curated opportunities') }}</p>
+          <h2 id="opps-heading" class="text-2xl sm:text-3xl font-black" style="color:var(--text-primary)">{{ $t('Best opportunities in North Cyprus') }}</h2>
         </div>
-        <RouterLink to="/cars?sort=newest" class="text-xs font-semibold" style="color:var(--accent-teal)">{{ $t('View all →') }}</RouterLink>
+        <RouterLink to="/search?mode=deal" class="text-sm font-semibold" style="color:var(--accent-cyan)">{{ $t('View all AI-analysed listings') }} →</RouterLink>
       </div>
-      <div v-if="loadingVehicles" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div v-for="i in 4" :key="i" class="h-64 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
+      <div v-if="loadingOpps" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="i in 4" :key="i" class="h-72 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
       </div>
-      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <ListingCard v-for="l in newestVehicles" :key="l.id" :listing="l" />
+      <div v-else-if="opportunities.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <ListingCard v-for="l in opportunities" :key="l.id" :listing="l" />
       </div>
-    </section>
-
-    <!-- AI BEST PRICES — PROPERTIES -->
-    <section class="px-4 pb-20 max-w-7xl mx-auto">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(var(--accent-violet-rgb),0.1);border:1px solid rgba(var(--accent-violet-rgb),0.2)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="violet" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-          </div>
-          <div>
-            <h2 class="text-xl font-black" style="color:var(--text-primary)">{{ $t('Best Price') }} <span style="color:var(--accent-violet)">{{ $t('Properties') }}</span></h2>
-            <p class="text-xs" style="color:var(--text-muted)">{{ $t('Best value real estate by AI estimate') }}</p>
-          </div>
-        </div>
-        <RouterLink to="/properties" class="text-xs font-semibold" style="color:var(--accent-teal)">{{ $t('View all →') }}</RouterLink>
-      </div>
-      <div v-if="loadingProperties" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div v-for="i in 4" :key="i" class="h-64 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
-      </div>
-      <div v-else-if="bestProperties.length===0" class="text-center py-16 rounded-2xl" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <p class="font-semibold mb-1" style="color:var(--text-primary)">{{ $t('No properties listed yet') }}</p>
-        <p class="text-sm mb-5" style="color:var(--text-muted)">{{ $t('Be the first — your listing gets an instant AI price check.') }}</p>
-        <RouterLink :to="sellLink" class="inline-block px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('List your property free') }}</RouterLink>
-      </div>
-      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <ListingCard v-for="l in bestProperties" :key="l.id" :listing="l" />
-      </div>
-    </section>
-
-    <!-- NEWEST PROPERTIES -->
-    <section v-if="loadingProperties || newestProperties.length" class="px-4 pb-20 max-w-7xl mx-auto">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(var(--accent-cyan-rgb),0.1);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-tone="cyan" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-          <div>
-            <h2 class="text-xl font-black" style="color:var(--text-primary)">{{ $t('Newest') }} <span style="color:var(--accent-cyan)">{{ $t('Properties') }}</span></h2>
-            <p class="text-xs" style="color:var(--text-muted)">{{ $t('Latest real estate listings') }}</p>
-          </div>
-        </div>
-        <RouterLink to="/properties?sort=newest" class="text-xs font-semibold" style="color:var(--accent-teal)">{{ $t('View all →') }}</RouterLink>
-      </div>
-      <div v-if="loadingProperties" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div v-for="i in 4" :key="i" class="h-64 rounded-2xl animate-pulse" style="background:var(--bg-surface)"></div>
-      </div>
-      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <ListingCard v-for="l in newestProperties" :key="l.id" :listing="l" />
+      <div v-else class="rounded-2xl p-10 text-center" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+        <p class="font-bold mb-1" style="color:var(--text-primary)">{{ $t('No listings yet') }}</p>
+        <p class="text-sm mb-4" style="color:var(--text-muted)">{{ $t('Be the first — your listing gets an instant AI price check.') }}</p>
+        <RouterLink :to="sellLink" class="inline-block px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('Post a free ad') }}</RouterLink>
       </div>
     </section>
 
@@ -324,107 +126,31 @@
     <CtaBand />
   </MainLayout>
 </template>
+
 <script setup lang="ts">
 import { usePageMeta } from '@/composables/usePageMeta'
-usePageMeta(() => ({ title: undefined, description: 'Every car and property listing in North Cyprus checked against the market by AI. See the fair price before you buy or sell.' }))
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'
 import ListingCard from '@/components/listings/ListingCard.vue'
-import ListingsMap from '@/components/listings/ListingsMap.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
 import AiFeatureTiles from '@/components/home/AiFeatureTiles.vue'
-import AreaInsights from '@/components/home/AreaInsights.vue'
+import DecisionEngine from '@/components/home/DecisionEngine.vue'
+import HowAiWorks from '@/components/home/HowAiWorks.vue'
+import MarketMapPanel from '@/components/home/MarketMapPanel.vue'
 import WhyAiPrice from '@/components/home/WhyAiPrice.vue'
 import CtaBand from '@/components/home/CtaBand.vue'
-import AssetIcon from '@/components/ui/AssetIcon.vue'
 import { useAuthStore } from '@/stores/auth'
 import client from '@/api/client'
+import type { Listing } from '@/types'
+
+usePageMeta(() => ({ title: undefined, description: 'Every car and property listing in North Cyprus checked against the market by AI. See the fair price before you buy or sell.' }))
 
 const router = useRouter()
 const auth = useAuthStore()
 
+const heroChecks = ['Know the real market value', 'Compare listings intelligently', 'Choose the best price with confidence']
 const lastPreference = ref<{ asset_type: string; budget_max: number | null; city: string | null } | null>(null)
 const newMatchesCount = ref(0)
-
-const cities = ['Girne', 'Lefkosa', 'Gazimağusa', 'Iskele', 'Guzelyurt', 'Lefke']
-
-const assetTypes = [
-  { value: 'vehicle', label: 'Car' },
-  { value: 'property', label: 'Property' },
-  { value: 'rental', label: 'Rental' },
-]
-
-// Each priority chip nudges the search toward one of the three ranking
-// profiles the backend actually supports (RankingEngineService: find/deal/invest).
-// This is a coarse mapping today — a per-chip weighted profile is a future
-// enhancement once the ranking engine supports custom weight vectors.
-const priorityOptions = [
-  { value: 'best_price', label: 'Best Price', mode: 'deal' },
-  { value: 'best_deal', label: 'Best Deal', mode: 'deal' },
-  { value: 'low_cost', label: 'Low Monthly Cost', mode: 'deal' },
-  { value: 'family', label: 'Family', mode: 'find' },
-  { value: 'luxury', label: 'Luxury', mode: 'find' },
-  { value: 'low_risk', label: 'Low Risk', mode: 'find' },
-  { value: 'near_me', label: 'Near Me', mode: 'find' },
-  { value: 'investment', label: 'Investment', mode: 'invest' },
-  { value: 'high_resale', label: 'High Resale', mode: 'invest' },
-]
-
-const budgetOptions = [
-  { label: 'Under £10K', value: '10000' },
-  { label: '£10K–20K', value: '20000' },
-  { label: '£20K–30K', value: '30000' },
-  { label: 'Custom', value: 'custom' },
-]
-
-const intent = ref({
-  type: 'vehicle',
-  priorities: [] as string[],
-  budgetMax: '',
-  budgetCustom: '',
-  city: '',
-})
-
-function togglePriority(value: string) {
-  const i = intent.value.priorities.indexOf(value)
-  if (i === -1) intent.value.priorities.push(value)
-  else intent.value.priorities.splice(i, 1)
-}
-
-function resolveMode(): string {
-  if (!intent.value.priorities.length) return ''
-  const counts: Record<'find' | 'deal' | 'invest', number> = { find: 0, deal: 0, invest: 0 }
-  for (const p of intent.value.priorities) {
-    const opt = priorityOptions.find(o => o.value === p)
-    if (opt) counts[opt.mode as 'find' | 'deal' | 'invest']++
-  }
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1])
-  return sorted[0]?.[0] ?? 'find'
-}
-
-async function findMyMatch() {
-  const params = new URLSearchParams()
-  params.set('type', intent.value.type)
-  const mode = resolveMode()
-  if (mode) params.set('mode', mode)
-  const budget = intent.value.budgetMax === 'custom' ? intent.value.budgetCustom : intent.value.budgetMax
-  if (budget) params.set('budget_max', String(budget))
-  if (intent.value.city) params.set('city', intent.value.city)
-
-  // AI Preference Graph — remember this search for signed-in users so the
-  // homepage can say "welcome back" next visit. Best-effort: never blocks navigation.
-  if (auth.isAuthenticated) {
-    client.post('/me/search-preferences', {
-      asset_type: intent.value.type,
-      budget_max: budget || null,
-      city: intent.value.city || null,
-      priorities: intent.value.priorities,
-    }).catch(() => {})
-  }
-
-  router.push('/search?' + params.toString())
-}
 
 function rerunLastSearch() {
   if (!lastPreference.value) return
@@ -435,10 +161,13 @@ function rerunLastSearch() {
   router.push('/search?' + params.toString())
 }
 
-const bestVehicles = ref<any[]>([])
-const newestVehicles = ref<any[]>([])
-const bestProperties = ref<any[]>([])
-const newestProperties = ref<any[]>([])
+const opportunities = ref<Listing[]>([])
+const loadingOpps = ref(true)
+// The "how it works" example is a real listing with a completed price check, never a mock-up.
+const example = computed(() => opportunities.value
+  .filter((l) => l.market_min_price && l.market_max_price && l.ai_price_status && l.ai_price_status !== 'insufficient_data')
+  .sort((a, b) => Number(b.ai_comparable_count ?? 0) - Number(a.ai_comparable_count ?? 0))[0] ?? null)
+
 const plans = ref<any[]>([])
 // Cheapest price and largest listing allowance per kind of seller, for the "Start selling" cards.
 const sellerGroups = computed(() => ([
@@ -454,18 +183,9 @@ const sellerGroups = computed(() => ([
   }
 }))
 const ads = ref<any[]>([])
-const loadingVehicles = ref(true)
-const loadingProperties = ref(true)
 const loadingPlans = ref(true)
-
 const activeCount = ref<number | null>(null)
 const sellLink = computed(() => (auth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }))
-const stats = ref([
-  { label: 'Active Listings', value: '...', color: 'var(--accent-teal)' },
-  { label: 'Cars Listed', value: '...', color: 'var(--accent-cyan)' },
-  { label: 'Properties', value: '...', color: 'var(--accent-violet)' },
-  { label: 'AI Analyses', value: '...', color: 'var(--warning)' },
-])
 
 onMounted(async () => {
   if (auth.isAuthenticated) {
@@ -477,47 +197,19 @@ onMounted(async () => {
     }).catch(() => {})
   }
 
-  const [statsRes, vehiclesRes, propsRes, plansRes, adsRes] = await Promise.allSettled([
-    client.get('/market/stats').catch(() => null),
-    client.get('/listings?type=vehicle&per_page=8&sort=price_asc'),
-    client.get('/listings?type=property&per_page=8&sort=price_asc'),
+  const [statsRes, oppsRes, plansRes, adsRes] = await Promise.allSettled([
+    client.get('/market/stats'),
+    // Ranked by the deal profile: best value for money first.
+    client.get('/listings', { params: { mode: 'deal', per_page: 8 } }),
     client.get('/subscription-plans'),
     client.get('/advertisements?slot=top10'),
   ])
-
-  if (statsRes.status === 'fulfilled' && statsRes.value) {
-    const s = statsRes.value.data
-    activeCount.value = s.active_listings ?? 0
-    stats.value = [
-      { label: 'Active Listings', value: (s.active_listings || 0).toLocaleString(), color: 'var(--accent-teal)' },
-      { label: 'Cars Listed', value: (s.vehicle_listings || 0).toLocaleString(), color: 'var(--accent-cyan)' },
-      { label: 'Properties', value: (s.property_listings || 0).toLocaleString(), color: 'var(--accent-violet)' },
-      { label: 'AI-scored', value: (s.ai_scored_listings || 0).toLocaleString(), color: 'var(--warning)' },
-    ]
-  }
-
-  if (vehiclesRes.status === 'fulfilled') {
-    const data = vehiclesRes.value.data?.data || vehiclesRes.value.data || []
-    bestVehicles.value = data.slice(0, 4)
-    newestVehicles.value = data.slice(4, 8)
-  }
-  loadingVehicles.value = false
-
-  if (propsRes.status === 'fulfilled') {
-    const data = propsRes.value.data?.data || propsRes.value.data || []
-    bestProperties.value = data.slice(0, 4)
-    newestProperties.value = data.slice(4, 8)
-  }
-  loadingProperties.value = false
-
-  if (plansRes.status === 'fulfilled') {
-    plans.value = plansRes.value.data || []
-  }
+  if (statsRes.status === 'fulfilled') activeCount.value = statsRes.value.data?.active_listings ?? 0
+  if (oppsRes.status === 'fulfilled') opportunities.value = (oppsRes.value.data?.data || []).slice(0, 8)
+  loadingOpps.value = false
+  if (plansRes.status === 'fulfilled') plans.value = plansRes.value.data || []
   loadingPlans.value = false
-
-  if (adsRes.status === 'fulfilled') {
-    ads.value = adsRes.value.data || []
-  }
+  if (adsRes.status === 'fulfilled') ads.value = adsRes.value.data || []
 })
 
 function fmt(v: number, cur = 'GBP') {
@@ -529,56 +221,18 @@ async function trackAdClick(ad: any) {
   if (ad.listing?.slug) router.push('/listings/' + ad.listing.slug)
   else if (ad.link) window.open(ad.link, '_blank')
 }
-
-// Category taxonomy for the "Browse by category" section (mirrors the /cars and /properties filters).
-const carBodies = ['Sedan', 'SUV', 'Hatchback', 'Crossover', 'Pickup', 'Coupe', 'Convertible', 'Van']
-const carBrands = ['Toyota', 'Honda', 'Nissan', 'Mercedes', 'BMW', 'Audi', 'Volkswagen', 'Hyundai']
-const carPriceClasses = [
-  { label: 'Under £7,500', query: { max_price: '7500' } },
-  { label: 'Under £15,000', query: { max_price: '15000' } },
-  { label: 'Under £25,000', query: { max_price: '25000' } },
-  { label: 'Under £40,000', query: { max_price: '40000' } },
-]
-const carQuick = [
-  { label: 'Automatic', query: { transmission: 'automatic' } },
-  { label: 'Electric', query: { fuel: 'electric' } },
-  { label: 'Hybrid', query: { fuel: 'hybrid' } },
-  { label: '2020 or newer', query: { min_year: '2020' } },
-  { label: 'Under 50,000 km', query: { max_mileage: '50000' } },
-]
-const propertyKinds = ['Apartment', 'Villa', 'Townhouse', 'Penthouse', 'Studio', 'Duplex', 'Land', 'Commercial']
-const propertyPriceClasses = [
-  { label: 'Under £75,000', query: { max_price: '75000' } },
-  { label: 'Under £150,000', query: { max_price: '150000' } },
-  { label: 'Under £300,000', query: { max_price: '300000' } },
-]
-const propertyCities = [
-  { label: 'Girne (Kyrenia)', q: 'Girne' }, { label: 'Lefkoşa (Nicosia)', q: 'Lefkosa' },
-  { label: 'Gazimağusa (Famagusta)', q: 'Gazimağusa' }, { label: 'İskele', q: 'Iskele' }, { label: 'Güzelyurt', q: 'Guzelyurt' },
-]
 </script>
+
 <style scoped>
-.hero { background:
-  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'><path d='M0 220V150c120-40 210-70 330-48 130 24 190 70 330 58 150-12 210-86 360-92 170-6 250 50 420 14v138z' fill='%23061423' fill-opacity='.55'/><path d='M0 220v-40c140-26 260-8 400 8 160 18 250-4 420-18 190-16 330 20 620-6v56z' fill='%2312C5E8' fill-opacity='.10'/></svg>") bottom/100% 220px no-repeat,
-  linear-gradient(160deg,#061423 0%,#0a2540 50%,#0b4a78 100%);color:#fff; padding-bottom:6.5rem }
-.hero-glow { position:absolute;inset:-20% -10% auto -10%;height:120%;pointer-events:none;
-  background:radial-gradient(ellipse 50% 40% at 20% 10%,rgba(21,155,242,.35),transparent 70%),radial-gradient(ellipse 40% 35% at 85% 20%,rgba(22,199,132,.22),transparent 70%) }
-.hero-badge { background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#d7e6f5 }
-.hero-title { color:#fff;letter-spacing:-.02em }
-.hero-tagline { background:linear-gradient(90deg,#4fb8ff,#12C5E8 50%,#16C784);-webkit-background-clip:text;background-clip:text;color:transparent }
-.hero-sub { color:#c5d3e4 }
-.composer { background:var(--bg-surface);border:1px solid rgba(120,190,255,.3);box-shadow:0 28px 70px rgba(2,10,22,.45), 0 0 0 6px rgba(18,197,232,.08);color:var(--text-primary) }
-.hero-stat { background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14) }
-.hero-stat p:first-child { color:#fff }
-.hero-stat p:last-child { color:#b9c8d9 }
-.browse-card { background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:20px;padding:20px;box-shadow:0 1px 2px rgba(8,24,39,.04),0 8px 24px rgba(8,24,39,.06) }
-.browse-head { display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--text-primary);margin-bottom:8px }
-.browse-label { font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin:14px 0 8px }
-.tile-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px }
-@media (max-width: 480px) { .tile-grid { grid-template-columns:repeat(2,minmax(0,1fr)) } }
-.tile { text-align:center;padding:12px 6px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;color:var(--text-primary);background:var(--surface-overlay);border:1px solid var(--border-subtle) }
-.tile:hover, .chip:hover { border-color:var(--accent-cyan);color:var(--accent-cyan) }
-.chip-row { display:flex;flex-wrap:wrap;gap:8px }
-.chip { padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;text-decoration:none;color:var(--text-secondary);border:1px solid var(--border-strong) }
-.chip--soft { background:var(--surface-overlay);border-color:var(--border-subtle) }
+.hero {
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(4,14,26,.9) 0%, rgba(5,20,36,.7) 35%, rgba(6,24,42,.12) 65%, rgba(6,24,42,0) 100%),
+    linear-gradient(180deg, rgba(4,14,26,.35) 0%, rgba(4,14,26,0) 30%, rgba(4,14,26,.55) 100%),
+    url('/hero-coast.svg') center / cover no-repeat, #061423;
+}
+.hero-badge { background: rgba(18,197,232,.12); border: 1px solid rgba(18,197,232,.35); color: #bfefff }
+.hero-title { color: #fff; letter-spacing: -.02em; text-shadow: 0 2px 24px rgba(0,0,0,.35) }
+.hero-accent { background: linear-gradient(90deg, #4fd8f5, #12C5E8 50%, #4fe0b0); -webkit-background-clip: text; background-clip: text; color: transparent }
+.hero-sub { color: #d3e2f1; max-width: 38rem }
 </style>

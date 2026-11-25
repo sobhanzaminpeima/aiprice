@@ -118,6 +118,10 @@ class MarketIntelligenceTest extends TestCase
         $this->assertSame(6, $kyrenia['listings']);
         $this->assertEquals(10.0, $kyrenia['change_90d']);
         $this->assertNull($areas->firstWhere('city', 'Lapta')['change_90d']);
+
+        $pulse = $this->getJson('/api/v1/market/pulse')->assertOk()->json();
+        $this->assertEquals(10.0, $pulse['change_90d']);
+        $this->assertSame(7, $pulse['listings']);
     }
 
     public function test_description_is_translated_faithfully_and_invalidated_on_edit(): void

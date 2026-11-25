@@ -142,6 +142,8 @@ const activeChips = computed(() => {
 // The URL is the source of truth, so menu links like /cars?brand=Toyota work.
 function readQuery() {
   const q = route.query
+  // ?mode=deal|find|invest (from the home page search) turns on AI ranking.
+  if (typeof q.mode === 'string' && ['find', 'deal', 'invest'].includes(q.mode)) mode.value = q.mode
   const str = (k: string) => (typeof q[k] === 'string' ? (q[k] as string) : '')
   filters.value = { ...blankFilters(), search: str('search'), city: str('city'), fuel: str('fuel').toLowerCase(), transmission: str('transmission').toLowerCase(),
     sort: str('sort') || 'newest', brand: str('brand'), body: str('body'), min_year: str('min_year'), max_price: str('max_price'), max_mileage: str('max_mileage') }

@@ -31,6 +31,8 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
     Route::get('/listings/featured', [ListingController::class, 'featured']);
     Route::get('/listings/{slug}', [ListingController::class, 'show']);
     Route::get('/listings/{slug}/market-trend', [ListingController::class, 'marketTrend'])->middleware('throttle:60,1');
+    Route::get('/market/pulse', fn () => response()->json(\Illuminate\Support\Facades\Cache::remember('market-pulse', 600,
+        fn () => app(\App\Services\Market\AreaInsightsService::class)->overall())))->middleware('throttle:60,1');
     Route::get('/market/areas', function (Request $req) {
         $v = $req->validate(['type' => 'sometimes|in:vehicle,property,rental', 'currency' => 'sometimes|in:GBP,EUR,USD,TRY']);
         return response()->json(\Illuminate\Support\Facades\Cache::remember('market-areas:'.($v['type'] ?? 'all').':'.($v['currency'] ?? 'GBP'), 600,

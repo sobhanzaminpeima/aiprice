@@ -1,5 +1,5 @@
 <template>
-  <section class="px-4 -mt-10 relative z-20 max-w-7xl mx-auto" :aria-label="$t('What AIPrice checks for you')">
+  <section class="px-4 relative z-10 max-w-7xl mx-auto" :aria-label="$t('What AIPrice checks for you')">
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
       <RouterLink v-for="f in features" :key="f.title" :to="f.to" class="tile-glass rounded-2xl p-5 flex flex-col items-center text-center transition hover:-translate-y-0.5">
         <span class="w-11 h-11 rounded-xl flex items-center justify-center mb-3" style="background:rgba(18,197,232,.14);color:#4fd8f5"><AppIcon :name="f.icon" :size="24" /></span>

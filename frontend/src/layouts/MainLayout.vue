@@ -106,13 +106,16 @@
             <RouterLink to="/rentals" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s"
               :style="$route.path.startsWith('/rentals') ? 'color:var(--accent-cyan);background:rgba(var(--accent-cyan-rgb),0.08)' : 'color:var(--text-secondary)'">{{ $t('Rentals') }}</RouterLink>
             <RouterLink class="hidden lg:inline-block" to="/market-insights" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s"
-              :style="$route.path.startsWith('/market') ? 'color:var(--accent-cyan);background:rgba(var(--accent-cyan-rgb),0.08)' : 'color:var(--text-secondary)'">{{ $t('Market') }}</RouterLink>
+              :style="$route.path.startsWith('/market') ? 'color:var(--accent-cyan);background:rgba(var(--accent-cyan-rgb),0.08)' : 'color:var(--text-secondary)'">{{ $t('Market Intelligence') }}</RouterLink>
             <RouterLink class="hidden lg:inline-block" to="/pricing" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s"
               :style="$route.path.startsWith('/pricing') ? 'color:var(--accent-teal);background:rgba(var(--accent-teal-rgb),0.08)' : 'color:var(--text-secondary)'">{{ $t('Pricing') }}</RouterLink>
           </div>
 
           <!-- Auth + Mobile -->
           <div style="display:flex;align-items:center;gap:10px">
+            <RouterLink to="/search" class="nav-icon-btn hidden md:inline-flex" :aria-label="$t('Search')">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="M20 20l-3.5-3.5"/></svg>
+            </RouterLink>
             <RouterLink :to="auth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }" class="hidden lg:flex post-ad">
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
               {{ $t('Post an ad') }}
@@ -361,8 +364,21 @@ async function handleLogout() {
 .site-footer .footer-link:hover { color:#fff !important }
 .site-footer > div > div:last-child { border-top-color:rgba(255,255,255,.12) !important }
 .footer-tagline { font-weight:800;font-size:14px;background:linear-gradient(90deg,#4fb8ff,#16C784);-webkit-background-clip:text;background-clip:text;color:transparent !important;margin-bottom:16px }
-:root:not([data-theme="dark"]) .site-nav { box-shadow:0 1px 0 rgba(8,24,39,.04),0 4px 16px rgba(8,24,39,.05) }
-.post-ad { white-space:nowrap;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;color:var(--accent-cyan);border:1.5px solid var(--accent-cyan) }
-.post-ad:hover { background:rgba(var(--accent-cyan-rgb),0.08) }
+/* Dark navy header on every public page, as in the design. Everything inside
+   (mega menus, language switcher, theme toggle) is re-themed through tokens. */
+.site-nav {
+  --nav-bg: rgba(6,20,35,.94); --dropdown-bg: #0b1e31;
+  --text-primary: #ffffff; --text-secondary: #d6e3f1; --text-muted: #a9bdd3;
+  --border-subtle: rgba(255,255,255,.12); --border-strong: rgba(255,255,255,.24);
+  --surface-overlay: rgba(255,255,255,.08); --surface-overlay-soft: rgba(255,255,255,.04);
+  --accent-teal: #4fe0b0; --accent-teal-rgb: 79,224,176; --accent-cyan: #4fd8f5; --accent-cyan-rgb: 79,216,245;
+  --accent-violet: #8fc8ff; --on-accent: #04111d; --shadow-lg: 0 24px 64px rgba(0,0,0,.5);
+  color: #fff; box-shadow: 0 6px 24px rgba(2,10,22,.25);
+}
+.site-nav :deep(.brand-logo-img) { filter: brightness(0) invert(1) }
+.nav-icon-btn { align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;color:#d6e3f1;border:1px solid rgba(255,255,255,.18);text-decoration:none }
+.nav-icon-btn:hover { background:rgba(255,255,255,.08);color:#fff }
+.post-ad { white-space:nowrap;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:800;text-decoration:none;color:#04111d;background:linear-gradient(135deg,#12C5E8,#4fe0b0);box-shadow:0 6px 18px rgba(18,197,232,.3) }
+.post-ad:hover { filter:brightness(1.06) }
 @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; } }
 </style>

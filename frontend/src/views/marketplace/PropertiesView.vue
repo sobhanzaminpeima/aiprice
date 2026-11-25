@@ -107,6 +107,8 @@ const activeChips = computed(() => {
 })
 function readQuery() {
   const q = route.query
+  // ?mode=deal|find|invest (from the home page search) turns on AI ranking.
+  if (typeof q.mode === 'string' && ['find', 'deal', 'invest'].includes(q.mode)) mode.value = q.mode
   const str = (k: string) => (typeof q[k] === "string" ? (q[k] as string) : "")
   filters.value = { ...blank(), search: str("search"), city: str("city"), beds: str("beds"), sort: str("sort") || "newest", type: str("type"), max_price: str("max_price") }
 }
