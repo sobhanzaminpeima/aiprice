@@ -62,6 +62,10 @@ export interface Listing {
   price_battery_percent: number | null
   market_min_price: number | null
   market_max_price: number | null
+  ai_comparable_count?: number | null
+  risk_level?: 'low' | 'medium' | 'high' | null
+  risk_note?: string | null
+  description_i18n?: Record<string, string> | null
   market_avg_price: number | null
   ai_confidence_score: number | null
   ai_score_breakdown: { price?: string[]; trust?: string[]; demand?: string[]; investment?: string[] } | null

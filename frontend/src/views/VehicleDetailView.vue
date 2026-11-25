@@ -15,34 +15,18 @@
   </div>
 
   <div v-else>
-    <!-- Hero image gallery -->
-    <div class="relative" style="height:480px;background:var(--bg-surface)">
-      <img v-if="activeImage" :src="activeImage" :alt="listing.title" class="w-full h-full object-cover" @error="activeImageError = true" />
-      <div v-else class="w-full h-full flex items-center justify-center opacity-20"><AppIcon name="car" :size="112" /></div>
-      <!-- Gradient overlay -->
-      <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(5,7,11,0.2) 0%,transparent 40%,rgba(5,7,11,0.8) 100%)"></div>
-
-      <!-- Image thumbnails row -->
-      <div v-if="images.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        <button v-for="(img, i) in images" :key="i" @click="setActiveImage(img)" :aria-label="`Show photo ${Number(i) + 1}`" class="w-14 h-10 rounded-lg overflow-hidden border-2 transition" :style="activeImage === img ? 'border-color:var(--accent-teal)' : 'border-color:rgba(255,255,255,0.2)'">
-          <img :src="img" :alt="`${listing.title} — photo ${Number(i) + 1}`" loading="lazy" class="w-full h-full object-cover" />
-        </button>
-      </div>
-
-      <!-- Back -->
-      <RouterLink to="/cars" class="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition" style="background:rgba(0,0,0,0.5);color:var(--text-primary);backdrop-filter:blur(8px)">
-        {{ $t('← Back to Cars') }}
-      </RouterLink>
-
-      <!-- Featured badge -->
-      <div v-if="listing.is_featured" class="absolute top-5 right-5 ai-badge flex items-center gap-1"><AppIcon name="star" :size="14" /> {{ $t('Featured') }}</div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <PageBreadcrumbs class="mb-4" :crumbs="crumbs" />
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         <!-- Left: Main info -->
         <div class="lg:col-span-2 space-y-6">
+          <PhotoGrid :images="images" :title="listing.title">
+            <template #empty><AppIcon name="car" :size="96" /></template>
+            <template #overlay>
+              <span v-if="listing.is_featured" class="absolute top-3 left-3 ai-badge flex items-center gap-1"><AppIcon name="star" :size="14" /> {{ $t('Featured') }}</span>
+            </template>
+          </PhotoGrid>
 
           <!-- Title + quick specs -->
           <div>
@@ -92,43 +76,17 @@
           <!-- Description -->
           <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
             <h2 class="font-bold text-lg mb-4" style="color:var(--text-primary)">{{ $t('Description') }}</h2>
-            <p class="text-sm leading-relaxed whitespace-pre-line" style="color:var(--text-secondary)">{{ listing.description }}</p>
+            <DescriptionTabs :description="listing.description" :translations="listing.description_i18n" />
           </div>
 
-          <!-- AI Price Analysis -->
-          <div class="rounded-2xl p-6" style="background:linear-gradient(135deg,rgba(var(--accent-teal-rgb),0.04),rgba(var(--accent-cyan-rgb),0.02));border:1px solid rgba(var(--accent-teal-rgb),0.15)">
-            <div class="flex items-center gap-3 mb-5">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">{{ $t('AI') }}</div>
-              <h2 class="font-bold text-lg" style="color:var(--text-primary)">{{ $t('AI Price Intelligence') }}</h2>
-            </div>
-
-            <!-- Price range bar -->
-            <div v-if="listing.market_min_price && listing.market_max_price" class="mb-6">
-              <div class="flex items-center justify-between text-xs mb-2" style="color:var(--text-muted)">
-                <span>Typical low: {{ formatPrice(listing.market_min_price, listing.currency) }}</span>
-                <span>Typical high: {{ formatPrice(listing.market_max_price, listing.currency) }}</span>
-              </div>
-              <div class="relative h-3 rounded-full" style="background:var(--border-subtle)">
-                <div class="absolute inset-y-0 rounded-full" style="background:linear-gradient(90deg,rgba(var(--accent-teal-rgb),0.3),rgba(var(--accent-cyan-rgb),0.3))" :style="{ left: '0%', right: '0%' }"></div>
-                <!-- Price marker -->
-                <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 shadow-lg" style="background:var(--accent-teal);border-color:var(--on-accent);box-shadow:0 0 12px rgba(var(--accent-teal-rgb),0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
-              </div>
-              <p class="text-xs mt-2 text-center" style="color:var(--text-muted)">
-                {{ $t('This vehicle is priced at') }} <span :style="`color:${aiColor};font-weight:700`">{{ formatPrice(listing.price, listing.currency) }}</span>
-                <template v-if="listing.market_avg_price"> {{ $t('vs typical asking price') }} <span style="color:var(--text-secondary);font-weight:600">{{ formatPrice(listing.market_avg_price, listing.currency) }}</span></template>
-              </p>
-            </div>
-
-            <!-- Score grid -->
-            <div class="grid grid-cols-3 gap-4">
-              <ScoreGauge v-if="listing.ai_trust_score" :label="$t('Trust Score')" :value="listing.ai_trust_score" :color="trustColor" />
-              <ScoreGauge v-if="listing.ai_investment_score" :label="$t('Investment')" :value="listing.ai_investment_score" color="var(--accent-violet)" />
-              <ScoreGauge v-if="listing.ai_confidence_score" :label="$t('Confidence')" :value="listing.ai_confidence_score" color="var(--accent-cyan)" />
-            </div>
-          </div>
+          <!-- AI Deal Analysis: fair range, signal, confidence, trend, explanation -->
+          <AiDealAnalysis :listing="listing" />
 
           <!-- Why this score? + Show Me Better -->
-          <AiExplainability :listing="listing" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <AiExplainability :listing="listing" />
+            <RiskInsight :listing="listing" />
+          </div>
 
           <!-- Comparable listings -->
           <div v-if="comparables.length" class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
@@ -149,7 +107,7 @@
         <!-- Right: Contact sidebar -->
         <div class="space-y-5">
           <!-- Price card -->
-          <div class="rounded-2xl p-6 sticky top-20" style="background:var(--bg-card);border:1px solid rgba(var(--accent-teal-rgb),0.2)">
+          <div class="price-card-dark rounded-2xl p-6 sticky top-20">
             <div class="mb-4">
               <p v-if="sourceAttribution" class="text-xs mb-1" style="color:var(--text-muted)">{{ $t("Seller's asking price") }}</p>
               <p class="text-3xl font-black mb-1" style="color:var(--text-primary)">{{ formatPrice(listing.price, listing.currency) }}</p>
@@ -157,6 +115,16 @@
                 {{ $t('AIPrice estimated market value: {price} (an estimate, separate from the asking price)', { price: formatPrice(listing.market_avg_price, listing.currency) }) }}
               </p>
               <p v-if="listing.price_negotiable" class="text-sm" style="color:var(--accent-teal)">{{ $t('✓ Price is negotiable') }}</p>
+            </div>
+
+            <!-- AI fair range, deal signal and confidence -->
+            <div v-if="listing.market_min_price && listing.market_max_price && listing.ai_price_status !== 'insufficient_data'" class="mb-4 p-3 rounded-xl" style="background:var(--surface-overlay);border:1px solid var(--border-subtle)">
+              <p class="text-[11px] font-semibold mb-1" style="color:var(--text-muted)">{{ $t('AI fair price range') }}</p>
+              <p class="text-lg font-black" style="color:var(--accent-teal)">{{ formatPrice(listing.market_min_price, listing.currency) }} – {{ formatPrice(listing.market_max_price, listing.currency) }}</p>
+              <div class="flex items-center justify-between mt-2 gap-3">
+                <span class="px-2.5 py-1 rounded-full text-xs font-black" :style="aiStatusStyle">{{ $t(aiStatusLabel) }}</span>
+                <div v-if="listing.ai_confidence_score" class="flex items-center gap-2"><ConfidenceRing :value="Number(listing.ai_confidence_score)" :size="40" style="color:var(--text-primary)" /><span class="text-[11px]" style="color:var(--text-muted)">{{ $t('Confidence') }}</span></div>
+              </div>
             </div>
 
             <!-- Battery -->
@@ -206,15 +174,21 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import PostedAt from '@/components/listings/PostedAt.vue'
 import SpecItem from '@/components/listings/SpecItem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import SellerContactCard, { type SellerContact } from '@/components/listings/SellerContactCard.vue'
-import ScoreGauge from '@/components/listings/ScoreGauge.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useListingsStore } from '@/stores/listings'
 import AiExplainability from '@/components/listings/AiExplainability.vue'
+import AiDealAnalysis from '@/components/listings/AiDealAnalysis.vue'
+import RiskInsight from '@/components/listings/RiskInsight.vue'
+import DescriptionTabs from '@/components/listings/DescriptionTabs.vue'
+import PageBreadcrumbs from '@/components/listings/PageBreadcrumbs.vue'
+import PhotoGrid from '@/components/listings/PhotoGrid.vue'
+import ConfidenceRing from '@/components/listings/ConfidenceRing.vue'
 import type { Listing, Vehicle } from '@/types'
 
 // Sub-components defined inline
@@ -227,7 +201,6 @@ const listing = ref<Listing | null>(null)
 const comparables = ref<any[]>([])
 const isFavorited = ref(false)
 const activeImage = ref<string | null>(null)
-const activeImageError = ref(false)
 const sellerContact = ref<SellerContact | null>(null)
 const sourceAttribution = ref<{ source_name: string | null; original_url: string | null; note: string } | null>(null)
 
@@ -252,13 +225,6 @@ const vehicleFeatures = computed(() => {
   return []
 })
 
-const pricePosition = computed(() => {
-  if (!listing.value?.market_min_price || !listing.value?.market_max_price) return 50
-  const range = listing.value.market_max_price - listing.value.market_min_price
-  if (range <= 0) return 50
-  const pos = ((listing.value.price - listing.value.market_min_price) / range) * 100
-  return Math.max(2, Math.min(98, pos))
-})
 
 const aiStatusStyle = computed(() => {
   const s = listing.value?.ai_price_status
@@ -269,17 +235,22 @@ const aiStatusLabel = computed(() => {
   const map: Record<string, string> = { fair: '✓ Fair price (estimate)', slightly_overpriced: '⚠ Slightly high', overpriced: '✗ High for this market', insufficient_data: 'Waiting for similar listings' }
   return map[listing.value?.ai_price_status ?? ''] ?? ''
 })
-const aiColor = computed(() => listing.value?.ai_price_status === 'fair' ? 'var(--accent-teal)' : 'var(--warning)')
-const trustColor = computed(() => {
-  const s = listing.value?.ai_trust_score ?? 0
-  return s >= 80 ? 'var(--accent-teal)' : s >= 60 ? 'var(--accent-cyan)' : s >= 40 ? 'var(--warning)' : 'var(--danger)'
-})
 const batteryColor = computed(() => {
   const p = listing.value?.price_battery_percent ?? 0
   return p >= 85 ? 'var(--accent-teal)' : p >= 70 ? 'var(--accent-cyan)' : p >= 50 ? 'var(--warning)' : 'var(--danger)'
 })
 
-function setActiveImage(url: string) { activeImage.value = url; activeImageError.value = false }
+const crumbs = computed(() => {
+  const v = vehicle.value as any
+  const brand = v?.brand?.name, model = v?.model?.name
+  return [
+    { label: t('Cars'), to: '/cars' },
+    ...(brand ? [{ label: brand, to: `/cars?brand=${encodeURIComponent(brand)}` }] : []),
+    ...(brand && model ? [{ label: model, to: `/cars?brand=${encodeURIComponent(brand)}&search=${encodeURIComponent(model)}` }] : []),
+    { label: listing.value?.title ?? '' },
+  ]
+})
+
 function capitalize(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' ') : '' }
 function formatFeature(f: string) { return f.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) }
 function formatPrice(val: number, currency = 'GBP') {
@@ -327,4 +298,19 @@ watch(() => route.params.slug, load)
 .slide-down-enter-active, .slide-down-leave-active { transition: all 0.3s ease; overflow: hidden; }
 .slide-down-enter-from, .slide-down-leave-to { opacity: 0; max-height: 0; transform: translateY(-8px); }
 .slide-down-enter-to, .slide-down-leave-from { opacity: 1; max-height: 400px; }
+</style>
+
+<style scoped>
+.price-card-dark {
+  background: linear-gradient(160deg, #0a2540 0%, #08304f 60%, #0a3b52 100%);
+  border: 1px solid rgba(120,190,255,.25); box-shadow: 0 18px 48px rgba(2,10,22,.3);
+  /* Re-theme everything inside (including the seller contact card) for a dark surface. */
+  --text-primary: #ffffff; --text-secondary: #dce9f7; --text-muted: #a9bdd3;
+  --border-subtle: rgba(255,255,255,.16); --border-strong: rgba(255,255,255,.28);
+  --surface-overlay: rgba(255,255,255,.09); --surface-overlay-soft: rgba(255,255,255,.05);
+  --bg-card: rgba(255,255,255,.06); --bg-surface: rgba(255,255,255,.06);
+  --accent-teal: #4fe0b0; --accent-teal-rgb: 79,224,176; --accent-cyan: #12C5E8; --accent-cyan-rgb: 18,197,232;
+  --on-accent: #04111d;
+  color: #fff;
+}
 </style>

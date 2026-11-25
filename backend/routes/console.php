@@ -75,6 +75,13 @@ Artisan::command('listings:score-unscored', function () {
     $this->info("Queued {$ids->count()} listings for AI scoring.");
 })->purpose('Queue AI scoring for active listings that have none yet');
 
+Artisan::command('listings:translate-missing', function () {
+    $ids = Listing::where('status', 'active')->whereNull('translated_at')->whereNotNull('description')
+        ->whereRaw('LENGTH(description) >= 20')->orderByDesc('published_at')->limit(20)->pluck('id');
+    $ids->each(fn ($id) => \App\Jobs\TranslateListing::dispatch($id));
+    $this->info("Queued {$ids->count()} listings for translation.");
+})->purpose('Queue translation of active listings that have none yet');
+
 Artisan::command('competitors:crawl-due', function () {
     $hours = ['hourly' => 1, 'daily' => 24, 'weekly' => 168];
 
@@ -91,6 +98,7 @@ Schedule::command('listings:expire')->hourly()->withoutOverlapping();
 Schedule::command('subscriptions:expire')->hourly()->withoutOverlapping();
 Schedule::command('subscriptions:remind')->hourly()->withoutOverlapping();
 Schedule::command('listings:score-unscored')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('listings:translate-missing')->hourly()->withoutOverlapping();
 Schedule::command('competitors:crawl-due')->hourly()->withoutOverlapping();
 
 // Shared hosting (Hostinger) has no process supervisor for a long-running

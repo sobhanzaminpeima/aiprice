@@ -15,42 +15,27 @@
   </div>
 
   <div v-else>
-    <!-- Hero gallery -->
-    <div class="relative" style="height:500px;background:var(--bg-surface)">
-      <img v-if="activeImage && !imgErr" :src="activeImage" :alt="listing.title" class="w-full h-full object-cover" @error="imgErr = true" />
-      <div v-else class="w-full h-full flex items-center justify-center opacity-20"><AppIcon name="home" :size="112" /></div>
-      <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(5,7,11,0.15) 0%,transparent 35%,rgba(5,7,11,0.85) 100%)"></div>
-
-      <!-- Thumbnails -->
-      <div v-if="images.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        <button v-for="(img, i) in images" :key="i" @click="setImg(img)" :aria-label="`Show photo ${Number(i) + 1}`" class="w-16 h-11 rounded-xl overflow-hidden border-2 transition" :style="activeImage === img ? 'border-color:var(--accent-teal)' : 'border-color:rgba(255,255,255,0.2)'">
-          <img :src="img" :alt="`${listing.title} — photo ${Number(i) + 1}`" loading="lazy" class="w-full h-full object-cover" />
-        </button>
-      </div>
-
-      <RouterLink to="/properties" class="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium" style="background:rgba(0,0,0,0.5);color:var(--text-primary);backdrop-filter:blur(8px)">
-        {{ $t('← Properties') }}
-      </RouterLink>
-
-      <!-- Quick info overlay bottom-left -->
-      <div class="absolute bottom-8 left-8">
-        <h1 class="text-3xl font-black mb-2 drop-shadow-xl" style="color:#fff">{{ listing.title }}</h1>
-        <div class="flex items-center gap-3 text-sm" style="color:rgba(255,255,255,0.8)">
-          <span class="flex items-center gap-1"><AppIcon name="mapPin" :size="14" /> {{ listing.city }}, North Cyprus</span>
-          <span>·</span>
-          <PostedAt :listing="listing" full />
-          <span v-if="property?.bedrooms">· {{ property.bedrooms }} {{ $t('bed') }}</span>
-          <span v-if="property?.bathrooms">· {{ property.bathrooms }} {{ $t('bath') }}</span>
-          <span v-if="property?.area_sqm">· {{ property.area_sqm }}m²</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <PageBreadcrumbs class="mb-4" :crumbs="crumbs" />
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         <!-- Left main -->
         <div class="lg:col-span-2 space-y-6">
+          <PhotoGrid :images="images" :title="listing.title">
+            <template #empty><AppIcon name="home" :size="96" /></template>
+          </PhotoGrid>
+
+          <div>
+            <h1 class="text-3xl font-black mb-2" style="color:var(--text-primary)">{{ listing.title }}</h1>
+            <div class="flex flex-wrap items-center gap-3 text-sm" style="color:var(--text-muted)">
+              <span class="flex items-center gap-1"><AppIcon name="mapPin" :size="14" /> {{ listing.city }}, North Cyprus</span>
+              <span>·</span>
+              <PostedAt :listing="listing" full />
+              <span v-if="property?.bedrooms">· {{ property.bedrooms }} {{ $t('bed') }}</span>
+              <span v-if="property?.bathrooms">· {{ property.bathrooms }} {{ $t('bath') }}</span>
+              <span v-if="property?.area_sqm">· {{ property.area_sqm }}m²</span>
+            </div>
+          </div>
 
           <!-- Key facts ribbon -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -92,7 +77,7 @@
           <!-- Description -->
           <div class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
             <h2 class="font-bold text-lg mb-4" style="color:var(--text-primary)">{{ $t('About This Property') }}</h2>
-            <p class="text-sm leading-relaxed whitespace-pre-line" style="color:var(--text-secondary)">{{ listing.description }}</p>
+            <DescriptionTabs :description="listing.description" :translations="listing.description_i18n" />
           </div>
 
           <!-- Location info -->
@@ -108,37 +93,14 @@
             </div>
           </div>
 
-          <!-- AI Investment Analysis -->
-          <div class="rounded-2xl p-6" style="background:linear-gradient(135deg,rgba(var(--accent-cyan-rgb),0.04),rgba(var(--accent-violet-rgb),0.03));border:1px solid rgba(var(--accent-cyan-rgb),0.15)">
-            <div class="flex items-center gap-3 mb-5">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-violet));color:var(--on-accent)">{{ $t('AI') }}</div>
-              <h2 class="font-bold text-lg" style="color:var(--text-primary)">{{ $t('AI Investment Analysis') }}</h2>
-            </div>
-
-            <div v-if="listing.market_min_price && listing.market_max_price" class="mb-6">
-              <div class="flex justify-between text-xs mb-2" style="color:var(--text-muted)">
-                <span>Typical low: {{ formatPrice(listing.market_min_price, listing.currency) }}</span>
-                <span>Typical high: {{ formatPrice(listing.market_max_price, listing.currency) }}</span>
-              </div>
-              <div class="relative h-3 rounded-full" style="background:var(--border-subtle)">
-                <div class="h-3 rounded-full" style="background:linear-gradient(90deg,rgba(var(--accent-cyan-rgb),0.3),rgba(var(--accent-violet-rgb),0.3));width:100%"></div>
-                <div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2" style="background:var(--accent-cyan);border-color:var(--on-accent);box-shadow:0 0 12px rgba(var(--accent-cyan-rgb),0.6)" :style="{ left: pricePosition + '%', transform: 'translateX(-50%) translateY(-50%)' }"></div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-4">
-              <ScoreGauge v-if="listing.ai_trust_score" :label="$t('Trust Score')" :value="listing.ai_trust_score" color="var(--accent-teal)" />
-              <ScoreGauge v-if="listing.ai_investment_score" :label="$t('ROI Score')" :value="listing.ai_investment_score" color="var(--accent-violet)" />
-              <ScoreGauge v-if="listing.ai_confidence_score" :label="$t('Confidence')" :value="listing.ai_confidence_score" color="var(--accent-cyan)" />
-            </div>
-
-            <div v-if="listing.ai_analysis" class="mt-5 p-4 rounded-xl text-sm leading-relaxed" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle);color:var(--text-secondary)">
-              <strong style="color:var(--accent-cyan)">{{ $t('AI Analysis:') }}</strong> {{ listing.ai_analysis }}
-            </div>
-          </div>
+          <!-- AI Deal Analysis: fair range, signal, confidence, trend, explanation -->
+          <AiDealAnalysis :listing="listing" />
 
           <!-- Why this score? + Show Me Better -->
-          <AiExplainability :listing="listing" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <AiExplainability :listing="listing" />
+            <RiskInsight :listing="listing" />
+          </div>
 
           <!-- Similar properties -->
           <div v-if="comparables.length" class="rounded-2xl p-6" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
@@ -157,10 +119,17 @@
 
         <!-- Right sidebar -->
         <div class="space-y-5">
-          <div class="rounded-2xl p-6 sticky top-20" style="background:var(--bg-card);border:1px solid rgba(var(--accent-cyan-rgb),0.2)">
+          <div class="price-card-dark rounded-2xl p-6 sticky top-20">
             <p class="text-3xl font-black mb-0.5" style="color:var(--text-primary)">{{ formatPrice(listing.price, listing.currency) }}</p>
             <p v-if="property?.area_sqm" class="text-sm mb-4" style="color:var(--text-muted)">{{ formatPrice(listing.price / property.area_sqm, listing.currency) }}/m²</p>
             <p v-if="listing.price_negotiable" class="text-sm mb-4" style="color:var(--accent-cyan)">{{ $t('✓ Price negotiable') }}</p>
+
+            <!-- AI fair range, deal signal and confidence -->
+            <div v-if="listing.market_min_price && listing.market_max_price && listing.ai_price_status !== 'insufficient_data'" class="mb-4 p-3 rounded-xl" style="background:var(--surface-overlay);border:1px solid var(--border-subtle)">
+              <p class="text-[11px] font-semibold mb-1" style="color:var(--text-muted)">{{ $t('AI fair price range') }}</p>
+              <p class="text-lg font-black" style="color:var(--accent-teal)">{{ formatPrice(listing.market_min_price, listing.currency) }} – {{ formatPrice(listing.market_max_price, listing.currency) }}</p>
+              <div v-if="listing.ai_confidence_score" class="flex items-center gap-2 mt-2"><ConfidenceRing :value="Number(listing.ai_confidence_score)" :size="40" style="color:var(--text-primary)" /><span class="text-[11px]" style="color:var(--text-muted)">{{ $t('Confidence') }}</span></div>
+            </div>
 
             <!-- Battery -->
             <div v-if="listing.price_battery_percent" class="mb-5 p-3 rounded-xl" style="background:var(--surface-overlay-soft);border:1px solid var(--border-subtle)">
@@ -203,11 +172,17 @@ import SpecItem from '@/components/listings/SpecItem.vue'
 import PostedAt from '@/components/listings/PostedAt.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import SellerContactCard, { type SellerContact } from '@/components/listings/SellerContactCard.vue'
-import ScoreGauge from '@/components/listings/ScoreGauge.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useListingsStore } from '@/stores/listings'
 import AiExplainability from '@/components/listings/AiExplainability.vue'
+import AiDealAnalysis from '@/components/listings/AiDealAnalysis.vue'
+import RiskInsight from '@/components/listings/RiskInsight.vue'
+import DescriptionTabs from '@/components/listings/DescriptionTabs.vue'
+import PageBreadcrumbs from '@/components/listings/PageBreadcrumbs.vue'
+import PhotoGrid from '@/components/listings/PhotoGrid.vue'
+import ConfidenceRing from '@/components/listings/ConfidenceRing.vue'
+import { t } from '@/i18n'
 import type { Listing, Property } from '@/types'
 
 
@@ -218,7 +193,6 @@ const listing = ref<Listing | null>(null)
 const comparables = ref<any[]>([])
 const isFavorited = ref(false)
 const activeImage = ref<string | null>(null)
-const imgErr = ref(false)
 const sellerContact = ref<SellerContact | null>(null)
 
 const property = computed(() => listing.value?.listable as Property | null)
@@ -255,17 +229,19 @@ const nearbyLocations = computed(() => {
   ].filter((l) => !!l.dist)
 })
 
-const pricePosition = computed(() => {
-  const l = listing.value
-  if (!l?.market_min_price || !l?.market_max_price) return 50
-  const range = l.market_max_price - l.market_min_price
-  if (range <= 0) return 50
-  return Math.max(2, Math.min(98, ((l.price - l.market_min_price) / range) * 100))
-})
 
 const batteryColor = computed(() => { const p = listing.value?.price_battery_percent ?? 0; return p >= 85 ? 'var(--accent-teal)' : p >= 70 ? 'var(--accent-cyan)' : 'var(--warning)' })
 
-function setImg(url: string) { activeImage.value = url; imgErr.value = false }
+const crumbs = computed(() => {
+  const typeName = (property.value as any)?.property_type?.name ?? (property.value as any)?.propertyType?.name
+  const isRental = listing.value?.type === 'rental'
+  return [
+    { label: t(isRental ? 'Rentals' : 'Properties'), to: isRental ? '/rentals' : '/properties' },
+    ...(typeName ? [{ label: typeName, to: `${isRental ? '/rentals' : '/properties'}?type=${encodeURIComponent(typeName)}` }] : []),
+    { label: listing.value?.title ?? '' },
+  ]
+})
+
 function capitalize(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' ') : '' }
 function formatPrice(val: number, currency = 'GBP') {
   try { return new Intl.NumberFormat('en-GB', { style: 'currency', currency: currency || 'GBP', maximumFractionDigits: 0 }).format(val) }
@@ -302,4 +278,18 @@ watch(() => route.params.slug, load)
 .slide-down-enter-active, .slide-down-leave-active { transition: all 0.3s ease; overflow: hidden; }
 .slide-down-enter-from, .slide-down-leave-to { opacity: 0; max-height: 0; }
 .slide-down-enter-to, .slide-down-leave-from { opacity: 1; max-height: 400px; }
+</style>
+
+<style scoped>
+.price-card-dark {
+  background: linear-gradient(160deg, #0a2540 0%, #08304f 60%, #0a3b52 100%);
+  border: 1px solid rgba(120,190,255,.25); box-shadow: 0 18px 48px rgba(2,10,22,.3);
+  --text-primary: #ffffff; --text-secondary: #dce9f7; --text-muted: #a9bdd3;
+  --border-subtle: rgba(255,255,255,.16); --border-strong: rgba(255,255,255,.28);
+  --surface-overlay: rgba(255,255,255,.09); --surface-overlay-soft: rgba(255,255,255,.05);
+  --bg-card: rgba(255,255,255,.06); --bg-surface: rgba(255,255,255,.06);
+  --accent-teal: #4fe0b0; --accent-teal-rgb: 79,224,176; --accent-cyan: #12C5E8; --accent-cyan-rgb: 18,197,232;
+  --on-accent: #04111d;
+  color: #fff;
+}
 </style>

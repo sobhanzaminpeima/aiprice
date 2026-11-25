@@ -208,6 +208,14 @@
             </div>
           </div>
           <div>
+            <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">{{ $t('Market Intelligence') }}</p>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <RouterLink to="/market-insights" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Market Trends') }}</RouterLink>
+              <RouterLink to="/market-insights#areas" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Area Insights') }}</RouterLink>
+              <RouterLink to="/investment-center" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('Investment Guide') }}</RouterLink>
+            </div>
+          </div>
+          <div>
             <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">{{ $t('Company') }}</p>
             <div style="display:flex;flex-direction:column;gap:8px">
               <RouterLink to="/about" style="font-size:13px;color:var(--text-muted);text-decoration:none" class="footer-link">{{ $t('About') }}</RouterLink>
@@ -356,5 +364,5 @@ async function handleLogout() {
 :root:not([data-theme="dark"]) .site-nav { box-shadow:0 1px 0 rgba(8,24,39,.04),0 4px 16px rgba(8,24,39,.05) }
 .post-ad { white-space:nowrap;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;color:var(--accent-cyan);border:1.5px solid var(--accent-cyan) }
 .post-ad:hover { background:rgba(var(--accent-cyan-rgb),0.08) }
-@media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr 1fr; } }
+@media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; } }
 </style>

@@ -26,6 +26,7 @@ class Listing extends Model
         'ai_price_status', 'market_min_price', 'market_max_price', 'market_avg_price',
         'price_battery_percent', 'ai_confidence_score', 'ai_analysis', 'ai_comparable_ids',
         'ai_score_breakdown', 'ai_scored_at',
+        'ai_comparable_count', 'risk_level', 'risk_note', 'description_i18n', 'translated_at',
         'meta', 'rejection_reason', 'import_source_key',
     ];
 
@@ -48,6 +49,8 @@ class Listing extends Model
             'ai_analysis' => 'array',
             'ai_comparable_ids' => 'array',
             'ai_score_breakdown' => 'array',
+            'description_i18n' => 'array',
+            'translated_at' => 'datetime',
             'ai_scored_at' => 'datetime',
             'meta' => 'array',
             'images' => 'array',

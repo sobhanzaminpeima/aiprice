@@ -116,6 +116,12 @@
           </div>
         </div>
 
+        <!-- AI fair range and confidence (only when the price check had enough similar listings) -->
+        <div v-if="listing.market_min_price && listing.market_max_price && listing.ai_price_status && listing.ai_price_status !== 'insufficient_data'" class="mt-2 flex items-center justify-between gap-2 text-[11px]" style="color:var(--text-muted)">
+          <span>{{ $t('AI fair range') }}: <strong style="color:var(--text-primary)">{{ rangeText }}</strong></span>
+          <span v-if="listing.ai_confidence_score" class="shrink-0"><strong style="color:var(--accent-teal)">{{ Math.round(Number(listing.ai_confidence_score)) }}%</strong> {{ $t('Confidence') }}</span>
+        </div>
+
         <!-- AI Price label -->
         <div v-if="listing.ai_price_status" class="mt-2 text-xs font-semibold" :title="listing.ai_price_status === 'insufficient_data' ? $t('We compare each price with similar listings. There are not enough yet — the price check switches on as more listings are added.') : undefined" :style="{ color: battery === null || listing.ai_price_status === 'insufficient_data' ? 'var(--text-muted)' : listing.ai_price_status === 'fair' ? 'var(--accent-teal)' : 'var(--warning)' }">
           {{ aiStatusLabel }}
@@ -187,6 +193,11 @@ const trustColor = computed((): string => {
 
 // Label from the stored verdict, never from a default score: a listing
 // without enough comparables must not read as "slightly high".
+const rangeText = computed(() => {
+  const l = props.listing
+  const f = (v: number) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: l.currency || 'GBP', maximumFractionDigits: 0 }).format(v)
+  return `${f(Number(l.market_min_price))} – ${f(Number(l.market_max_price))}`
+})
 const aiStatusLabel = computed((): string => {
   const status = props.listing.ai_price_status
   const b = battery.value

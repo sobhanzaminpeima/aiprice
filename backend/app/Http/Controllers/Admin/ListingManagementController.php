@@ -30,6 +30,7 @@ class ListingManagementController extends Controller
 
         // Scoring calls the LLM for its insight sentence — run it on the queue.
         AnalyzeListingPrice::dispatch($listing->id);
+        \App\Jobs\TranslateListing::dispatch($listing->id);
         $listing->user?->notify(new ListingReviewed($listing, approved: true));
 
         return response()->json(['message' => 'Listing approved and AI analysis queued.', 'listing' => $listing]);

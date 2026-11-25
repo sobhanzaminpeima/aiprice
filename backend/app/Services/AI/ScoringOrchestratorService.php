@@ -35,6 +35,8 @@ class ScoringOrchestratorService
         $completeness = $this->completenessScore($listing);
         $deal = $this->deal->score($price, $trust['score'], $demand['score'], $investment['score'], $completeness);
 
+        $risk = app(\App\Services\Market\RiskAssessment::class)->assess($listing, $price, $trust['score'] ?? null);
+
         $insightText = '';
         try {
             $insightText = $this->insight->summarize($listing, $price, $trust, $demand, $investment);
@@ -84,6 +86,9 @@ class ScoringOrchestratorService
                 'market_min_price' => $price['market_min'],
                 'market_max_price' => $price['market_max'],
                 'ai_comparable_ids' => $price['comparable_ids'],
+                'ai_comparable_count' => $price['has_estimate'] ? (int) $price['comparable_count'] : null,
+                'risk_level' => $risk['level'],
+                'risk_note' => $risk['note'],
                 'ai_analysis' => $insightText ?: null,
                 'ai_score_breakdown' => $result['reasons'],
                 'ai_scored_at' => now(),

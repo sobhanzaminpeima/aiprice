@@ -63,11 +63,13 @@
           </div>
         </div>
       </template>
+      <div id="areas" class="scroll-mt-24 mt-6"><AreaInsights /></div>
     </div>
   </MainLayout>
 </template>
 
 <script setup lang="ts">
+import AreaInsights from '@/components/home/AreaInsights.vue'
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'

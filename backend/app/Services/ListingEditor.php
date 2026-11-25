@@ -73,6 +73,7 @@ class ListingEditor
                 elseif ($listable) $listable->update($traits);
                 $core=Arr::only($data,['title','description','price','currency','city','district','country','address','price_negotiable','video_url']);
                 foreach (['title','description','seo_title','seo_description'] as $field) if(isset($core[$field]))$core[$field]=strip_tags($core[$field]);
+                if (isset($core['description']) && $listing && $core['description']!==$listing->description) $core+=['description_i18n'=>null,'translated_at'=>null];
                 if ($admin) $core+=Arr::only($data,['status','is_featured','is_premium']);
                 if (!$listing) $core+=['user_id'=>$admin?$data['user_id']:$request->user()->id,'type'=>$type,'listable_type'=>get_class($listable),'listable_id'=>$listable->id,'status'=>$admin?($data['status']??'pending'):'pending','currency'=>$data['currency']??'GBP'];
                 elseif (!$admin) $core['status']='pending';

@@ -2,6 +2,18 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-11-27: Redesign and market intelligence
+
+### Added
+- New look for the home page and the car and property pages: deep-navy hero with a coastline, glass feature tiles, a dark price card, a dark "AI Deal Analysis" panel, breadcrumbs (Cars › Brand › Model), a photo grid with "+N more" and a full-screen viewer, a "Why AIPrice?" row and a closing call-to-action band, plus a "Market Intelligence" footer column.
+- **Market price trend chart** on every listing: median asking price per month of similar listings (same model, then brand, then category), from our own listings and collected market data. A month needs at least 3 prices and the chart at least 2 months; otherwise it says so instead of drawing a line.
+- **Similar listings analysed** and **Data quality** (Good / Fair / Limited) next to the fair price range; the comparable count is now saved on each listing (`ai_comparable_count`).
+- **Risk insight** (Low / Medium / High with a plain reason) from price versus similar listings, trust score, data available and open reports; saved as `risk_level` and `risk_note`.
+- **Description tabs** (Original / English / Türkçe / فارسی): the AI translates each listing's description after approval (queued, and an hourly catch-up for older listings). Editing the text clears old translations. Needs an AI key; without one the tabs simply don't appear.
+- **Area insights** on the home and Market Insights pages: listings, typical asking price and 90-day change per town (the change appears only when both periods have at least 3 listings).
+- Listing cards show the AI fair range and confidence when the price check had enough data.
+- Migration `2026_11_26_000001_add_market_intelligence_fields`.
+
 ## 2026-11-26: Posting time on every listing
 
 ### Added

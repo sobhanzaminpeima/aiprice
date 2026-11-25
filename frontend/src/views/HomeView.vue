@@ -93,6 +93,8 @@
       </div>
     </section>
 
+    <AiFeatureTiles />
+
     <!-- BROWSE BY CATEGORY (bama-style taxonomy: type → body/use → price class → brand) -->
     <section class="px-4 pt-14 pb-16 max-w-7xl mx-auto" aria-labelledby="browse-heading">
       <h2 id="browse-heading" class="text-xl font-black mb-5" style="color:var(--text-primary)">{{ $t('Browse by') }} <span class="gradient-text">{{ $t('category') }}</span></h2>
@@ -153,6 +155,7 @@
         <RouterLink to="/search?view=map" class="text-xs font-semibold" style="color:var(--accent-teal)">{{ $t('Open full map →') }}</RouterLink>
       </div>
       <ListingsMap :height="420" compact />
+      <div class="mt-6"><AreaInsights /></div>
     </section>
 
     <!-- TOP 10 SPONSORED LISTINGS (Advertisements) -->
@@ -287,6 +290,8 @@
       </div>
     </section>
 
+    <WhyAiPrice />
+
     <!-- SELL ON AIPRICE: one card per kind of seller, details on /pricing -->
     <section class="px-4 pb-24 max-w-7xl mx-auto" aria-labelledby="sell-heading">
       <div class="text-center mb-10">
@@ -316,6 +321,7 @@
         </RouterLink>
       </div>
     </section>
+    <CtaBand />
   </MainLayout>
 </template>
 <script setup lang="ts">
@@ -327,6 +333,10 @@ import MainLayout from '@/layouts/MainLayout.vue'
 import ListingCard from '@/components/listings/ListingCard.vue'
 import ListingsMap from '@/components/listings/ListingsMap.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import AiFeatureTiles from '@/components/home/AiFeatureTiles.vue'
+import AreaInsights from '@/components/home/AreaInsights.vue'
+import WhyAiPrice from '@/components/home/WhyAiPrice.vue'
+import CtaBand from '@/components/home/CtaBand.vue'
 import AssetIcon from '@/components/ui/AssetIcon.vue'
 import { useAuthStore } from '@/stores/auth'
 import client from '@/api/client'
@@ -548,14 +558,16 @@ const propertyCities = [
 ]
 </script>
 <style scoped>
-.hero { background:linear-gradient(160deg,#081827 0%,#0a2540 55%,#0c3354 100%);color:#fff }
+.hero { background:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'><path d='M0 220V150c120-40 210-70 330-48 130 24 190 70 330 58 150-12 210-86 360-92 170-6 250 50 420 14v138z' fill='%23061423' fill-opacity='.55'/><path d='M0 220v-40c140-26 260-8 400 8 160 18 250-4 420-18 190-16 330 20 620-6v56z' fill='%2312C5E8' fill-opacity='.10'/></svg>") bottom/100% 220px no-repeat,
+  linear-gradient(160deg,#061423 0%,#0a2540 50%,#0b4a78 100%);color:#fff; padding-bottom:6.5rem }
 .hero-glow { position:absolute;inset:-20% -10% auto -10%;height:120%;pointer-events:none;
   background:radial-gradient(ellipse 50% 40% at 20% 10%,rgba(21,155,242,.35),transparent 70%),radial-gradient(ellipse 40% 35% at 85% 20%,rgba(22,199,132,.22),transparent 70%) }
 .hero-badge { background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#d7e6f5 }
 .hero-title { color:#fff;letter-spacing:-.02em }
 .hero-tagline { background:linear-gradient(90deg,#4fb8ff,#12C5E8 50%,#16C784);-webkit-background-clip:text;background-clip:text;color:transparent }
 .hero-sub { color:#c5d3e4 }
-.composer { background:var(--bg-surface);border:1px solid var(--border-subtle);box-shadow:0 24px 60px rgba(4,12,24,.35);color:var(--text-primary) }
+.composer { background:var(--bg-surface);border:1px solid rgba(120,190,255,.3);box-shadow:0 28px 70px rgba(2,10,22,.45), 0 0 0 6px rgba(18,197,232,.08);color:var(--text-primary) }
 .hero-stat { background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14) }
 .hero-stat p:first-child { color:#fff }
 .hero-stat p:last-child { color:#b9c8d9 }

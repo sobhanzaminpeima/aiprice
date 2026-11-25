@@ -121,6 +121,12 @@ class ListingController extends Controller
         // name + masked phone). The full number needs sign-in: see sellerPhone().
         $listing = Listing::with(['listable'])
             ->where('slug', $slug)->where('status', 'active')->firstOrFail();
+        // Names for the breadcrumb trail (Cars › Brand › Model).
+        if ($listing->listable instanceof Vehicle) {
+            $listing->listable->load('brand:id,name', 'model:id,name');
+        } elseif ($listing->listable instanceof Property) {
+            $listing->listable->load('propertyType:id,name');
+        }
         // This route is public, so resolve the optional bearer token explicitly.
         $user = $request->user('sanctum');
         $sellerContact = app(\App\Services\SellerContactService::class)->publicSummary($listing);
@@ -166,6 +172,16 @@ class ListingController extends Controller
                 ? ListingFavorite::where('user_id', $user->id)->where('listing_id', $listing->id)->exists()
                 : false,
         ]);
+    }
+
+    /** Monthly median asking price of similar listings, for the price-trend chart. */
+    public function marketTrend(string $slug): JsonResponse
+    {
+        $listing = Listing::with('listable')->where('slug', $slug)->where('status', 'active')->firstOrFail();
+
+        return response()->json(\Illuminate\Support\Facades\Cache::remember(
+            "market-trend:{$listing->id}", 600, fn () => app(\App\Services\Market\MarketTrendService::class)->forListing($listing)
+        ));
     }
 
     /**
