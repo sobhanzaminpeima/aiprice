@@ -29,7 +29,7 @@
           {{ $t(m.label) }}
         </button>
       </div>
-      <div class="rounded-2xl p-4 mb-8 flex flex-wrap items-center gap-3" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+      <div class="rounded-2xl p-4 mb-4 flex flex-wrap items-center gap-3" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
         <input v-model="filters.search" type="text" :placeholder="$t('Search by title or location...')" class="input-dark flex-1 min-w-[160px]" @input="debouncedFetch" />
         <select v-model="filters.city" :aria-label="$t('City')" class="input-dark w-36" @change="syncUrl">
           <option value="">{{ $t('All Cities') }}</option>
@@ -40,12 +40,11 @@
           <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
         </select>
         <select v-model="filters.sort" :aria-label="$t('Sort by')" class="input-dark w-40" @change="syncUrl">
-          <option value="newest">{{ $t('Newest First') }}</option>
-          <option value="price_asc">{{ $t('Price: Low → High') }}</option>
-          <option value="price_desc">{{ $t('Price: High → Low') }}</option>
+          <option v-for="o in SORTS" :key="o.value" :value="o.value">{{ $t(o.label) }}</option>
         </select>
         <button @click="reset" class="px-4 py-2.5 rounded-xl text-sm font-medium" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-muted)">{{ $t('Reset') }}</button>
       </div>
+      <AdvancedFilters v-model="filters" kind="property" @apply="syncUrl" />
       <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         <div v-for="i in 8" :key="i" class="rounded-2xl h-72 animate-pulse" style="background:var(--bg-card)"></div>
       </div>
@@ -68,9 +67,13 @@
         <button v-for="p in pages" :key="p" @click="goPage(p)" class="w-9 h-9 rounded-xl text-sm font-semibold transition" :style="p === currentPage ? 'background:linear-gradient(135deg,var(--accent-cyan),var(--accent-violet));color:var(--on-accent)' : typeof p === 'string' ? 'cursor:default;color:var(--text-muted)' : 'background:var(--surface-overlay);color:var(--text-secondary);border:1px solid var(--border-subtle)'">{{ p }}</button>
       </div>
     </div>
+    <SeoContent kind="property" />
   </MainLayout>
 </template>
 <script setup lang="ts">
+import SeoContent from '@/components/SeoContent.vue'
+import AdvancedFilters from '@/components/listings/AdvancedFilters.vue'
+import { advancedParams, SORTS } from '@/components/listings/advancedFilters'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useAuthStore as useSellAuth } from '@/stores/auth'
 import { usePageMeta } from '@/composables/usePageMeta'
@@ -84,7 +87,7 @@ import type { Listing } from "@/types"
 const listings = ref<Listing[]>([]); const loading = ref(true); const total = ref(0); const currentPage = ref(1); const lastPage = ref(1)
 let debounceTimer: ReturnType<typeof setTimeout>
 const cities = ["Girne","Lefkosa","Gazimağusa","Iskele","Guzelyurt"]
-const blank = () => ({ search: "", city: "", beds: "", sort: "newest", type: "", max_price: "" })
+const blank = (): Record<string, string> => ({ search: "", city: "", beds: "", sort: "newest", type: "", min_price: "", max_price: "", baths: "", min_area: "", max_area: "", furnishing: "", ai: "", posted: "", photos: "", pool: "", garden: "", parking: "" })
 const filters = ref(blank())
 const route = useRoute()
 const router = useRouter()
@@ -110,7 +113,10 @@ function readQuery() {
   // ?mode=deal|find|invest (from the home page search) turns on AI ranking.
   if (typeof q.mode === 'string' && ['find', 'deal', 'invest'].includes(q.mode)) mode.value = q.mode
   const str = (k: string) => (typeof q[k] === "string" ? (q[k] as string) : "")
-  filters.value = { ...blank(), search: str("search"), city: str("city"), beds: str("beds"), sort: str("sort") || "newest", type: str("type"), max_price: str("max_price") }
+  const next = blank()
+  for (const k of Object.keys(next)) next[k] = str(k)
+  next.sort = next.sort || "newest"
+  filters.value = next
 }
 function syncUrl() {
   const query: Record<string, string> = {}
@@ -136,12 +142,10 @@ async function doFetch(page = 1) {
     const params: any = { type: "property", page, per_page: 12 }
     if (filters.value.search) params.search = filters.value.search
     if (filters.value.city) params.city = filters.value.city
-    if (filters.value.beds) params.min_bedrooms = filters.value.beds
     if (filters.value.type) params.property_type = filters.value.type
-    if (filters.value.max_price) params.max_price = filters.value.max_price
+    Object.assign(params, advancedParams(filters.value, "property"))
     if (mode.value) { params.mode = mode.value }
-    else if (filters.value.sort === "price_asc") { params.sort = "price_asc" }
-    else if (filters.value.sort === "price_desc") { params.sort = "price_desc" }
+    else if (filters.value.sort && filters.value.sort !== "newest") { params.sort = filters.value.sort }
     const { data } = await client.get("/listings", { params })
     listings.value = data.data ?? []; total.value = data.total ?? 0; lastPage.value = data.last_page ?? 1
   } catch { listings.value = [] } finally { loading.value = false }

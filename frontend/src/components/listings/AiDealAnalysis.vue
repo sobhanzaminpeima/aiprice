@@ -17,6 +17,7 @@
         <div class="stat">
           <p class="stat-label">{{ $t('Deal signal') }}</p>
           <span class="inline-block px-3 py-1 rounded-full text-sm font-black mt-1" :style="signal.style">{{ $t(signal.label) }}</span>
+          <div v-if="listing.price_battery_percent != null" class="mt-2"><BatteryMeter :percent="listing.price_battery_percent" variant="bar" /></div>
         </div>
         <div class="stat flex items-center gap-3">
           <ConfidenceRing :value="Number(listing.ai_confidence_score ?? 0)" :size="56" :color="signal.ring" style="color:#fff" />
@@ -60,6 +61,7 @@ import { locale } from '@/i18n'
 import type { Listing } from '@/types'
 import PriceTrendChart from '@/components/listings/PriceTrendChart.vue'
 import ConfidenceRing from '@/components/listings/ConfidenceRing.vue'
+import BatteryMeter from '@/components/listings/BatteryMeter.vue'
 
 const props = defineProps<{ listing: Listing }>()
 const trend = ref<{ points: { month: string; median: number; count: number }[]; basis: string | null; change_pct: number | null } | null>(null)

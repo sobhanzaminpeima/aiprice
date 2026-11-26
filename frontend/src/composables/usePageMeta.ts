@@ -13,9 +13,9 @@ export interface PageMeta {
 }
 
 const SITE = 'AIPrice.app'
-const DEFAULT_TITLE = 'AIPrice.app — AI-Powered Marketplace Intelligence'
+const DEFAULT_TITLE = 'Cars & Property for Sale in North Cyprus with AI Price Checks | AIPrice.app'
 const DEFAULT_DESCRIPTION =
-  'AIPrice.app — Know the value, not just the price. AI price estimates for cars and property in North Cyprus and Turkey.'
+  'Buy and sell cars, homes and rentals in North Cyprus (KKTC). Every listing gets an AI fair-price check and a price battery against similar listings.'
 
 function setMeta(attr: 'name' | 'property', key: string, content: string | undefined | null) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`)
@@ -46,8 +46,11 @@ function setLink(rel: string, href: string | null) {
   el.href = href
 }
 
-function setJsonLd(data: PageMeta['jsonLd']) {
+function setJsonLd(data: PageMeta['jsonLd'], leaving = false) {
   document.head.querySelectorAll('script[data-page-meta="ld"]').forEach((s) => s.remove())
+  // The server already put this page's structured data in the HTML. Keep it
+  // unless the page supplies its own (same entity) or the visitor navigates away.
+  if (data || leaving) document.head.querySelectorAll('script[data-seo="server"]').forEach((s) => s.remove())
   if (!data) return
   const s = document.createElement('script')
   s.type = 'application/ld+json'
@@ -78,7 +81,7 @@ function apply(meta: PageMeta | null | undefined | false) {
   setMeta('name', 'twitter:description', description)
   setMeta('name', 'twitter:image', image)
   setLink('canonical', canonical)
-  setJsonLd(m.jsonLd)
+  setJsonLd(m.jsonLd, meta === null)
 }
 
 /**

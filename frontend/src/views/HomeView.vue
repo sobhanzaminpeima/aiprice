@@ -92,7 +92,12 @@
       </div>
     </section>
 
+    <ListingRail id="rail-newest" icon="✦" eyebrow="Just listed" title="Newest listings" sort="newest" />
+    <ListingRail id="rail-popular" icon="◉" eyebrow="Popular now" title="Most viewed" sort="most_viewed" />
+    <ListingRail id="rail-value" icon="▮" eyebrow="Price battery" title="Best value by price battery" sort="battery" :extra="{ ai: 'checked' }" />
+
     <WhyAiPrice />
+    <SeoContent kind="home" />
 
     <!-- SELL ON AIPRICE: one card per kind of seller, details on /pricing -->
     <section class="px-4 pb-24 max-w-7xl mx-auto" aria-labelledby="sell-heading">
@@ -138,12 +143,14 @@ import DecisionEngine from '@/components/home/DecisionEngine.vue'
 import HowAiWorks from '@/components/home/HowAiWorks.vue'
 import MarketMapPanel from '@/components/home/MarketMapPanel.vue'
 import WhyAiPrice from '@/components/home/WhyAiPrice.vue'
+import SeoContent from '@/components/SeoContent.vue'
+import ListingRail from '@/components/home/ListingRail.vue'
 import CtaBand from '@/components/home/CtaBand.vue'
 import { useAuthStore } from '@/stores/auth'
 import client from '@/api/client'
 import type { Listing } from '@/types'
 
-usePageMeta(() => ({ title: undefined, description: 'Every car and property listing in North Cyprus checked against the market by AI. See the fair price before you buy or sell.' }))
+usePageMeta(() => ({ title: undefined, description: 'Buy and sell cars, homes and rentals in North Cyprus (KKTC). Every listing gets an AI fair-price check and a price battery against similar listings.' }))
 
 const router = useRouter()
 const auth = useAuthStore()

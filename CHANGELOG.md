@@ -2,6 +2,19 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-11-29: Price battery, more home sections, filters and SEO
+
+### Added
+- **Price battery** on every analysed listing: a 5-cell battery with the price score on the card photo, and a larger battery with "Great / Good / Fair value / Expensive" on the price card and in the AI Deal Analysis panel.
+- Home page sections **Newest listings**, **Most viewed** and **Best value by price battery**, each with All / Cars / Properties / Rentals tabs and a "View all" link.
+- **More filters** panel on Cars, Properties, Rentals and Search: min/max price; make, model, body type, year range and mileage for cars; bedrooms, bathrooms, area, furnishing, pool, garden and parking for property; AI price check (checked, fair, good deal, below market range); posted in the last 24 h / 3 / 7 / 30 days; photos only. Filters live in the URL, so filtered pages can be shared. New sorts: most viewed and best price score.
+- API filters `min_bathrooms`, `min_area`, `max_area`, `furnishing`, `has_pool`, `has_garden`, `has_parking`, `ai`, `posted_within`, `with_photos`, and `sort=battery`; `sort` is now validated.
+- **Server-side SEO** (`SeoShell`): every URL is served with its own title, description, canonical URL, Open Graph/Twitter tags, robots and JSON-LD (Organization + WebSite search on the home page; Car/Product + Offer + BreadcrumbList on listings; FAQPage on home, cars and properties; Article on blog posts), plus readable HTML (headline, intro, latest listing links, city links, FAQ) that Vue replaces on load. Removed listings and unknown URLs now return HTTP 404 with noindex; private pages are noindex.
+- Visible SEO content on the home, Cars and Properties pages: intro text with North Cyprus towns, "Popular searches" links (cars and property per town, popular makes, property types) and an FAQ, in English, Turkish and Persian.
+
+### Changed
+- Default title and description now target "cars & property for sale in North Cyprus (KKTC)".
+
 ## 2026-11-28: Layout rebuilt to match the design mock-ups
 
 ### Changed

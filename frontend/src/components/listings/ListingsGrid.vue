@@ -5,27 +5,25 @@
       <input
         v-model="filters.search"
         @input="debouncedFetch"
-        placeholder="Search..."
+        :placeholder="$t('Search...')"
         class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none focus:border-[var(--accent-teal)] transition w-64"
       />
       <input
         v-model="filters.city"
         @input="debouncedFetch"
-        placeholder="City..."
+        :placeholder="$t('City...')"
         class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none focus:border-[var(--accent-teal)] transition w-40"
       />
-      <input v-model="filters.min_price" @input="debouncedFetch" type="number" placeholder="Min price"
+      <input v-model="filters.min_price" @input="debouncedFetch" type="number" :placeholder="$t('Min price')"
         class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none w-32" />
-      <input v-model="filters.max_price" @input="debouncedFetch" type="number" placeholder="Max price"
+      <input v-model="filters.max_price" @input="debouncedFetch" type="number" :placeholder="$t('Max price')"
         class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none w-32" />
       <select v-model="filters.sort" aria-label="Sort by" @change="fetchListings" class="bg-[var(--bg-surface)] border border-[var(--border-strong)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm outline-none">
-        <option value="newest">Newest First</option>
-        <option value="price_asc">Price: Low to High</option>
-        <option value="price_desc">Price: High to Low</option>
-        <option value="most_viewed">Most Viewed</option>
-        <option value="trust_score">Highest Trust</option>
+        <option v-for="o in SORTS" :key="o.value" :value="o.value">{{ $t(o.label) }}</option>
       </select>
     </div>
+
+    <AdvancedFilters v-if="advKind" v-model="adv" :kind="advKind" @apply="fetchListings" />
 
     <!-- Results count -->
     <div class="flex items-center justify-between mb-6">
@@ -68,6 +66,8 @@
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import ListingCard from './ListingCard.vue'
+import AdvancedFilters from './AdvancedFilters.vue'
+import { advancedParams, SORTS } from './advancedFilters'
 import { useListingsStore } from '@/stores/listings'
 
 const props = defineProps<{
@@ -92,6 +92,10 @@ const filters = ref({
   page: 1,
 })
 
+// "More filters" fields; shown once the grid is limited to one kind of listing.
+const adv = ref<Record<string, string>>({})
+const advKind = computed(() => (filters.value.type === 'vehicle' ? 'vehicle' : filters.value.type === 'property' ? 'property' : filters.value.type === 'rental' ? 'rental' : null))
+
 let debounceTimer: any
 
 function debouncedFetch() {
@@ -112,6 +116,7 @@ async function fetchListings() {
   if (filters.value.city) params.city = filters.value.city
   if (filters.value.min_price) params.min_price = filters.value.min_price
   if (filters.value.max_price) params.max_price = filters.value.max_price
+  if (advKind.value) Object.assign(params, advancedParams(adv.value, advKind.value))
   await listingsStore.fetchListings(params)
 }
 

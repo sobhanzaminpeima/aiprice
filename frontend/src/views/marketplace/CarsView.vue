@@ -36,7 +36,7 @@
       </div>
 
       <!-- Filter bar -->
-      <div class="rounded-2xl p-4 mb-8 flex flex-wrap items-center gap-3" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
+      <div class="rounded-2xl p-4 mb-4 flex flex-wrap items-center gap-3" style="background:var(--bg-card);border:1px solid var(--border-subtle)">
         <input v-model="filters.search" type="text" :placeholder="$t('Search make, model...')" class="input-dark flex-1 min-w-[160px]" @input="debouncedFetch" />
         <select v-model="filters.city" :aria-label="$t('City')" class="input-dark w-36" @change="syncUrl">
           <option value="">{{ $t('All Cities') }}</option>
@@ -55,13 +55,12 @@
           <option value="manual">{{ $t('Manual') }}</option>
         </select>
         <select v-model="filters.sort" :aria-label="$t('Sort by')" class="input-dark w-40" @change="syncUrl">
-          <option value="newest">{{ $t('Newest First') }}</option>
-          <option value="price_asc">{{ $t('Price: Low → High') }}</option>
-          <option value="price_desc">{{ $t('Price: High → Low') }}</option>
-          <option value="trust">{{ $t('AI Trust Score') }}</option>
+          <option v-for="o in SORTS" :key="o.value" :value="o.value">{{ $t(o.label) }}</option>
         </select>
         <button @click="resetFilters" class="px-4 py-2.5 rounded-xl text-sm font-medium transition" style="background:var(--surface-overlay);border:1px solid var(--border-subtle);color:var(--text-muted)">{{ $t('Reset') }}</button>
       </div>
+
+      <AdvancedFilters v-model="filters" kind="vehicle" @apply="syncUrl" />
 
       <!-- Listings grid -->
       <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -92,10 +91,14 @@
         </button>
       </div>
     </div>
+    <SeoContent kind="vehicle" />
   </MainLayout>
 </template>
 
 <script setup lang="ts">
+import SeoContent from '@/components/SeoContent.vue'
+import AdvancedFilters from '@/components/listings/AdvancedFilters.vue'
+import { advancedParams, SORTS } from '@/components/listings/advancedFilters'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useAuthStore as useSellAuth } from '@/stores/auth'
 import { usePageMeta } from '@/composables/usePageMeta'
@@ -115,7 +118,7 @@ const lastPage = ref(1)
 let debounceTimer: ReturnType<typeof setTimeout>
 
 const cities = ['Girne', 'Lefkosa', 'Gazimağusa', 'Iskele', 'Guzelyurt']
-const blankFilters = () => ({ search: '', city: '', fuel: '', transmission: '', sort: 'newest', brand: '', body: '', min_year: '', max_price: '', max_mileage: '' })
+const blankFilters = (): Record<string, string> => ({ search: '', city: '', fuel: '', transmission: '', sort: 'newest', brand: '', model: '', body: '', min_year: '', max_year: '', min_price: '', max_price: '', max_mileage: '', ai: '', posted: '', photos: '' })
 const filters = ref(blankFilters())
 const route = useRoute()
 const router = useRouter()
@@ -145,8 +148,12 @@ function readQuery() {
   // ?mode=deal|find|invest (from the home page search) turns on AI ranking.
   if (typeof q.mode === 'string' && ['find', 'deal', 'invest'].includes(q.mode)) mode.value = q.mode
   const str = (k: string) => (typeof q[k] === 'string' ? (q[k] as string) : '')
-  filters.value = { ...blankFilters(), search: str('search'), city: str('city'), fuel: str('fuel').toLowerCase(), transmission: str('transmission').toLowerCase(),
-    sort: str('sort') || 'newest', brand: str('brand'), body: str('body'), min_year: str('min_year'), max_price: str('max_price'), max_mileage: str('max_mileage') }
+  const next = blankFilters()
+  for (const k of Object.keys(next)) next[k] = str(k)
+  next.fuel = (next.fuel ?? '').toLowerCase(); next.transmission = (next.transmission ?? '').toLowerCase()
+  if (next.sort === 'trust') next.sort = 'trust_score'
+  next.sort = next.sort || 'newest'
+  filters.value = next
 }
 const sellAuth = useSellAuth()
 const sellLink = computed(() => (sellAuth.isAuthenticated ? '/dashboard/listings/new' : { name: 'register', query: { redirect: '/dashboard/listings/new' } }))
@@ -183,17 +190,12 @@ async function fetchListings(page = 1) {
     if (filters.value.city) params.city = filters.value.city
     if (filters.value.fuel) params.fuel_type = filters.value.fuel
     if (filters.value.transmission) params.transmission = filters.value.transmission
-    if (filters.value.brand) params.brand = filters.value.brand
     if (filters.value.body) params.body = filters.value.body
-    if (filters.value.min_year) params.min_year = filters.value.min_year
-    if (filters.value.max_price) params.max_price = filters.value.max_price
-    if (filters.value.max_mileage) params.max_mileage = filters.value.max_mileage
+    Object.assign(params, advancedParams(filters.value, 'vehicle'))
     if (mode.value) {
       // Ranking mode overrides plain sort on the backend (see RankingEngineService)
       params.mode = mode.value
-    } else if (filters.value.sort === 'price_asc') { params.sort = 'price_asc' }
-    else if (filters.value.sort === 'price_desc') { params.sort = 'price_desc' }
-    else if (filters.value.sort === 'trust') { params.sort = 'trust_score' }
+    } else if (filters.value.sort && filters.value.sort !== 'newest') { params.sort = filters.value.sort }
     const { data } = await client.get('/listings', { params })
     listings.value = data.data ?? []
     total.value = data.total ?? 0

@@ -10,6 +10,10 @@
         <p class="label">{{ $t('AI fair price range') }}</p>
         <p class="text-2xl font-black" style="color:#4fe0b0">{{ money(listing.market_min_price!) }} – {{ money(listing.market_max_price!) }}</p>
       </div>
+      <div v-if="listing.price_battery_percent != null" class="box mt-3">
+        <p class="label mb-1.5">{{ $t('Price battery') }}</p>
+        <BatteryMeter :percent="listing.price_battery_percent" variant="bar" />
+      </div>
       <div class="grid grid-cols-2 gap-3 mt-3">
         <div class="box">
           <p class="label">{{ $t('Deal signal') }}</p>
@@ -32,6 +36,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ConfidenceRing from '@/components/listings/ConfidenceRing.vue'
+import BatteryMeter from '@/components/listings/BatteryMeter.vue'
 import type { Listing } from '@/types'
 
 const props = defineProps<{ listing: Listing; favorited: boolean; asking?: boolean; areaSqm?: number | null }>()

@@ -47,6 +47,14 @@ class ListingController extends Controller
             'property_type' => 'sometimes|nullable|string|max:60',
             'min_price' => 'sometimes|nullable|numeric|min:0', 'max_price' => 'sometimes|nullable|numeric|min:0',
             'search' => 'sometimes|nullable|string|max:100', 'city' => 'sometimes|nullable|string|max:100',
+            'min_bedrooms' => 'sometimes|nullable|integer|min:0|max:20', 'min_bathrooms' => 'sometimes|nullable|integer|min:0|max:20',
+            'min_area' => 'sometimes|nullable|numeric|min:0', 'max_area' => 'sometimes|nullable|numeric|min:0',
+            'furnishing' => 'sometimes|nullable|in:furnished,semi-furnished,unfurnished',
+            'has_pool' => 'sometimes|nullable|boolean', 'has_garden' => 'sometimes|nullable|boolean', 'has_parking' => 'sometimes|nullable|boolean',
+            'ai' => 'sometimes|nullable|in:checked,fair,good,below',
+            'posted_within' => 'sometimes|nullable|integer|in:1,3,7,30',
+            'with_photos' => 'sometimes|nullable|boolean',
+            'sort' => 'sometimes|nullable|in:newest,price_asc,price_desc,most_viewed,trust_score,battery',
         ]);
         $query = Listing::with(['listable'])->where('status', 'active');
         // Vehicle filters (case-insensitive so "Petrol" matches "petrol").
@@ -83,6 +91,36 @@ class ListingController extends Controller
                 $q->where('bedrooms', '>=', $request->min_bedrooms);
             });
         }
+        // Size, rooms and features (properties and rentals).
+        foreach (['min_bathrooms' => ['bathrooms', '>='], 'min_area' => ['area_sqm', '>='], 'max_area' => ['area_sqm', '<=']] as $param => [$col, $op]) {
+            if ($request->filled($param)) {
+                $query->whereHasMorph('listable', [\App\Models\Property::class, \App\Models\Rental::class], fn ($q) => $q->where($col, $op, $request->input($param)));
+            }
+        }
+        if ($request->filled('furnishing')) {
+            $query->whereHasMorph('listable', [\App\Models\Property::class, \App\Models\Rental::class], fn ($q) => $q->where('furnishing', $request->furnishing));
+        }
+        foreach (['has_pool', 'has_garden', 'has_parking'] as $feature) {
+            if ($request->boolean($feature)) {
+                $query->whereHasMorph('listable', [\App\Models\Property::class], fn ($q) => $q->where($feature, true));
+            }
+        }
+        // AI price check: only listings the check could judge, then by verdict.
+        if ($request->filled('ai')) {
+            $query->whereNotNull('market_min_price')->where('ai_price_status', '!=', 'insufficient_data');
+            match ($request->ai) {
+                'fair' => $query->where('ai_price_status', 'fair'),
+                'good' => $query->where('ai_price_status', 'fair')->where('price_battery_percent', '>=', 90),
+                'below' => $query->whereColumn('price', '<', 'market_min_price'),
+                default => null,
+            };
+        }
+        if ($request->filled('posted_within')) {
+            $query->where('published_at', '>=', now()->subDays((int) $request->posted_within));
+        }
+        if ($request->boolean('with_photos')) {
+            $query->where(fn ($q) => $q->whereNotNull('thumbnail')->where('thumbnail', '!=', ''));
+        }
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%')
@@ -109,6 +147,8 @@ class ListingController extends Controller
             'price_desc' => $query->orderByDesc('price'),
             'most_viewed' => $query->orderByDesc('view_count'),
             'trust_score' => $query->orderByDesc('ai_trust_score'),
+            // Fairest prices first; listings without a price check go last.
+            'battery' => $query->orderByRaw('price_battery_percent IS NULL')->orderByDesc('price_battery_percent'),
             // Featured listings (a paid-plan perk) lead the default ordering.
             default => $query->orderByDesc('is_featured')->orderByDesc('published_at'),
         };

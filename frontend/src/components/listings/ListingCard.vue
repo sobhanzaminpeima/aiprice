@@ -10,6 +10,8 @@
           <span v-if="verdict" class="verdict" :style="verdict.style">{{ verdict.icon }} {{ $t(verdict.label) }}</span>
           <span v-if="listing.is_featured" class="verdict" style="background:#fff7e0;color:#8a5a00">★ {{ $t('Featured') }}</span>
         </div>
+        <!-- Price battery: how good the price is against similar listings -->
+        <BatteryMeter v-if="hasRange && battery !== null" :percent="battery" class="absolute bottom-3 left-3" />
         <span v-if="listing.type" class="absolute top-3 right-3 type-chip">{{ $t(listing.type === 'vehicle' ? 'Car' : cap(listing.type)) }}</span>
       </div>
 
@@ -59,6 +61,7 @@ import PostedAt from '@/components/listings/PostedAt.vue'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AssetIcon from '@/components/ui/AssetIcon.vue'
+import BatteryMeter from '@/components/listings/BatteryMeter.vue'
 import type { Listing, Vehicle, Property } from '@/types'
 import { t } from '@/i18n'
 
