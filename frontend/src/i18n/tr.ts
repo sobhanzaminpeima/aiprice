@@ -772,5 +772,15 @@ const tr: Record<string, string> = {
   'Good value': 'Uygun',
   'Fair value': 'Makul',
   'Expensive': 'Pahalı',
+  'AI price check pending': 'YZ fiyat kontrolü bekleniyor',
+  'Example': 'Örnek',
+  'AI deal signal': 'YZ fırsat sinyali',
+  'Market value based on {n} similar listings': '{n} benzer ilana dayalı piyasa değeri',
+  'AI analysis': 'YZ analizi',
+  'AI estimate from market knowledge': 'Piyasa bilgisine dayalı YZ tahmini',
+  'Last {n} months of market activity': 'Son {n} ayın piyasa hareketi',
+  'North Cyprus market data': 'Kuzey Kıbrıs piyasa verisi',
+  'This listing is within the fair price range. Similar vehicles are listed between £1,700 and £2,300, with stable prices in recent months.': 'Bu ilan adil fiyat aralığında. Benzer araçlar £1.700 ile £2.300 arasında listeleniyor ve son aylarda fiyatlar istikrarlı.',
+  'AI match {n}%': 'YZ eşleşme %{n}',
 }
 export default tr

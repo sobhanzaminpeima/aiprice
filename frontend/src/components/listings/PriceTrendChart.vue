@@ -24,9 +24,15 @@
         <text :x="W - PR - 59" :y="Math.max(2, currentY - 26) + 14" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">{{ money(current ?? 0) }} · {{ $t('this listing') }}</text>
       </g>
     </svg>
-    <p v-else class="text-xs py-6 text-center" style="color:var(--text-muted)">
-      {{ $t('The price trend appears once at least two months have enough similar listings.') }}
-    </p>
+    <div v-else class="relative" role="img" :aria-label="$t('The price trend appears once at least two months have enough similar listings.')">
+      <svg :viewBox="`0 0 ${W} ${H}`" class="w-full" aria-hidden="true">
+        <line v-for="i in 4" :key="i" :x1="PL" :x2="W - PR" :y1="PT + (i - 1) * ((H - PT - PB) / 3)" :y2="PT + (i - 1) * ((H - PT - PB) / 3)" stroke="currentColor" stroke-opacity=".12" />
+        <path :d="`M${PL},120 C140,90 200,110 260,95 S380,70 440,88 S520,80 ${W - PR},76`" fill="none" stroke="currentColor" stroke-opacity=".28" stroke-width="2.5" stroke-dasharray="6 6" />
+      </svg>
+      <p class="absolute inset-0 flex items-center justify-center text-xs text-center px-6" style="color:inherit">
+        <span class="px-3 py-1.5 rounded-lg" style="background:rgba(127,147,171,.14)">{{ $t('The price trend appears once at least two months have enough similar listings.') }}</span>
+      </p>
+    </div>
   </div>
 </template>
 

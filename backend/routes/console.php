@@ -75,6 +75,16 @@ Artisan::command('listings:score-unscored', function () {
     $this->info("Queued {$ids->count()} listings for AI scoring.");
 })->purpose('Queue AI scoring for active listings that have none yet');
 
+Artisan::command('listings:rescore-insufficient {--limit=100}', function () {
+    // Listings that had too few similar listings: new listings, market data or
+    // an AI key may now give them a price check.
+    $ids = Listing::where('status', 'active')
+        ->where(fn ($q) => $q->whereNull('ai_price_status')->orWhere('ai_price_status', 'insufficient_data')->orWhereNull('risk_level'))
+        ->orderByDesc('published_at')->limit((int) $this->option('limit'))->pluck('id');
+    $ids->each(fn ($id) => AnalyzeListingPrice::dispatch($id));
+    $this->info("Queued {$ids->count()} listings for a new price check.");
+})->purpose('Re-run the price check for listings that had too little data');
+
 Artisan::command('listings:translate-missing', function () {
     $ids = Listing::where('status', 'active')->whereNull('translated_at')->whereNotNull('description')
         ->whereRaw('LENGTH(description) >= 20')->orderByDesc('published_at')->limit(20)->pluck('id');
@@ -98,6 +108,7 @@ Schedule::command('listings:expire')->hourly()->withoutOverlapping();
 Schedule::command('subscriptions:expire')->hourly()->withoutOverlapping();
 Schedule::command('subscriptions:remind')->hourly()->withoutOverlapping();
 Schedule::command('listings:score-unscored')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('listings:rescore-insufficient --limit=50')->dailyAt('03:17')->withoutOverlapping();
 Schedule::command('listings:translate-missing')->hourly()->withoutOverlapping();
 Schedule::command('competitors:crawl-due')->hourly()->withoutOverlapping();
 

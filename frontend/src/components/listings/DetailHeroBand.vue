@@ -11,11 +11,14 @@
 defineProps<{ lead: string; accent: string; subtitle: string }>()
 </script>
 <style scoped>
-.band {
-  background:
-    linear-gradient(90deg, rgba(4,14,26,.94) 0%, rgba(5,20,36,.8) 45%, rgba(6,24,42,.35) 100%),
-    url('/hero-coast.svg') center 60% / cover no-repeat, #061423;
+.band { background: url('/hero-coast.svg') center 60% / cover no-repeat, #061423; }
+.band::before {
+  content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 65%;
+  background: url('/band-kyrenia.jpg') 70% 40% / cover no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 45%); mask-image: linear-gradient(90deg, transparent 0%, #000 45%); pointer-events: none;
 }
+.band::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6,20,35,.15) 0%, rgba(6,20,35,.55) 100%); pointer-events: none; }
+@media (max-width: 767px) { .band::before { width: 100%; opacity: .45; } }
 .chip { display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;color:#bfefff;background:rgba(18,197,232,.12);border:1px solid rgba(18,197,232,.35) }
 .accent { background: linear-gradient(90deg, #4fd8f5, #4fe0b0); -webkit-background-clip: text; background-clip: text; color: transparent }
 </style>

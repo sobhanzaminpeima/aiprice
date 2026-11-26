@@ -1,11 +1,11 @@
 <template>
-  <span v-if="value !== null" class="battery" :class="`battery--${variant}`" :title="$t('Price battery: how good the price is compared with similar listings (100% = best value)')" role="img" :aria-label="`${$t('Price battery')} ${value}%`">
+  <span class="battery" :class="`battery--${variant}`" :title="value === null ? $t('AI price check pending') : $t('Price battery: how good the price is compared with similar listings (100% = best value)')" role="img" :aria-label="value === null ? $t('AI price check pending') : `${$t('Price battery')} ${value}%`">
     <span class="shell" :style="{ borderColor: color }">
-      <span v-for="i in 5" :key="i" class="cell" :style="{ background: i <= cells ? color : 'transparent', opacity: i <= cells ? 1 : 0.18, borderColor: color }"></span>
+      <span v-for="i in 5" :key="i" class="cell" :style="{ background: value !== null && i <= cells ? color : 'transparent', opacity: value !== null && i <= cells ? 1 : 0.25, outline: value === null ? `1px solid ${color}` : 'none' }"></span>
     </span>
     <span class="cap" :style="{ background: color }"></span>
-    <strong class="pct" :style="{ color: variant === 'chip' ? '#fff' : color }">{{ value }}%</strong>
-    <span v-if="variant === 'bar'" class="label">{{ $t(label) }}</span>
+    <strong class="pct" :style="{ color: variant === 'chip' ? '#fff' : color }">{{ value === null ? 'AI…' : value + '%' }}</strong>
+    <span v-if="variant === 'bar'" class="label">{{ $t(value === null ? 'AI price check pending' : label) }}</span>
   </span>
 </template>
 <script setup lang="ts">
@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<{ percent: number | string | null | undef
 const value = computed(() => (props.percent == null || props.percent === '' ? null : Math.max(0, Math.min(100, Math.round(Number(props.percent))))))
 const cells = computed(() => Math.max(1, Math.ceil(((value.value ?? 0) / 100) * 5)))
 // Fixed colours: the chip sits on photos and the bar on the dark price card in both themes.
-const color = computed(() => { const v = value.value ?? 0; return v >= 85 ? '#16C784' : v >= 70 ? '#12C5E8' : v >= 50 ? '#fbbf24' : '#f87171' })
+const color = computed(() => { if (value.value === null) return '#91a1b5'; const v = value.value; return v >= 85 ? '#16C784' : v >= 70 ? '#12C5E8' : v >= 50 ? '#fbbf24' : '#f87171' })
 const label = computed(() => { const v = value.value ?? 0; return v >= 85 ? 'Great value' : v >= 70 ? 'Good value' : v >= 50 ? 'Fair value' : 'Expensive' })
 </script>
 <style scoped>

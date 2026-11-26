@@ -41,9 +41,10 @@ class PriceIntelligenceService
 
         $result = $this->buildResult((float) $listing->price, (string) $listing->currency, $listing->city, $traits, $pool);
 
-        // Imported listings get an estimate only from real comparables: no
-        // AI-generated fallback range (stays "insufficient_data" instead).
-        if ($result['has_estimate'] || $listing->import_source_key) {
+        // Too few comparables: an AI rough estimate (labelled as such, low
+        // confidence). For imported listings this can be switched off with
+        // AI_ESTIMATE_IMPORTED=false, leaving them on "insufficient_data".
+        if ($result['has_estimate'] || ($listing->import_source_key && ! config('services.ai_price.estimate_imported', true))) {
             return $result;
         }
 

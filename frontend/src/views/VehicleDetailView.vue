@@ -98,7 +98,7 @@
               <RouterLink to="/cars" class="text-xs font-semibold" style="color:var(--accent-cyan)">{{ $t('View all similar vehicles') }} →</RouterLink>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <ListingCard v-for="c in comparables.slice(0, 3)" :key="c.id" :listing="c" />
+              <ListingCard v-for="c in comparables.slice(0, 3)" :key="c.id" :listing="c" :match="similarity(listing, c)" />
             </div>
           </div>
           <BetterOptionsBar :listing-id="listing.id" />
@@ -157,6 +157,7 @@ import WhyThisScore from '@/components/listings/WhyThisScore.vue'
 import SimilarList from '@/components/listings/SimilarList.vue'
 import BetterOptionsBar from '@/components/listings/BetterOptionsBar.vue'
 import ListingCard from '@/components/listings/ListingCard.vue'
+import { similarity } from '@/components/listings/similarity'
 import type { Listing, Vehicle } from '@/types'
 
 // Sub-components defined inline

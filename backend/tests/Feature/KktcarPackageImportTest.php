@@ -159,6 +159,8 @@ class KktcarPackageImportTest extends TestCase
         app(KktcarPackageImporter::class)->import($this->dir);
         $listing = Listing::whereNotNull('import_source_key')->firstOrFail();
 
+        // With AI estimates for imports switched off, no AI range is made up.
+        config(['services.ai_price.estimate_imported' => false]);
         $this->mock(AiMarketEstimateService::class)->shouldNotReceive('estimate');
         $price = app(PriceIntelligenceService::class)->analyze($listing);
         $this->assertFalse($price['has_estimate']);
@@ -174,5 +176,20 @@ class KktcarPackageImportTest extends TestCase
             ->assertJsonPath('listing.images', [])
             ->assertJsonPath('listing.market_avg_price', null)
             ->assertJsonMissingPath('listing.meta');
+    }
+
+    public function test_imported_listing_gets_a_labelled_ai_estimate_by_default(): void
+    {
+        $this->writePackage([$this->record(1)]);
+        app(KktcarPackageImporter::class)->import($this->dir);
+        $listing = Listing::whereNotNull('import_source_key')->firstOrFail();
+
+        $this->mock(AiMarketEstimateService::class)->shouldReceive('estimate')->once()
+            ->andReturn(['typical' => 15000.0, 'low' => 13500.0, 'high' => 16500.0, 'note' => '']);
+        $price = app(PriceIntelligenceService::class)->analyze($listing);
+
+        $this->assertTrue($price['has_estimate']);
+        $this->assertSame('ai_model', $price['source']);
+        $this->assertSame(30, $price['confidence']);
     }
 }

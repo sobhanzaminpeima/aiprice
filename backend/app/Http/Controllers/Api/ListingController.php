@@ -190,16 +190,16 @@ class ListingController extends Controller
         if ($price && $price > 0) {
             $comparableQuery->whereBetween('price', [$price * 0.6, $price * 1.4]);
         }
-        $comparables = $comparableQuery->inRandomOrder()->limit(6)
-            ->get(['id', 'type', 'title', 'price', 'currency', 'slug', 'market_min_price', 'market_max_price', 'ai_confidence_score', 'ai_comparable_count', 'view_count', 'is_featured', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city', 'published_at', 'created_at']);
+        $comparables = $comparableQuery->with('listable')->inRandomOrder()->limit(6)
+            ->get(['id', 'type', 'listable_type', 'listable_id', 'title', 'price', 'currency', 'slug', 'market_min_price', 'market_max_price', 'ai_confidence_score', 'ai_comparable_count', 'view_count', 'is_featured', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city', 'published_at', 'created_at']);
         // Fallback: if not enough results in band, widen to ±65%
         if ($comparables->count() < 3 && $price && $price > 0) {
-            $comparables = Listing::where('type', $listing->type)
+            $comparables = Listing::with('listable')->where('type', $listing->type)
                 ->where('id', '!=', $listing->id)
                 ->where('status', 'active')
                 ->whereBetween('price', [$price * 0.35, $price * 1.65])
                 ->inRandomOrder()->limit(6)
-                ->get(['id', 'type', 'title', 'price', 'currency', 'slug', 'market_min_price', 'market_max_price', 'ai_confidence_score', 'ai_comparable_count', 'view_count', 'is_featured', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city', 'published_at', 'created_at']);
+                ->get(['id', 'type', 'listable_type', 'listable_id', 'title', 'price', 'currency', 'slug', 'market_min_price', 'market_max_price', 'ai_confidence_score', 'ai_comparable_count', 'view_count', 'is_featured', 'ai_price_status', 'price_battery_percent', 'ai_trust_score', 'thumbnail', 'images', 'city', 'published_at', 'created_at']);
         }
         return response()->json([
             'listing' => $listing,

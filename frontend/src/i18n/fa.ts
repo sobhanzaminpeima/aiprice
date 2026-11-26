@@ -772,5 +772,15 @@ const fa: Record<string, string> = {
   'Good value': 'مقرون‌به‌صرفه',
   'Fair value': 'معقول',
   'Expensive': 'گران',
+  'AI price check pending': 'بررسی قیمت در انتظار',
+  'Example': 'نمونه',
+  'AI deal signal': 'سیگنال معامله',
+  'Market value based on {n} similar listings': 'ارزش بازار بر اساس {n} آگهی مشابه',
+  'AI analysis': 'تحلیل هوش مصنوعی',
+  'AI estimate from market knowledge': 'تخمین هوش مصنوعی از دانش بازار',
+  'Last {n} months of market activity': 'فعالیت بازار در {n} ماه اخیر',
+  'North Cyprus market data': 'داده‌های بازار قبرس شمالی',
+  'This listing is within the fair price range. Similar vehicles are listed between £1,700 and £2,300, with stable prices in recent months.': 'این آگهی در بازه قیمت منصفانه است. خودروهای مشابه بین ۱٬۷۰۰ تا ۲٬۳۰۰ پوند آگهی شده‌اند و قیمت‌ها در ماه‌های اخیر ثابت بوده است.',
+  'AI match {n}%': 'تطابق {n}٪',
 }
 export default fa

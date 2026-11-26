@@ -24,7 +24,7 @@
           <div><p class="stat-label">{{ $t('Confidence') }}</p><p class="text-[11px]" style="color:#a9bdd3">{{ $t('How reliable the price check is') }}</p></div>
         </div>
         <div class="stat">
-          <p class="stat-label">{{ $t('{n} similar listings analysed', { n: count }) }}</p>
+          <p class="stat-label">{{ isAi ? $t('AI rough estimate') : $t('{n} similar listings analysed', { n: count }) }}</p>
           <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold mt-1" :style="quality.style">{{ $t('Data quality') }}: {{ $t(quality.label) }}</span>
         </div>
       </div>
@@ -46,11 +46,24 @@
       </div>
     </template>
 
-    <div v-else class="p-6 pt-4">
-      <div class="rounded-2xl p-5 text-sm" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#dce9f7">
-        {{ $t('We compare each price with similar listings. There are not enough yet — the price check switches on as more listings are added.') }}
+    <template v-else>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 p-6">
+        <div class="stat"><p class="stat-label">{{ $t('AI fair price range') }}</p><p class="text-lg font-black" style="color:#7f93ab">— – —</p></div>
+        <div class="stat"><p class="stat-label">{{ $t('Deal signal') }}</p><div class="mt-2"><BatteryMeter :percent="null" variant="bar" /></div></div>
+        <div class="stat flex items-center gap-3"><ConfidenceRing :value="0" :size="56" color="#7f93ab" style="color:#fff" /><div><p class="stat-label">{{ $t('Confidence') }}</p><p class="text-[11px]" style="color:#a9bdd3">{{ $t('How reliable the price check is') }}</p></div></div>
+        <div class="stat"><p class="stat-label">{{ $t('{n} similar listings analysed', { n: count }) }}</p><span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold mt-1" style="background:rgba(248,113,113,.16);color:#f87171">{{ $t('Data quality') }}: {{ $t('Limited') }}</span></div>
       </div>
-    </div>
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 px-6 pb-6">
+        <div class="lg:col-span-3 rounded-2xl p-4" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#cfe0f3">
+          <h3 class="font-bold text-sm mb-2" style="color:#fff">{{ $t('Market price trend') }}</h3>
+          <PriceTrendChart :points="trend?.points ?? []" :current="Number(listing.price)" :currency="listing.currency" />
+        </div>
+        <div class="lg:col-span-2 rounded-2xl p-4" style="background:rgba(18,197,232,.08);border:1px solid rgba(18,197,232,.25)">
+          <h3 class="font-bold text-sm mb-2" style="color:#fff">✦ {{ $t('AI explanation') }}</h3>
+          <p class="text-sm leading-relaxed" style="color:#dce9f7">{{ $t('We compare each price with similar listings. There are not enough yet — the price check switches on as more listings are added.') }}</p>
+        </div>
+      </div>
+    </template>
   </section>
 </template>
 
@@ -68,6 +81,7 @@ const trend = ref<{ points: { month: string; median: number; count: number }[]; 
 
 const hasEstimate = computed(() => !!props.listing.market_min_price && !!props.listing.market_max_price && props.listing.ai_price_status !== 'insufficient_data')
 const count = computed(() => Number(props.listing.ai_comparable_count ?? 0))
+const isAi = computed(() => (props.listing as { ai_score_breakdown?: { price_source?: string } }).ai_score_breakdown?.price_source === 'ai_model')
 const money = (v: number) => new Intl.NumberFormat(locale.value === 'fa' ? 'fa-IR' : locale.value === 'tr' ? 'tr-TR' : 'en-GB', { style: 'currency', currency: props.listing.currency || 'GBP', maximumFractionDigits: 0 }).format(v)
 
 const signal = computed(() => {

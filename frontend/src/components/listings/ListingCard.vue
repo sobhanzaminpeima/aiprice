@@ -7,11 +7,12 @@
         <div v-else class="absolute inset-0 flex items-center justify-center opacity-30"><AssetIcon :type="(listing.type || 'vehicle') as any" :size="56" /></div>
 
         <div class="absolute top-3 left-3 flex gap-1.5 flex-wrap">
+          <span v-if="match != null" class="verdict" style="background:#e3f8ee;color:#046c4e">✦ {{ $t('AI match {n}%', { n: match }) }}</span>
           <span v-if="verdict" class="verdict" :style="verdict.style">{{ verdict.icon }} {{ $t(verdict.label) }}</span>
           <span v-if="listing.is_featured" class="verdict" style="background:#fff7e0;color:#8a5a00">★ {{ $t('Featured') }}</span>
         </div>
         <!-- Price battery: how good the price is against similar listings -->
-        <BatteryMeter v-if="hasRange && battery !== null" :percent="battery" class="absolute bottom-3 left-3" />
+        <BatteryMeter :percent="hasRange ? battery : null" class="absolute bottom-3 left-3" />
         <span v-if="listing.type" class="absolute top-3 right-3 type-chip">{{ $t(listing.type === 'vehicle' ? 'Car' : cap(listing.type)) }}</span>
       </div>
 
@@ -65,7 +66,7 @@ import BatteryMeter from '@/components/listings/BatteryMeter.vue'
 import type { Listing, Vehicle, Property } from '@/types'
 import { t } from '@/i18n'
 
-const props = defineProps<{ listing: Listing }>()
+const props = defineProps<{ listing: Listing; match?: number | null }>()
 const imgError = ref(false)
 
 const vehicle = computed((): Vehicle | null =>

@@ -42,6 +42,12 @@ return [
     ],
     'ai_provider' => env('AI_PROVIDER', 'openai'),
 
+    // AI rough estimate (labelled, confidence 30) when a listing has too few
+    // similar listings. Imported listings get one too unless this is false.
+    'ai_price' => [
+        'estimate_imported' => (bool) env('AI_ESTIMATE_IMPORTED', true),
+    ],
+
     'nvidia' => [
         'key'   => env('NVIDIA_API_KEY', ''),
         'model' => env('NVIDIA_MODEL', 'meta/llama-3.2-11b-vision-instruct'),

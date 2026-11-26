@@ -2,6 +2,19 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-11-30: Closer to the mock-ups: hero photo, charts, AI price on every listing
+
+### Added
+- Hero and listing-page band photo of the Kyrenia harbour, castle, villa and car (`public/hero-kyrenia.jpg`, `public/band-kyrenia.jpg`, cropped from the supplied design), fading into the navy background.
+- "How AI price intelligence works" rebuilt like the mock-up: listing with photo and listed price, AI fair price range, deal signal with price battery, confidence ring, market price trend chart and an AI analysis box. It shows a real analysed listing once one has a trend; until then a clearly badged "Example".
+- Price battery on every listing card (grey "AI…" until the price check has run).
+- "AI match %" on similar-listing cards (year, mileage, size, bedrooms, model and price closeness).
+- `listings:rescore-insufficient` re-runs the price check for listings that had too little data (scheduled daily for 50; run once with a higher `--limit` after deploying).
+
+### Changed
+- Imported listings now get the labelled AI rough estimate (confidence 30) when there are too few similar listings, like listings posted on the site. Set `AI_ESTIMATE_IMPORTED=false` to go back to "no verdict" for imports.
+- AI Deal Analysis keeps its full layout before a price check (placeholders, a real category trend when available), and the trend chart shows an outlined placeholder instead of a bare line of text.
+
 ## 2026-11-29: Price battery, more home sections, filters and SEO
 
 ### Added

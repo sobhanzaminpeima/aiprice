@@ -233,10 +233,22 @@ async function trackAdClick(ad: any) {
 <style scoped>
 .hero {
   color: #fff;
-  background:
-    linear-gradient(90deg, rgba(4,14,26,.9) 0%, rgba(5,20,36,.7) 35%, rgba(6,24,42,.12) 65%, rgba(6,24,42,0) 100%),
-    linear-gradient(180deg, rgba(4,14,26,.35) 0%, rgba(4,14,26,0) 30%, rgba(4,14,26,.55) 100%),
-    url('/hero-coast.svg') center / cover no-repeat, #061423;
+  background: radial-gradient(ellipse 50% 60% at 15% 20%, rgba(21,155,242,.18), transparent 70%), linear-gradient(160deg, #061423 0%, #0a2540 60%, #0b3556 100%);
+}
+/* Photo on the right (Kyrenia harbour, castle, villa and car), fading softly
+   into the navy background on the left and at the bottom, where the search
+   panel overlaps the hero. */
+.hero::before {
+  content: ''; position: absolute; top: 0; right: 0; bottom: 8.5rem; width: 70%;
+  background: url('/hero-kyrenia.jpg') 70% 100% / cover no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.6) 22%, #000 45%), linear-gradient(180deg, #000 88%, transparent 100%);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.6) 22%, #000 45%), linear-gradient(180deg, #000 88%, transparent 100%);
+  mask-composite: intersect; pointer-events: none;
+}
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6,20,35,.55) 0%, rgba(6,20,35,0) 55%); pointer-events: none; }
+@media (max-width: 767px) {
+  .hero::before { width: 100%; bottom: 40%; opacity: .55; -webkit-mask-image: linear-gradient(180deg, #000 50%, transparent 100%); mask-image: linear-gradient(180deg, #000 50%, transparent 100%); }
+  .hero::after { background: linear-gradient(180deg, rgba(6,20,35,.55), rgba(6,20,35,.75)); }
 }
 .hero-badge { background: rgba(18,197,232,.12); border: 1px solid rgba(18,197,232,.35); color: #bfefff }
 .hero-title { color: #fff; letter-spacing: -.02em; text-shadow: 0 2px 24px rgba(0,0,0,.35) }
