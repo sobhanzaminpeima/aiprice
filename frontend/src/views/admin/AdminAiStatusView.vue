@@ -8,6 +8,36 @@
 
     <div v-if="error" class="mb-6 p-4 rounded-xl text-sm" role="alert" style="background:rgba(var(--danger-rgb),0.08);color:var(--danger);border:1px solid rgba(var(--danger-rgb),0.2)">{{ error }}</div>
 
+    <!-- Re-run AI price check: runs now (no cron needed) and says what happened -->
+    <section v-if="status" class="rounded-2xl p-6 mb-8" style="background:linear-gradient(135deg,rgba(var(--accent-cyan-rgb),0.08),rgba(var(--accent-teal-rgb),0.06));border:1px solid rgba(var(--accent-cyan-rgb),0.3)">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="min-w-[240px] flex-1">
+          <h2 class="font-black text-lg" style="color:var(--text-primary)">AI price check</h2>
+          <p class="text-sm mt-1" style="color:var(--text-secondary)">
+            <strong :style="{ color: status.without_battery ? 'var(--warning)' : 'var(--success)' }">{{ status.without_battery }}</strong>
+            of {{ status.active_listings }} live listings have no price battery yet.
+          </p>
+          <p class="text-xs mt-1" style="color:var(--text-muted)">Runs immediately, about 3 seconds per listing, and works without the queue or cron. Imported listings {{ status.estimate_imported ? 'get' : 'do not get' }} an AI rough estimate (<code>AI_ESTIMATE_IMPORTED</code>).</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button class="btn" :disabled="busy || !status.without_battery" @click="runNow">{{ running ? 'Running… ' + progress : 'Re-run AI price check' }}</button>
+          <button class="btn btn-outline-admin" :disabled="busy" @click="diagnose">Test the price estimate</button>
+        </div>
+      </div>
+
+      <p v-if="runResult" class="text-sm mt-4 p-3 rounded-xl" role="status" :style="runResult.ok ? 'background:rgba(var(--success-rgb),0.1);color:var(--success)' : 'background:rgba(var(--warning-rgb),0.1);color:var(--warning)'">
+        {{ runResult.text }}
+      </p>
+      <div v-if="diag" class="text-sm mt-4 p-4 rounded-xl" role="status" style="background:var(--bg-surface);border:1px solid var(--border-subtle);color:var(--text-secondary)">
+        <p class="font-bold mb-2" :style="{ color: diag.ok ? 'var(--success)' : 'var(--danger)' }">{{ diag.ok ? '✓ The AI price estimate works' : '✗ The AI price estimate does not work' }}</p>
+        <ul class="text-xs space-y-1">
+          <li>Provider: <strong>{{ diag.provider }}</strong> · model <strong>{{ diag.model }}</strong> · key {{ diag.key_saved ? 'saved' : 'missing' }}</li>
+          <li v-if="diag.range">Sample (2006 Ford Fiesta, asking £2,000): AI range £{{ diag.range.low }} – £{{ diag.range.high }}, typical £{{ diag.range.typical }}</li>
+          <li v-if="diag.reason" style="color:var(--danger)">Why: {{ diag.reason }}</li>
+        </ul>
+      </div>
+    </section>
+
     <div v-if="status" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       <div v-for="c in cards" :key="c.label" class="rounded-2xl p-5" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
         <p class="text-2xl font-black" :style="{ color: c.color }">{{ c.value }}</p>
@@ -44,8 +74,8 @@
       </section>
 
       <section class="rounded-2xl p-6" style="background:var(--bg-surface);border:1px solid var(--border-subtle)">
-        <h2 class="font-bold mb-2" style="color:var(--text-primary)">Re-run price analysis</h2>
-        <p class="text-xs mb-4" style="color:var(--text-muted)">Queues listings for scoring. Run "all" once after deploying a new pricing model.</p>
+        <h2 class="font-bold mb-2" style="color:var(--text-primary)">Queue analysis in the background</h2>
+        <p class="text-xs mb-4" style="color:var(--text-muted)">Queues listings for scoring by the queue worker (needs cron). Use "all" once after deploying a new pricing model.</p>
         <div class="flex flex-wrap gap-2">
           <button class="btn" :disabled="busy" @click="rescore(false)">Score unscored listings</button>
           <button class="btn btn-outline-admin" :disabled="busy" @click="rescore(true)">Re-score all active</button>
@@ -79,6 +109,8 @@ interface AiStatus {
   active_listings: number
   with_estimate: number
   insufficient_data: number
+  without_battery: number
+  estimate_imported: boolean
   never_scored: number
   last_scored_at: string | null
   pending_jobs: number | null
@@ -91,6 +123,10 @@ const status = ref<AiStatus | null>(null)
 const error = ref('')
 const busy = ref(false)
 const rescoreMsg = ref('')
+const running = ref(false)
+const progress = ref('')
+const runResult = ref<{ ok: boolean; text: string } | null>(null)
+const diag = ref<{ ok: boolean; provider: string; model: string; key_saved: boolean; range: { low: number; typical: number; high: number } | null; reason: string | null } | null>(null)
 const prompt = ref('Reply with the single word: OK')
 const testReply = ref('')
 const testError = ref('')
@@ -120,6 +156,36 @@ async function load() {
   } catch (e) {
     error.value = apiErrorMessage(e, 'Could not load AI status.')
   }
+}
+
+/** Checks listings 10 at a time until none are left, or until a batch makes no progress (then it says why). */
+async function runNow() {
+  busy.value = true; running.value = true; runResult.value = null; diag.value = null
+  let processed = 0, filled = 0, lastReason: string | null = null
+  try {
+    for (let i = 0; i < 40; i++) {
+      progress.value = `${processed} checked`
+      const { data } = await client.post('/admin/ai/price-check-run', { limit: 10 }, { timeout: 60000 })
+      processed += data.processed; filled += data.with_estimate; lastReason = data.reason ?? lastReason
+      if (!data.processed || !data.remaining || (data.with_estimate === 0 && i >= 1)) break
+    }
+    runResult.value = {
+      ok: filled > 0,
+      text: `${processed} listings checked, ${filled} now have a price battery.` + (processed - filled > 0 ? ` ${processed - filled} still have none${lastReason ? ': ' + lastReason : '.'}` : ''),
+    }
+  } catch (e) {
+    runResult.value = { ok: false, text: apiErrorMessage(e, 'The price check could not run.') }
+  } finally {
+    busy.value = false; running.value = false; progress.value = ''
+    load()
+  }
+}
+
+async function diagnose() {
+  busy.value = true; diag.value = null; runResult.value = null
+  try { diag.value = (await client.post('/admin/ai/diagnose', null, { timeout: 60000 })).data }
+  catch (e) { runResult.value = { ok: false, text: apiErrorMessage(e, 'The test could not run.') } }
+  finally { busy.value = false }
 }
 
 async function rescore(all: boolean) {

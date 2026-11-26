@@ -1,0 +1,133 @@
+# Test, build and deploy AIPrice.app to the Hostinger server on every push to main.
+#
+# One-time setup (GitHub → this repository → Settings → Secrets and variables → Actions):
+#   SSH_HOST          server IP or host name
+#   SSH_PORT          SSH port (Hostinger: 65002)
+#   SSH_USER          SSH user name
+#   SSH_PRIVATE_KEY   (recommended) private key whose public half is authorised on the server
+#   SSH_PASSWORD      (only if you have no key) the SSH password; ignored when SSH_PRIVATE_KEY is set
+# Optional repository variables: DEPLOY_PATH (default ~/domains/aiprice.app/laravel_app), SITE_URL (default https://aiprice.app).
+#
+# Nothing is deployed unless the tests, type-check and build pass. The server-side
+# script backs up the database and files first and restores them if a step fails.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sqlite3, gd, zip, bcmath, intl, exif, fileinfo
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Backend tests
+        working-directory: backend
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist
+          cp .env.example .env
+          php artisan key:generate --force
+          php artisan test
+      - name: Frontend type-check, lint and build
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npx vue-tsc --build
+          npx eslint src --quiet
+          npm run build-only
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '~/domains/aiprice.app/laravel_app' }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://aiprice.app' }}
+    steps:
+      - name: Check deploy secrets
+        env:
+          HAS_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' }}
+          HAS_PASSWORD: ${{ secrets.SSH_PASSWORD != '' }}
+        run: |
+          for v in SSH_HOST SSH_PORT SSH_USER; do
+            [ -n "${!v}" ] || { echo "::error::Missing repository secret $v (Settings → Secrets and variables → Actions)."; exit 1; }
+          done
+          [ "$HAS_KEY" = true ] || [ "$HAS_PASSWORD" = true ] || { echo "::error::Add SSH_PRIVATE_KEY (or SSH_PASSWORD) as a repository secret."; exit 1; }
+
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sqlite3, gd, zip, bcmath, intl, exif, fileinfo
+          tools: composer
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build the release package
+        run: bash scripts/deploy/build-release.sh
+
+      - name: Connect (host key is checked, never trusted blindly)
+        env:
+          DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          ssh-keyscan -p "$SSH_PORT" -t ed25519 "$SSH_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          GOT="$(ssh-keygen -lf ~/.ssh/known_hosts -E sha256 | awk '{print $2}')"
+          echo "Server host key: $GOT"
+          # Fingerprint shown in Hostinger → SSH Access (ED25519). Public information.
+          WANT="SHA256:9Bq2h8V1OtPEPqGdhbi/tqt81YJC+5z0Nsu7dAWS/g0"
+          [ "$GOT" = "$WANT" ] || { echo "::error::The server's host key changed ($GOT). Refusing to deploy. If you rebuilt the server, update WANT in .github/workflows/deploy.yml."; exit 1; }
+          if [ -n "$DEPLOY_KEY" ]; then
+            printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+            echo "SSH_OPTS=-i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -p $SSH_PORT" >> "$GITHUB_ENV"
+            echo "SCP_OPTS=-i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -P $SSH_PORT" >> "$GITHUB_ENV"
+          else
+            sudo apt-get install -y -qq sshpass
+            echo "SSH_OPTS=-o PreferredAuthentications=password -p $SSH_PORT" >> "$GITHUB_ENV"
+            echo "SCP_OPTS=-o PreferredAuthentications=password -P $SSH_PORT" >> "$GITHUB_ENV"
+            echo "USE_SSHPASS=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Upload and deploy
+        env:
+          SSHPASS: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          set -euo pipefail
+          wrap() { if [ "${USE_SSHPASS:-}" = 1 ]; then sshpass -e "$@"; else "$@"; fi; }
+          TARBALL="$(ls build/aiprice-release-*.tar.gz)"
+          NAME="$(basename "$TARBALL")"
+          wrap scp $SCP_OPTS "$TARBALL" scripts/deploy/remote-deploy.sh "$SSH_USER@$SSH_HOST:~/"
+          wrap ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "bash ~/remote-deploy.sh $DEPLOY_PATH ~/$NAME && ls -1t ~/aiprice-release-*.tar.gz | tail -n +3 | xargs -r rm -f"
+
+      - name: Check the live site
+        run: |
+          sleep 5
+          curl -fsS --retry 5 --retry-delay 5 -o /dev/null "$SITE_URL/up"
+          curl -fsS "$SITE_URL/" | grep -q '<div id="app">' && echo "Site is up."

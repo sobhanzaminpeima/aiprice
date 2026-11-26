@@ -7,6 +7,7 @@
       </div>
       <div class="flex items-center gap-3">
         <span class="px-3 py-1 rounded-full text-sm" style="background:rgba(var(--accent-teal-rgb),0.08);color:var(--accent-teal);border:1px solid rgba(var(--accent-teal-rgb),0.2)">{{ total }} listings</span>
+        <RouterLink v-if="auth.can('manage_ai')" to="/admin/ai-status" class="px-4 py-2.5 rounded-xl text-sm font-semibold" style="background:rgba(var(--accent-cyan-rgb),0.08);color:var(--accent-cyan);border:1px solid rgba(var(--accent-cyan-rgb),0.25)">Re-run AI price check</RouterLink>
         <button @click="openAdd" class="px-5 py-2.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));color:var(--on-accent)">+ Add Listing</button>
       </div>
     </div>
@@ -183,8 +184,11 @@
 import { timeAgo, exactTime } from '@/composables/useListingTime'
 import { ref, onMounted, computed } from 'vue'
 import client from '@/api/client'
+import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import AiListingComposer from '@/components/listings/AiListingComposer.vue'
 import { applyDraftFields, listingMultipart, type ListingDraft } from '@/types/listingDraft'
+const auth = useAuthStore()
 const listings = ref<any[]>([])
 const loading = ref(true)
 const currentPage = ref(1)

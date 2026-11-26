@@ -2,6 +2,15 @@
 
 All notable changes to AIPrice.app are documented here.
 
+## 2026-12-01: Re-run AI price check button, honest failures, automatic deployment
+
+### Added
+- Admin → Pricing & AI → AI Status: a prominent **Re-run AI price check** button that checks every listing without a price battery right now (10 at a time, no queue or cron needed) and reports how many now have one, and why the rest do not. **Test the price estimate** sends one real sample request and shows the provider, model, key status and the exact failure reason. A shortcut button is also on the admin Listings page. New endpoints `POST /admin/ai/price-check-run` and `POST /admin/ai/diagnose` (permission `manage_ai`).
+- GitHub Actions workflow `.github/workflows/deploy.yml`: every push to `main` runs the backend tests, type-check, lint and build, builds the release package, uploads it over SSH (host key pinned) and runs `remote-deploy.sh`, then checks that the live site answers. Needs the repository secrets `SSH_HOST`, `SSH_PORT`, `SSH_USER` and `SSH_PRIVATE_KEY` (or `SSH_PASSWORD`).
+
+### Fixed
+- The AI price estimate failed silently: any provider error, an unsupported option or an unusable answer simply left the listing without a battery. It now retries without `response_format` when a provider rejects it, accepts answers wrapped in text, allows models that "think" more room and time, logs a warning, and gives a plain-language reason (no key, key rejected, model not found, no credit, rate limit, "cannot judge", implausible answer).
+
 ## 2026-11-30: Closer to the mock-ups: hero photo, charts, AI price on every listing
 
 ### Added

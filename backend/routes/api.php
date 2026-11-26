@@ -609,6 +609,8 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
                 'active_listings' => (clone $active)->count(),
                 'with_estimate' => (clone $active)->whereNotNull('price_battery_percent')->count(),
                 'insufficient_data' => (clone $active)->where('ai_price_status', 'insufficient_data')->count(),
+                'without_battery' => (clone $active)->whereNull('price_battery_percent')->count(),
+                'estimate_imported' => (bool) config('services.ai_price.estimate_imported', true),
                 'never_scored' => (clone $active)->whereNull('ai_scored_at')->count(),
                 'last_scored_at' => (clone $active)->max('ai_scored_at'),
                 'pending_jobs' => \Illuminate\Support\Facades\Schema::hasTable('jobs') ? \Illuminate\Support\Facades\DB::table('jobs')->count() : null,
@@ -617,6 +619,12 @@ Route::prefix('v1')->middleware('throttle:api-global')->group(function () {
                 'market_sources' => \App\Models\CompetitorSource::get(['name', 'is_active', 'last_scraped_at']),
             ]);
         });
+        // "Re-run AI price check": run it now (no cron needed) and report what happened, or test why it fails.
+        Route::post('/ai/price-check-run', function (Request $req) {
+            $v = $req->validate(['limit' => 'sometimes|integer|min:1|max:25', 'all' => 'sometimes|boolean']);
+            return response()->json(app(\App\Services\AI\PriceCheckRunner::class)->run((int) ($v['limit'] ?? 10), (bool) ($v['all'] ?? false)));
+        })->middleware('throttle:12,1');
+        Route::post('/ai/diagnose', fn () => response()->json(app(\App\Services\AI\PriceCheckRunner::class)->diagnose()))->middleware('throttle:6,1');
         Route::get('/llm/providers', [\App\Http\Controllers\Admin\AiProviderController::class, 'index']);
         Route::put('/llm/providers/{provider}', [\App\Http\Controllers\Admin\AiProviderController::class, 'update']);
         Route::post('/llm/test', [\App\Http\Controllers\Admin\AiProviderController::class, 'test'])->middleware('throttle:6,1');
