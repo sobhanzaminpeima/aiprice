@@ -72,9 +72,19 @@ jobs:
           HAS_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' }}
           HAS_PASSWORD: ${{ secrets.SSH_PASSWORD != '' }}
         run: |
-          for v in SSH_HOST SSH_PORT SSH_USER; do
-            [ -n "${!v}" ] || { echo "::error::Missing repository secret $v (Settings → Secrets and variables → Actions)."; exit 1; }
-          done
+          # Pasted secrets often carry a trailing space, newline or hidden character
+          # (that breaks ssh with "invalid characters"). Keep only what each value may contain.
+          fix() { # name, raw value, allowed characters
+            local clean; clean="$(printf '%s' "$2" | tr -cd "$3")"
+            [ -n "$clean" ] || { echo "::error::Repository secret $1 is empty or has no valid characters. Re-create it (Settings → Secrets and variables → Actions)." >&2; exit 1; }
+            if [ "${#clean}" -ne "${#2}" ]; then echo "::warning::Secret $1 had $(( ${#2} - ${#clean} )) extra or hidden character(s) (spaces/newlines); they were removed." >&2; fi
+            echo "$1 OK (${#clean} characters)" >&2
+            printf '%s' "$clean"
+          }
+          U="$(fix SSH_USER "$SSH_USER" 'A-Za-z0-9_.-' | tail -n1)"
+          H="$(fix SSH_HOST "$SSH_HOST" 'A-Za-z0-9.:-' | tail -n1)"
+          P="$(fix SSH_PORT "$SSH_PORT" '0-9' | tail -n1)"
+          { echo "DEPLOY_USER=$U"; echo "DEPLOY_HOST=$H"; echo "DEPLOY_PORT=$P"; } >> "$GITHUB_ENV"
           [ "$HAS_KEY" = true ] || [ "$HAS_PASSWORD" = true ] || { echo "::error::Add SSH_PRIVATE_KEY (or SSH_PASSWORD) as a repository secret."; exit 1; }
 
       - uses: actions/checkout@v4
@@ -98,7 +108,7 @@ jobs:
           DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          ssh-keyscan -p "$SSH_PORT" -t ed25519 "$SSH_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -p "$DEPLOY_PORT" -t ed25519 "$DEPLOY_HOST" > ~/.ssh/known_hosts 2>/dev/null
           GOT="$(ssh-keygen -lf ~/.ssh/known_hosts -E sha256 | awk '{print $2}')"
           echo "Server host key: $GOT"
           # Fingerprint shown in Hostinger → SSH Access (ED25519). Public information.
@@ -106,12 +116,12 @@ jobs:
           [ "$GOT" = "$WANT" ] || { echo "::error::The server's host key changed ($GOT). Refusing to deploy. If you rebuilt the server, update WANT in .github/workflows/deploy.yml."; exit 1; }
           if [ -n "$DEPLOY_KEY" ]; then
             printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
-            echo "SSH_OPTS=-i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -p $SSH_PORT" >> "$GITHUB_ENV"
-            echo "SCP_OPTS=-i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -P $SSH_PORT" >> "$GITHUB_ENV"
+            echo "SSH_OPTS=-i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -p $DEPLOY_PORT" >> "$GITHUB_ENV"
+            echo "SCP_OPTS=-i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -P $DEPLOY_PORT" >> "$GITHUB_ENV"
           else
             sudo apt-get install -y -qq sshpass
-            echo "SSH_OPTS=-o PreferredAuthentications=password -p $SSH_PORT" >> "$GITHUB_ENV"
-            echo "SCP_OPTS=-o PreferredAuthentications=password -P $SSH_PORT" >> "$GITHUB_ENV"
+            echo "SSH_OPTS=-o PreferredAuthentications=password -p $DEPLOY_PORT" >> "$GITHUB_ENV"
+            echo "SCP_OPTS=-o PreferredAuthentications=password -P $DEPLOY_PORT" >> "$GITHUB_ENV"
             echo "USE_SSHPASS=1" >> "$GITHUB_ENV"
           fi
 
@@ -123,8 +133,8 @@ jobs:
           wrap() { if [ "${USE_SSHPASS:-}" = 1 ]; then sshpass -e "$@"; else "$@"; fi; }
           TARBALL="$(ls build/aiprice-release-*.tar.gz)"
           NAME="$(basename "$TARBALL")"
-          wrap scp $SCP_OPTS "$TARBALL" scripts/deploy/remote-deploy.sh "$SSH_USER@$SSH_HOST:~/"
-          wrap ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "bash ~/remote-deploy.sh $DEPLOY_PATH ~/$NAME && ls -1t ~/aiprice-release-*.tar.gz | tail -n +3 | xargs -r rm -f"
+          wrap scp $SCP_OPTS "$TARBALL" scripts/deploy/remote-deploy.sh "$DEPLOY_USER@$DEPLOY_HOST:~/"
+          wrap ssh $SSH_OPTS "$DEPLOY_USER@$DEPLOY_HOST" "bash ~/remote-deploy.sh $DEPLOY_PATH ~/$NAME && ls -1t ~/aiprice-release-*.tar.gz | tail -n +3 | xargs -r rm -f"
 
       - name: Check the live site
         run: |
